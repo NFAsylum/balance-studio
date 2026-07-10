@@ -78,7 +78,7 @@ ABC pura, sem implementação. Só define contrato.
 
 ## Sprint 2 — Card game plugin + LLM generator (20 h) — CHECKPOINT 40h
 
-### [ ] B2.1 — `domains/card_game/schema.py` (3 h)
+### [x] B2.1 — `domains/card_game/schema.py` (3 h)
 Define `Unit`, `Ability`, `Deck` via `EntitySchema`.
 **DoD:**
 - `get_schema()` retorna `EntitySchema` para `Unit`
