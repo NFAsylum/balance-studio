@@ -246,7 +246,7 @@ Renderiza form a partir de `EntitySchema`.
 - Validação inline mostra erro quando fora do range/enum
 - Vitest: 5 testes
 
-### [ ] B5.3 — Timeline scrubber + history (6 h)
+### [x] B5.3 — Timeline scrubber + history (6 h)
 Usuário navega no histórico do cenário.
 **DoD:**
 - Timeline horizontal mostra eventos ordenados por seq

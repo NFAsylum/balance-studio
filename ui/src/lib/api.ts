@@ -48,10 +48,13 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 export const api = {
   listDomains: () => request<{ domains: string[] }>("/domains"),
   listScenarios: () => request<{ scenarios: Scenario[] }>("/scenarios"),
-  getScenario: (id: string) =>
-    request<{ scenario: Scenario; entities: Record<string, Record<string, unknown>>; head_seq: number }>(
-      `/scenarios/${id}`
-    ),
+  getScenario: (id: string, atSeq?: number) =>
+    request<{
+      scenario: Scenario;
+      entities: Record<string, Record<string, unknown>>;
+      head_seq: number;
+      at_seq: number;
+    }>(`/scenarios/${id}${atSeq != null ? `?at_seq=${atSeq}` : ""}`),
   createScenario: (body: { domain: string; name: string; brief: string; n_entities: number }) =>
     request<Scenario>("/scenarios", { method: "POST", body: JSON.stringify(body) }),
   iterate: (id: string, phase: "design" | "simulate" | "judge" | "iterate") =>

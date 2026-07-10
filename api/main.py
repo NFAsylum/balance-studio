@@ -221,12 +221,19 @@ def create_scenario(request: CreateScenarioRequest) -> Scenario:
 
 
 @app.get("/scenarios/{scenario_id}")
-def get_scenario(scenario_id: str) -> dict[str, Any]:
+def get_scenario(scenario_id: str, at_seq: int | None = None) -> dict[str, Any]:
+    """Current state, or the read-only state at ``at_seq`` (timeline scrubbing)."""
     scenario = _load_scenario(scenario_id)
     branch = scenario.current_branch
     head = services.event_log.head(scenario_id, branch)
-    state = services.replay.rebuild_state(scenario_id, head, branch)
-    return {"scenario": scenario.model_dump(), "entities": state.entities, "head_seq": head}
+    target = head if at_seq is None else min(at_seq, head)
+    state = services.replay.rebuild_state(scenario_id, target, branch)
+    return {
+        "scenario": scenario.model_dump(),
+        "entities": state.entities,
+        "head_seq": head,
+        "at_seq": target,
+    }
 
 
 @app.post("/scenarios/{scenario_id}/iterate", response_model=StepResult)
