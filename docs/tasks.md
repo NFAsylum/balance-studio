@@ -193,7 +193,7 @@ Rotas FastAPI expondo o fluxo end-to-end com Fake LLMs.
 - Load em <1s (design pra escalar até 200 sem colapsar)
 - Todas validam via schema
 
-### [ ] B4.2 — `domains/creature_rpg/simulator.py` (8 h)
+### [x] B4.2 — `domains/creature_rpg/simulator.py` (8 h)
 Gauntlet mode + tournament mode.
 **DoD:**
 - Gauntlet: `Creature` vs random N adversários, retorna estatísticas
