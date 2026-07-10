@@ -267,7 +267,7 @@ Painel lateral com métricas + indicador de estado da simulação.
 - Botão "Run Full Simulation" força
 - Vitest: 4 testes de UI + integração mockada
 
-### [ ] B5.5 — Multi-objective picker (4 h)
+### [x] B5.5 — Multi-objective picker (4 h)
 UI de composição de objetivos com pesos.
 **DoD:**
 - Painel "Objectives" lista objetivos disponíveis do domain (fetch `GET /domains/{name}/metrics`)

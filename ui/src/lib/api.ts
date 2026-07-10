@@ -64,4 +64,13 @@ export const api = {
     ),
   history: (id: string) => request<{ events: EntityEvent[] }>(`/scenarios/${id}/history`),
   getSchema: (domain: string) => request<Record<string, unknown>>(`/domains/${domain}/schema`),
+  listMetrics: (domain: string) =>
+    request<{ metrics: { name: string; kind: string; description: string }[] }>(
+      `/domains/${domain}/metrics`
+    ),
+  setObjectives: (id: string, objectives: Objective[]) =>
+    request<{ objectives: Objective[] }>(`/scenarios/${id}/objectives`, {
+      method: "POST",
+      body: JSON.stringify({ objectives }),
+    }),
 };

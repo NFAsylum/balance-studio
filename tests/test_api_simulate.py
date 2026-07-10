@@ -80,3 +80,11 @@ def test_generate_returns_entities_via_fake_designer(client):
     assert len(body["entities"]) == 3
     # generated units validate against the card schema (schema-shaped output)
     assert all("ability_kind" in u for u in body["entities"])
+
+
+def test_list_domain_metrics(client):
+    resp = client.get("/domains/card_game/metrics")
+    assert resp.status_code == 200
+    names = {m["name"] for m in resp.json()["metrics"]}
+    assert {"elo_mmr", "winrate_distribution"}.issubset(names)
+    assert client.get("/domains/nope/metrics").status_code == 404

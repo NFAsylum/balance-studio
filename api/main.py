@@ -103,6 +103,17 @@ def get_schema(name: str) -> dict[str, Any]:
     return simulator.entity_schema().model_dump()
 
 
+@app.get("/domains/{name}/metrics")
+def domain_metrics(name: str) -> dict[str, list[dict[str, str]]]:
+    simulator = _require_domain(name)
+    return {
+        "metrics": [
+            {"name": m.name, "kind": m.kind, "description": m.description}
+            for m in simulator.default_metrics()
+        ]
+    }
+
+
 @app.post("/domains/{name}/simulate", response_model=Report)
 def simulate(name: str, request: SimulateRequest) -> Report:
     simulator = _require_domain(name)
