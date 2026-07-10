@@ -71,7 +71,7 @@ Turn-based combat 1v1, seeded RNG, retorna `RunResult`. **Puro determinístico.*
 - 4 abilities: `deal_damage`, `heal`, `shield`, `draw`
 - `pytest tests/test_card_simulator.py` cobre determinism, cada ability, edge case de empate
 
-### [ ] B2.3 — `core/scenario.py`: Scenario model + Event log (5 h)
+### [x] B2.3 — `core/scenario.py`: Scenario model + Event log (5 h)
 Event log append-only em JSON-Lines. Cada evento é imutável.
 **DoD:**
 - `Event` Pydantic model com campos: `seq`, `parent_seq`, `branch_id`, `timestamp`, `actor` (str), `kind` (Literal enum), `target`, `before`, `after`, `metadata`

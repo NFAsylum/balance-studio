@@ -32,3 +32,6 @@ CLAUDE.csharp-legacy.md
 portfolio-brief-para-outra-claude.md
 /package.json
 /package-lock.json
+
+# User scenario data
+scenarios/
