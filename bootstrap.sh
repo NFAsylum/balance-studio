@@ -39,10 +39,9 @@ fastapi = "^0.115.0"
 uvicorn = "^0.32.0"
 sqlalchemy = "^2.0.0"
 alembic = "^1.13.0"
-psycopg2-binary = "^2.9.0"
 pydantic = "^2.9.0"
 pydantic-settings = "^2.5.0"
-redis = "^5.2.0"
+diskcache = "^5.6.0"
 python-dotenv = "^1.0.0"
 tenacity = "^9.0.0"
 tiktoken = "^0.8.0"
@@ -69,41 +68,14 @@ EOF
 echo "==> pyproject.toml created"
 fi
 
-# docker-compose.yml — Postgres + Redis
-if [ ! -f docker-compose.yml ]; then
-cat > docker-compose.yml <<'EOF'
-services:
-  postgres:
-    image: postgres:16
-    environment:
-      POSTGRES_DB: balance_studio
-      POSTGRES_USER: balance
-      POSTGRES_PASSWORD: dev_password
-    ports:
-      - "5432:5432"
-    volumes:
-      - pg_data:/var/lib/postgresql/data
-
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-
-volumes:
-  pg_data:
-  redis_data:
-EOF
-echo "==> docker-compose.yml created"
-fi
-
-# .env.example
+# .env.example — SQLite + diskcache pro dev; Postgres + Redis na prod (Sprint 7)
 if [ ! -f .env.example ]; then
 cat > .env.example <<'EOF'
 ANTHROPIC_API_KEY=sk-ant-...
-DATABASE_URL=postgresql://balance:dev_password@localhost:5432/balance_studio
-REDIS_URL=redis://localhost:6379/0
+# SQLite local pro dev. Prod migra pra Postgres via Fly (Sprint 7).
+DATABASE_URL=sqlite:///./balance_studio.db
+# Diretório do diskcache. Prod usa Redis (Sprint 7).
+CACHE_DIR=./.diskcache
 LOG_LEVEL=INFO
 LLM_MODEL=claude-sonnet-4-6
 EOF
@@ -171,6 +143,5 @@ fi
 echo ""
 echo "==> Done. Next steps:"
 echo "    1. Copy .env.example to .env and fill ANTHROPIC_API_KEY"
-echo "    2. docker compose up -d"
-echo "    3. poetry install"
-echo "    4. Start Sprint 1: read docs/tasks.md"
+echo "    2. poetry install"
+echo "    3. Start Sprint 1: read docs/tasks.md"

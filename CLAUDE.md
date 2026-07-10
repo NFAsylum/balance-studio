@@ -19,11 +19,13 @@ Cada domínio novo custa horas de plugin, não semanas de reescrever tudo.
 ## Stack fixado
 
 - Python 3.11 + Poetry + FastAPI + Pydantic v2 (schema-driven)
-- Postgres 16 (experimentos) + Redis (cache de simulação)
+- **SQLite** (experimentos, dev) + **`diskcache`** (cache de simulação, dev)
 - Anthropic SDK, modelo `claude-sonnet-4-6`, `tool_use` obrigatório
 - Frontend: Next.js 15 + shadcn/ui + Recharts + Tanstack Query
-- Deploy: Vercel (front) + Fly.io (back + DB + Redis)
+- Deploy: Vercel (front) + Fly.io (back + Postgres + Redis)
 - Testes: pytest (Python) + Vitest (frontend)
+
+**Migração futura (Sprint 7, antes do polish final):** SQLite → Postgres, `diskcache` → Redis. Design assume `CacheBackend` como abstração desde o início — swap de impl é trivial. O motivo de SQLite+diskcache no dev é evitar overhead de infra pro Claude no container (sem docker-in-docker) e simplificar o setup do humano.
 
 Não trocar sem justificativa forte + confirmação do humano.
 

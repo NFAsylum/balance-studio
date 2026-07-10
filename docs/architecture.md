@@ -299,15 +299,30 @@ Componentes domain-specific (opcionais, registrados por domain):
 - Creature RPG: `<TierList />`
 - Team: `<SkillCoverageGrid />`
 
-## Cache (Redis)
+## Cache (`diskcache` no dev, Redis no prod)
+
+Abstração `core/cache_backend.py`:
+```python
+class CacheBackend(Protocol):
+    def get(self, key: str) -> bytes | None: ...
+    def set(self, key: str, value: bytes, ttl_seconds: int) -> None: ...
+
+class DiskCacheBackend:   # dev — SQLite-based, arquivo em CACHE_DIR
+    ...
+
+class RedisCacheBackend:  # prod — Sprint 7
+    ...
+```
 
 Chave: `sim:{domain}:{sha256(entities_json + env_json + n_runs)}`
 Valor: JSON do Report
 TTL: 24h por default, config por domain
 
-`SimulationService.simulate()` verifica cache antes de rodar. Miss ratio logado em métrica.
+`SimulationService.simulate()` verifica cache antes de rodar. Miss ratio logado em métrica. Contract testado com `tests/test_cache_backend.py` — mesmo teste roda contra Disk e Redis.
 
-## Persistência (Postgres)
+## Persistência (SQLite no dev, Postgres no prod)
+
+SQLAlchemy 2.0 + Alembic. **Tipos portáveis desde o início:** sem JSONB/ARRAY do Postgres — use `JSON` genérico. Migração SQLite → Postgres no Sprint 7 é troca de `DATABASE_URL`; migrations reaplicam sem edição.
 
 Tabelas:
 - `experiments(id, domain, entity_set_json, env_json, report_json, created_at, user_id)`

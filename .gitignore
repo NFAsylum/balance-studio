@@ -11,6 +11,10 @@ htmlcov/
 .ruff_cache/
 .DS_Store
 
+# Local dev data (SQLite + diskcache)
+*.db
+.diskcache/
+
 # Frontend
 node_modules/
 .next/

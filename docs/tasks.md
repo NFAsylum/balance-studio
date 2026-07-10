@@ -10,13 +10,20 @@ Total: 200 h realista. Ordem sequencial entre sprints; dentro do sprint, algumas
 
 Sem domínios ainda. Só framework.
 
-### [x] B1.1 — Setup do projeto (3 h)
-Poetry, FastAPI, dependencies, docker-compose com Postgres + Redis, .env.example.
-**DoD:**
-- `docker compose up -d` sobe Postgres + Redis — *compose validado (postgres:16 + redis:7-alpine, ports, volumes); `up -d` não executado por falta de daemon docker no sandbox — **confirmar local***
-- `poetry install` sem erro ✅ (poetry 2.4.1, 30 deps, poetry.lock gerado)
-- `poetry run pytest` executa (0 testes ainda) ✅ (0 coletados, exit 5)
-- `.env.example` lista `ANTHROPIC_API_KEY`, `DATABASE_URL`, `REDIS_URL` ✅
+### [x] B1.1 — Setup do projeto (3 h) — spec revisada (SQLite + diskcache) aplicada
+Poetry, FastAPI, dependencies, `.env.example`. **SQLite** pro dev + **`diskcache`** pra cache. Migração pra Postgres + Redis fica pro Sprint 7 (deploy).
+**Retrabalho feito:**
+- Removidos `psycopg2-binary` e `redis` do `pyproject.toml`
+- Adicionado `diskcache = "^5.6.0"` ao `pyproject.toml`
+- Deletado `docker-compose.yml`
+- `.env.example` atualizado (SQLite + CACHE_DIR)
+- `poetry lock && poetry sync` (lock regenerado, venv limpo)
+**DoD:** (todos verificados programaticamente)
+- `poetry install` sem erro ✅
+- `poetry run pytest` executa (0 testes ainda, exit 5 é ok) ✅
+- `.env.example` lista `ANTHROPIC_API_KEY`, `DATABASE_URL=sqlite:///./balance_studio.db`, `CACHE_DIR=./.diskcache` ✅
+- Nenhum `docker-compose.yml` no repo (grep verifica) ✅
+- `psycopg2-binary` e `redis` **não** aparecem no `pyproject.toml` ✅ (nem no `poetry.lock`)
 
 ### [ ] B1.2 — `core/entity_schema.py` (5 h)
 DSL declarativa: dict → Pydantic model dinâmico + JSON schema pra LLM tool_use.
@@ -136,12 +143,14 @@ Gauntlet mode + tournament mode.
 - `pytest tests/test_creature_metrics.py` verde
 
 ### [ ] B3.4 — Otimização de performance (4 h)
-Paralelizar simulações via `concurrent.futures.ThreadPoolExecutor`. Redis cache.
+Paralelizar simulações via `concurrent.futures.ThreadPoolExecutor`. Cache via **`diskcache`** (dev; Redis na prod, mesma interface).
 **DoD:**
+- Criar abstração `core/cache_backend.py` com `CacheBackend` protocol e impl `DiskCacheBackend`
 - 200 creatures × 1000 gauntlet matches em <60s (medido)
-- Redis cache: chave = `sha256(entities_json + env_json + seed)`, TTL 24h
+- Cache: chave = `sha256(entities_json + env_json + seed)`, TTL 24h
 - Cache hit em request repetido: <100ms (medido)
 - `pytest tests/test_performance.py` bench
+- `pytest tests/test_cache_backend.py` valida contract do protocol (mesmo teste rodará depois com Redis)
 
 ### Verificação final Sprint 3
 - [ ] Rodar `POST /domains/creature_rpg/simulate` com 200 creatures, 1000 matches
@@ -241,9 +250,10 @@ Adicionar few-shot examples de sucesso no prompt de cada domain.
 - >70% no creature RPG (constraints maiores)
 - Tabela de resultados em `docs/experiments.md`
 
-### [ ] B6.3 — Cache agressivo (4 h)
+### [ ] B6.3 — Cache agressivo no LLM generator (4 h)
 **DoD:**
-- Redis cache também no LLM generator (`sha256(prompt + constraints + intent) → entities`)
+- Cache também no LLM generator (`sha256(prompt + constraints + intent) → entities`)
+- Reusa `CacheBackend` do B3.4 (mesma abstração)
 - Hit rate >50% durante uso normal (medido em 10 sessions repetidas com pequenas variações)
 
 ### [ ] B6.4 — Progress streaming na UI (4 h)
@@ -266,8 +276,14 @@ Adicionar few-shot examples de sucesso no prompt de cada domain.
 
 ## Sprint 7 — Deploy + writeup (20 h)
 
-### [ ] B7.1 — Deploy Fly.io + Vercel (4 h)
+### [ ] B7.1 — Deploy Fly.io + Vercel + migração de infra (6 h, era 4)
+Momento planejado de trocar SQLite → Postgres e `diskcache` → Redis.
 **DoD:**
+- Provisionar Fly Postgres + Fly Redis (upstash) via `flyctl`
+- Implementar `RedisCacheBackend` (subclasse do `CacheBackend` protocol) — passa o mesmo `test_cache_backend.py`
+- `DATABASE_URL` em prod aponta pra Postgres; local segue SQLite via `.env`
+- Rodar `alembic upgrade head` contra Postgres remoto — schema portável desde B2.1
+- Smoke test: gerar 3 cartas via LLM, simular, cache hit numa segunda chamada
 - API + Postgres + Redis no Fly.io
 - Frontend no Vercel
 - Secrets via `fly secrets` e Vercel env vars
