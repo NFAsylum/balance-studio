@@ -237,7 +237,7 @@ Design assume 1000 entidades máximas com folga sobre escala real (100/500).
 - Rotas: `/`, `/scenarios/[id]`, `/scenarios/[id]/history`, `/scenarios/[id]/branches`
 - Home lista scenarios locais (fetch `GET /scenarios`)
 
-### [ ] B5.2 — `<EntityEditor>` genérico (6 h)
+### [x] B5.2 — `<EntityEditor>` genérico (6 h)
 Renderiza form a partir de `EntitySchema`.
 **DoD:**
 - Recebe `schema` + `value`, emit `onChange`
