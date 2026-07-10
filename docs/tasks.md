@@ -49,7 +49,7 @@ ABC pura, sem implementação. Só define contrato.
 - Docstring completa em cada método abstrato
 - `tests/test_simulator_interface.py` verifica que instanciação direta levanta `TypeError`
 
-### [ ] B1.5 — Métricas genéricas: rating + distribution + aggregators (6 h)
+### [x] B1.5 — Métricas genéricas: rating + distribution + aggregators (6 h)
 `core/metrics/base.py`, `rating.py` (Elo-MMR), `distribution.py`, `aggregators.py`.
 **DoD:**
 - `Metric` ABC + 3 implementações concretas
@@ -59,9 +59,9 @@ ABC pura, sem implementação. Só define contrato.
 - 6 testes; `pytest tests/test_metrics.py` verde
 
 ### Verificação final Sprint 1
-- [ ] `pytest` inteiro verde
-- [ ] Nenhum import de `domains.*` em `core/`
-- [ ] `poetry run python -c "from core import entity_schema, constraint_engine, simulator_interface, metrics"` sucede
+- [x] `pytest` inteiro verde (37 testes)
+- [x] Nenhum import de `domains.*` em `core/`
+- [x] `poetry run python -c "from core import entity_schema, constraint_engine, simulator_interface, metrics"` sucede
 
 ---
 
