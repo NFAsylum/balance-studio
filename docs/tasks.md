@@ -148,7 +148,7 @@ Usuário compõe N objetivos com pesos, engine agrega score.
 - `Objective.set_via_event(scenario, objectives)` — grava como evento `set_objective`
 - 4 testes: single objective, dois conflitantes (Pareto), peso zero ignorado, target_value
 
-### [ ] B3.4 — Cache incremental (5 h)
+### [x] B3.4 — Cache incremental (5 h)
 Cache sim invalida só entradas que envolvem entidades editadas.
 **DoD:**
 - `SimCache` (impl de `CacheBackend`, `diskcache` no dev) armazena `{config_hash → RunResult}` com metadata `{entities_involved, kind: quick|full, computed_at_seq}`

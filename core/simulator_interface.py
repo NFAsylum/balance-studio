@@ -100,6 +100,15 @@ class SimulatorInterface(ABC):
             for i in range(n_runs)
         ]
 
+    def matchups(self, entities: list[BaseModel]) -> list[list[BaseModel]]:
+        """Split an entity set into independent matchups for incremental caching.
+
+        Each matchup is simulated (via :meth:`run_batch`) and cached on its own, so editing
+        one entity only invalidates the matchups it touches. The default is a single matchup
+        (the whole set); card game overrides it with every unordered pair.
+        """
+        return [entities]
+
     @abstractmethod
     def default_metrics(self) -> list[Metric]:
         """Return the metrics this domain computes by default over a batch of runs.

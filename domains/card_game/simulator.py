@@ -136,6 +136,10 @@ class CardGameSimulator(SimulatorInterface):
         deck_b = _coerce_deck(entities[1], 1)
         return _Match(deck_a, deck_b, env).play()
 
+    def matchups(self, entities: list[Any]) -> list[list[Any]]:
+        """Every unordered pair of units is an independent matchup."""
+        return [[entities[i], entities[j]] for i, j in itertools.combinations(range(len(entities)), 2)]
+
     def run_batch(
         self, entities: list[Any], env: Environment, n_runs: int
     ) -> list[RunResult]:
