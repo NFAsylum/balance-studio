@@ -172,6 +172,12 @@ class EventLog:
             self._write_manifest(scenario, branches)
         return stored
 
+    def set_scenario_objectives(self, scenario_id: str, objectives: list[Objective]) -> None:
+        """Persist the scenario's objective list in the manifest (kept in sync with events)."""
+        scenario, branches = self._read_manifest(scenario_id)
+        scenario.objectives = objectives
+        self._write_manifest(scenario, branches)
+
     def append_many(self, scenario_id: str, events: list[Event]) -> list[Event]:
         """Append several events to one branch atomically (single file write).
 

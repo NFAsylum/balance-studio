@@ -139,7 +139,7 @@ Branch = novo `branch_id`, primeiro evento aponta pra `parent_seq` do fork point
 - Branches são independentes — evento em branch A não afeta branch B
 - 5 testes: create, list, diff simétrico, dois branches não interferem
 
-### [ ] B3.3 — Multi-objetivo (4 h)
+### [x] B3.3 — Multi-objetivo (4 h)
 Usuário compõe N objetivos com pesos, engine agrega score.
 **DoD:**
 - `Objective` model: `metric_name` (str), `direction` (minimize|maximize|target), `target_value` (opt), `weight` (float)
