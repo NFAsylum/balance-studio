@@ -1,12 +1,12 @@
 [
-  {"name": "Goblin Raider", "cost": 1, "hp": 2, "damage": 3, "ability_kind": "none", "ability_value": 0},
+  {"name": "Goblin Raider", "cost": 1, "hp": 2, "damage": 3, "ability_kind": "deal_damage", "ability_value": 1, "description": "Cheap aggressive opener"},
   {"name": "Fire Imp", "cost": 2, "hp": 3, "damage": 2, "ability_kind": "deal_damage", "ability_value": 2},
-  {"name": "Swift Striker", "cost": 2, "hp": 4, "damage": 4, "ability_kind": "none", "ability_value": 0},
-  {"name": "Berserker", "cost": 3, "hp": 6, "damage": 5, "ability_kind": "none", "ability_value": 0},
+  {"name": "Swift Striker", "cost": 2, "hp": 4, "damage": 4, "ability_kind": "deal_damage", "ability_value": 1},
+  {"name": "Berserker", "cost": 3, "hp": 6, "damage": 5, "ability_kind": "deal_damage", "ability_value": 2, "description": "High-tempo beater"},
   {"name": "Temple Priest", "cost": 2, "hp": 4, "damage": 1, "ability_kind": "heal", "ability_value": 2},
   {"name": "Field Cleric", "cost": 3, "hp": 7, "damage": 1, "ability_kind": "heal", "ability_value": 3},
   {"name": "Stone Guardian", "cost": 4, "hp": 12, "damage": 2, "ability_kind": "shield", "ability_value": 4},
-  {"name": "Ice Wall", "cost": 5, "hp": 18, "damage": 1, "ability_kind": "shield", "ability_value": 5},
+  {"name": "Ice Wall", "cost": 5, "hp": 18, "damage": 1, "ability_kind": "shield", "ability_value": 5, "description": "Control finisher wall"},
   {"name": "Arcane Scholar", "cost": 2, "hp": 3, "damage": 1, "ability_kind": "draw", "ability_value": 2},
   {"name": "Archmage", "cost": 5, "hp": 8, "damage": 4, "ability_kind": "deal_damage", "ability_value": 5}
 ]

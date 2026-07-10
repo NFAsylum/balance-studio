@@ -20,8 +20,8 @@ from core.entity_schema import EntitySchema
 
 _SEED_PATH = Path(__file__).with_name("seed_data.json")
 
-# The four abilities the simulator implements, plus "none" for vanilla beaters.
-ABILITY_KINDS = ["none", "deal_damage", "heal", "shield", "draw"]
+# The four abilities the simulator implements (closed set — every unit has one).
+ABILITY_KINDS = ["deal_damage", "heal", "shield", "draw"]
 
 _UNIT_SCHEMA_DICT = {
     "name": "Unit",
@@ -40,7 +40,14 @@ _UNIT_SCHEMA_DICT = {
             "name": "ability_value",
             "kind": "num",
             "range": [0, 10],
-            "description": "Magnitude of the ability (0 when ability_kind is 'none')",
+            "description": "Magnitude of the ability",
+        },
+        {
+            "name": "description",
+            "kind": "str",
+            "max_len": 200,
+            "required": False,
+            "description": "Optional flavor/design note",
         },
     ],
 }

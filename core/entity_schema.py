@@ -32,6 +32,7 @@ class FieldSpec(BaseModel):
     enum: list[str] | None = None  # cat only
     min_len: int | None = None  # str only
     max_len: int | None = None  # str only
+    required: bool = True  # optional fields default to None and are omitted from tool_use 'required'
     description: str = ""
 
     @model_validator(mode="after")
@@ -130,7 +131,7 @@ class EntitySchema(BaseModel):
             "input_schema": {
                 "type": "object",
                 "properties": properties,
-                "required": [f.name for f in self.fields],
+                "required": [f.name for f in self.fields if f.required],
                 "additionalProperties": False,
             },
         }
@@ -139,25 +140,30 @@ class EntitySchema(BaseModel):
 
     @staticmethod
     def _field_definition(spec: FieldSpec) -> tuple[Any, Any]:
-        """Map a FieldSpec to a (type annotation, FieldInfo) pair for create_model."""
+        """Map a FieldSpec to a (type annotation, FieldInfo) pair for create_model.
+
+        Optional fields (``required=False``) become ``T | None`` with a ``None`` default.
+        """
+        annotation: Any
+        kwargs: dict[str, Any] = {"description": spec.description}
         if spec.kind == "num":
+            annotation = float
             if spec.range is not None:
-                lo, hi = spec.range
-                return float, Field(ge=lo, le=hi, description=spec.description)
-            return float, Field(description=spec.description)
-        if spec.kind == "cat":
+                kwargs["ge"], kwargs["le"] = spec.range
+        elif spec.kind == "cat":
             assert spec.enum is not None  # guaranteed by FieldSpec validation
-            return Literal[tuple(spec.enum)], Field(description=spec.description)  # type: ignore[valid-type]
-        if spec.kind == "bool":
-            return bool, Field(description=spec.description)
-        if spec.kind == "str":
-            return str, Field(
-                min_length=spec.min_len,
-                max_length=spec.max_len,
-                description=spec.description,
-            )
-        # tag_set — required list (may be empty); kept in sync with to_llm_schema 'required'
-        return list[str], Field(description=spec.description)
+            annotation = Literal[tuple(spec.enum)]  # type: ignore[valid-type]
+        elif spec.kind == "bool":
+            annotation = bool
+        elif spec.kind == "str":
+            annotation = str
+            kwargs["min_length"], kwargs["max_length"] = spec.min_len, spec.max_len
+        else:  # tag_set — required list (may be empty)
+            annotation = list[str]
+
+        if not spec.required:
+            return annotation | None, Field(default=None, **kwargs)
+        return annotation, Field(**kwargs)
 
     @staticmethod
     def _json_schema_property(spec: FieldSpec) -> dict[str, Any]:

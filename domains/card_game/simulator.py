@@ -123,7 +123,7 @@ class CardGameSimulator(SimulatorInterface):
             "You are designing units for a turn-based 1v1 card game. A good unit set is "
             "diverse across archetypes (aggro: cheap, high damage; control: durable, heal/"
             "shield; combo: card draw). Keep power roughly proportional to cost. Abilities "
-            "must be one of: none, deal_damage, heal, shield, draw. Respect all constraints."
+            "must be one of: deal_damage, heal, shield, draw. Respect all constraints."
         )
 
     def run(self, entities: list[Any], env: Environment) -> RunResult:

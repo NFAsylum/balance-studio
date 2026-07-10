@@ -90,6 +90,31 @@ def test_str_field_llm_schema_and_invalid_spec():
         FieldSpec(name="x", kind="str", min_len=5, max_len=2)
 
 
+# -- optional (required=False) --------------------------------------------
+
+
+def test_optional_field_defaults_to_none_and_omitted_from_llm_required():
+    schema = EntitySchema.from_dict(
+        {
+            "name": "T",
+            "fields": [
+                {"name": "title", "kind": "str"},
+                {"name": "note", "kind": "str", "max_len": 50, "required": False},
+            ],
+        }
+    )
+    Model = schema.build_model()
+    # 'note' can be omitted
+    assert Model(title="hi").note is None
+    assert Model(title="hi", note="ok").note == "ok"
+    # optional field still respects its constraint when provided
+    with pytest.raises(ValidationError):
+        Model(title="hi", note="x" * 51)
+    # and is excluded from the tool_use 'required' list
+    required = schema.to_llm_schema()["input_schema"]["required"]
+    assert required == ["title"]
+
+
 # -- extra fields forbidden ----------------------------------------------
 
 

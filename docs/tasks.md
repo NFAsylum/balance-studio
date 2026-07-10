@@ -2,16 +2,23 @@
 
 Formato: `[ ]` pendente, `[x]` feita. Nunca marcar feita se DoD não é 100% verificável. Nunca continuar próximo sprint sem "verificação final" do anterior aprovada.
 
-Total: 200 h realista. Ordem sequencial entre sprints; dentro do sprint, algumas tarefas podem paralelizar (indicado).
+**Total revisado: ~180 h.** Sprint 1 concluído. Sprints 2-8 reestruturados com base no modelo real do produto (colaboração fluida humano/LLM, event log, 3 hats de LLM, multi-objetivo, freshness em UI).
+
+**Papel do LLM:** três protocols distintos, todos plugáveis com Fake (dev) e Anthropic (Sprint 6):
+- `DesignerLlm` — brief em linguagem natural → entidades
+- `SubjectiveJudgeLlm` — avaliação qualitativa (variedade, coesão, temática)
+- `IteratorLlm` — dado estado + métricas + objetivos → propõe mudanças
+
+**Modo de operação:** usuário e LLMs modificam o mesmo estado a qualquer momento. Sem fronteira modal. Cada mudança é evento append-only no `events.jsonl` do cenário. Snapshot a cada 50 eventos, comprimido zstd.
 
 ---
 
-## Sprint 1 — Core do framework (20 h)
+## Sprint 1 — Core do framework (20 h) — CONCLUÍDO
 
-Sem domínios ainda. Só framework.
+Sem domínios. Só framework.
 
 ### [x] B1.1 — Setup do projeto (3 h) — spec revisada (SQLite + diskcache) aplicada
-Poetry, FastAPI, dependencies, `.env.example`. **SQLite** pro dev + **`diskcache`** pra cache. Migração pra Postgres + Redis fica pro Sprint 7 (deploy).
+Poetry, FastAPI, dependencies, `.env.example`. **SQLite** pro dev + **`diskcache`** pra cache. Migração pra Postgres + Redis fica pro Sprint 8 (deploy).
 **Retrabalho feito:**
 - Removidos `psycopg2-binary` e `redis` do `pyproject.toml`
 - Adicionado `diskcache = "^5.6.0"` ao `pyproject.toml`
@@ -27,318 +34,406 @@ Poetry, FastAPI, dependencies, `.env.example`. **SQLite** pro dev + **`diskcache
 
 ### [x] B1.2 — `core/entity_schema.py` (5 h)
 DSL declarativa: dict → Pydantic model dinâmico + JSON schema pra LLM tool_use.
-**DoD:**
-- `EntitySchema.from_dict({...}).build_model()` retorna classe Pydantic funcional
-- `.to_llm_schema()` retorna dict válido no formato Anthropic tool_use
-- Tipos suportados: `num` (com range), `cat` (com enum), `bool`, `tag_set`
-- 5 testes cobrem cada tipo + campos inválidos + geração de tool_use schema
-- `pytest tests/test_entity_schema.py` verde
 
-### [x] B1.2.1 — Adicionar kind `str` ao FieldSpec (1 h, follow-up de B2.1 blocker)
-Lacuna descoberta durante B2.1: campos free-form (Unit.name, Creature.name, Person.name) não têm kind válido. Solução: novo kind `str` com `min_len`/`max_len` opcionais. Ver `docs/architecture.md#core` para spec completa.
-**DoD:**
-- `FieldSpec.kind` inclui `"str"` no Literal
-- `FieldSpec` ganha campos opcionais `min_len: int | None`, `max_len: int | None`
-- `build_model()` gera Pydantic `str` field com `Field(min_length=..., max_length=...)`
-- `to_llm_schema()` emite `{"type": "string", "minLength": ..., "maxLength": ...}` quando presentes
-- 3 novos testes: str sem constraints, str com min/max, str inválido (violates min_len)
-- `pytest tests/test_entity_schema.py` continua verde (5 originais + 3 novos = 8)
-- **Não** aceitar `cat` sem enum como fallback — regressão silenciosa. Levantar erro claro se `cat` sem `enum`.
+### [x] B1.2.1 — kind `str` no FieldSpec (1 h, follow-up)
 
 ### [x] B1.3 — `core/constraint_engine.py` (4 h)
-Valida entidades contra constraints declarativas.
-**DoD:**
-- 5 kinds implementados: `range`, `sum_of_fields`, `forbidden_combo`, `required_tag`, `unique_across_set`
-- `ConstraintEngine.validate(entity, constraints)` retorna `ValidationResult` com `is_valid`, `violations: list[str]`
-- 8 testes: cada kind com happy path + edge case
-- `pytest tests/test_constraint_engine.py` verde
 
 ### [x] B1.4 — `core/simulator_interface.py` ABC (2 h)
-ABC pura, sem implementação. Só define contrato.
-**DoD:**
-- `SimulatorInterface`, `RunResult`, `Environment` classes definidas
-- Docstring completa em cada método abstrato
-- `tests/test_simulator_interface.py` verifica que instanciação direta levanta `TypeError`
 
 ### [x] B1.5 — Métricas genéricas: rating + distribution + aggregators (6 h)
-`core/metrics/base.py`, `rating.py` (Elo-MMR), `distribution.py`, `aggregators.py`.
-**DoD:**
-- `Metric` ABC + 3 implementações concretas
-- `EloMmrRating.compute(runs)` retorna `dict[entity_id → rating_float]`; testado com 100 runs sintéticos
-- `WinRateDistribution.compute(runs)` retorna `mean`, `std`, `outliers`
-- Métricas são **domain-agnostic** — não podem importar de `domains/*`
-- 6 testes; `pytest tests/test_metrics.py` verde
 
 ### Verificação final Sprint 1
 - [x] `pytest` inteiro verde (37 testes)
 - [x] Nenhum import de `domains.*` em `core/`
-- [x] `poetry run python -c "from core import entity_schema, constraint_engine, simulator_interface, metrics"` sucede
+- [x] Import direto do core funciona
 
 ---
 
-## Sprint 2 — Card game plugin + LLM generator (20 h) — CHECKPOINT 40h
+## Sprint 2 — Card game plugin + Scenario infra + LLM protocols (25 h)
+
+Novo escopo — inclui infra de persistência de cenários (event log + snapshots) e protocols de LLM (mas só Fakes).
 
 ### [x] B2.1 — `domains/card_game/schema.py` (3 h)
 Define `Unit`, `Ability`, `Deck` via `EntitySchema`.
 **DoD:**
 - `get_schema()` retorna `EntitySchema` para `Unit`
-- Campos: `name` (cat/free-string), `cost` (num 1-5), `hp` (num 1-20), `damage` (num 1-10), `ability_kind` (cat), `ability_value` (num)
-- Load `domains/card_game/seed_data.json` com 10 unidades e validar todas — `pytest tests/test_card_schema.py` verde
+- Campos: `name` (kind `str`, max_len 40), `cost` (num 1-5), `hp` (num 1-20), `damage` (num 1-10), `ability_kind` (cat com enum fechado: `deal_damage|heal|shield|draw`), `ability_value` (num), `description` (str, max_len 200, opcional)
+- Load `domains/card_game/seed_data.json` com 10 unidades e validar todas
+- `pytest tests/test_card_schema.py` verde
 
 ### [x] B2.2 — `domains/card_game/simulator.py` (6 h)
-Turn-based combat 1v1, seeded RNG, retorna `RunResult`.
+Turn-based combat 1v1, seeded RNG, retorna `RunResult`. **Puro determinístico.**
 **DoD:**
 - `CardGameSimulator().run(entities=[deck_a, deck_b], env=MatchEnv(seed=42))` roda
-- Mesma seed produz mesmo resultado (5 execuções, mesma seed, mesmo winner + mesmo turn count)
-- Regras: mana cresce por turno, hand size 5, abilities executam em order de play, HP zero = remove
+- Mesma seed produz mesmo resultado (5 execuções — mesmo winner, mesmo turn count, mesmo damage_dealt)
+- Regras: mana cresce por turno, hand size 5, abilities executam em order de play, HP zero remove
 - 4 abilities: `deal_damage`, `heal`, `shield`, `draw`
 - `pytest tests/test_card_simulator.py` cobre determinism, cada ability, edge case de empate
 
-### [x] B2.3 — `core/llm_generator.py` (6 h)
-Gera candidatos via `tool_use` estruturado, retry com feedback em erro.
+### [ ] B2.3 — `core/scenario.py`: Scenario model + Event log (5 h)
+Event log append-only em JSON-Lines. Cada evento é imutável.
 **DoD:**
-- `LlmGenerator(client, schema).generate(n=3, constraints=[...])` retorna 3 entidades Pydantic válidas
-- Retry: se LLM retorna dados que falham validação, próxima chamada inclui erro no prompt
-- Max 3 retries por batch
-- Constraint violations pós-geração são filtradas (retorna só válidas + logs os inválidos)
-- Teste com Anthropic mockado: 1º call retorna dados inválidos, 2º retorna válidos, resultado tem 3 entidades
+- `Event` Pydantic model com campos: `seq`, `parent_seq`, `branch_id`, `timestamp`, `actor` (str), `kind` (Literal enum), `target`, `before`, `after`, `metadata`
+- `actor` aceita: `"user"`, `"llm-designer"`, `"llm-judge"`, `"llm-iterator"`
+- `kind` aceita: `"create_entity"`, `"edit_entity"`, `"delete_entity"`, `"simulate"`, `"evaluate_subjective"`, `"set_objective"`, `"note"`
+- `Scenario` model: `id`, `domain`, `name`, `objectives`, `head_event_seq`, `current_branch`
+- `EventLog.append(event)` grava linha em `scenarios/<id>/events.jsonl`
+- `EventLog.read(scenario_id, branch_id=None, up_to_seq=None)` retorna eventos ordenados
+- `EventLog.head(scenario_id, branch_id)` retorna último seq
+- 6 testes: append, read, sequencing correto, branch isolation, up_to_seq slice, evento em branch inexistente falha
 
-### [x] B2.4 — Endpoint `POST /domains/{name}/simulate` (5 h)
-Rota agnóstica. Registry carrega `domains/card_game` no startup.
+### [ ] B2.4 — Snapshot infra + replay + zstd (5 h)
+Snapshot é dump completo do state num ponto do event log. Fica em `scenarios/<id>/snapshots/`, comprimido zstd (adicionar `zstandard` ao pyproject).
 **DoD:**
-- `POST /domains/card_game/simulate` com body `{entities: [...], env: {...}, n_runs: 10}` retorna `Report`
-- Registry auto-descobre domínios em `domains/` (import de `__init__.py`)
-- Erro 404 pra domain não registrado
-- Erro 422 pra body inválido
-- `pytest tests/test_api_simulate.py` cobre happy path + erros
+- `Snapshot(scenario_id, at_seq, entities, env, sim_results_index)` model
+- `SnapshotStore.save(snapshot)` — comprime com zstd, escreve `seq-<N>.json.zst`
+- `SnapshotStore.load(scenario_id, at_seq)` — descomprime e retorna Snapshot
+- `SnapshotStore.list(scenario_id, branch_id)` — lista snapshots disponíveis
+- `Replay.rebuild_state(scenario_id, target_seq)` — pega snapshot mais próximo ≤ target_seq + aplica eventos entre eles + retorna state
+- Auto-snapshot a cada 50 eventos (configurável)
+- 5 testes: save/load round-trip, replay determinístico, snapshot mais próximo, ausência de snapshot cai pra replay do zero, compressão reduz tamanho
 
-### Verificação final Sprint 2 (CHECKPOINT 40 h)
-- [ ] Rodar end-to-end via curl:
+### [ ] B2.5 — LLM protocols (3 hats) + Fakes (6 h)
+Três `Protocol`s em `core/llm_hats.py`. Impl `Fake*` deterministicas em `core/llm_fakes.py`.
+**DoD:**
+- `DesignerLlm` protocol: `design(brief: str, schema: EntitySchema, constraints, n: int) -> list[Entity]`
+- `SubjectiveJudgeLlm` protocol: `judge(entities: list[Entity], criterion: str) -> JudgeResult` (score 0-1 + rationale)
+- `IteratorLlm` protocol: `propose_changes(entities, sim_metrics, judge_metrics, objectives) -> list[Modification]`
+- `Modification` model: `kind` (create/edit/delete), `target` (entity_id or None), `payload`, `reasoning`
+- `FakeDesigner` retorna entidades templadas do seed + variações determinísticas
+- `FakeJudge` retorna score baseado em hash dos inputs (determinístico)
+- `FakeIterator` propõe mudanças mecânicas (ex: se winrate > 60% de uma entity, propõe reduzir stat)
+- 8 testes cobrem cada protocol + cada Fake
+
+### Verificação final Sprint 2
+- [ ] `pytest` inteiro verde
+- [ ] Rodar end-to-end **com Fakes**:
   ```bash
-  curl -X POST http://localhost:8000/domains/card_game/generate \
-    -H "Content-Type: application/json" \
-    -d '{"n": 5, "constraints": [], "user_intent": "aggro deck with low-cost units"}'
+  poetry run python -m scripts.demo_sprint2 \
+    --brief "aggro deck with cheap units" \
+    --n 5 --domain card_game
   ```
-- [ ] Rodar simulate com output do generate; recebe Report com métricas
-- [ ] **CRÍTICO:** se aqui falha, **para e escala pro humano**. Cenário pessimista ativado. Decisão: cortar escopo (só card game, sem creature RPG) ou aceitar prazo maior.
+- [ ] Script deve: criar Scenario, FakeDesigner gera 5 unidades, CardGameSimulator roda 100 matches, FakeJudge avalia, FakeIterator propõe 2 modificações, tudo persistido em `scenarios/<id>/events.jsonl` + snapshot
+- [ ] Rodar de novo com mesmo brief + seed produz idêntico output
 
 ---
 
-## Sprint 3 — Creature RPG plugin (escala) (20 h)
+## Sprint 3 — Motor de iteração + branching + multi-objetivo + cache incremental (25 h)
 
-### [ ] B3.1 — `domains/creature_rpg/schema.py` (4 h)
-`Creature` (name, type, hp, atk, def_, skills[], resistances{}), `Skill`, `Type` enum.
+### [ ] B3.1 — Motor de iteração event-based (7 h)
+Sem state machine rígida. Loop reativo: `iterate(scenario)` puxa estado atual, chama Designer/Iterator conforme fase, aplica mudanças propostas (se autorizadas), roda simulate/judge, grava eventos. Usuário pode inserir evento manual entre qualquer chamada.
 **DoD:**
-- 200 creatures seed em `domains/creature_rpg/seed_data.json`, distribuídas em 8 tipos
+- `IterationEngine.step(scenario_id, phase: Literal["design","iterate","simulate","judge"])` — executa uma fase, grava eventos
+- Cada step é atomic — se falha no meio, eventos parciais **não** são commitados
+- `IterationEngine.auto_loop(scenario_id, max_steps=10, stop_on_convergence=True)` — roda phases em ordem até convergir ou max_steps
+- Detectar "user injection": se `EventLog.head()` cresceu entre início e fim do step, engine incorpora o novo estado antes de próximo step
+- 6 testes: single step, full auto loop, user injection mid-loop respeitada, atomic rollback em erro
+
+### [ ] B3.2 — Branching + diff (5 h)
+Branch = novo `branch_id`, primeiro evento aponta pra `parent_seq` do fork point.
+**DoD:**
+- `Branch.create(scenario_id, parent_seq, name) -> branch_id`
+- `Branch.list(scenario_id) -> list[BranchInfo]` com nome, head_seq, event_count
+- `Branch.diff(scenario_id, branch_a, branch_b) -> DiffReport` — mostra eventos exclusivos de cada, entidades divergentes, métricas divergentes
+- Branches são independentes — evento em branch A não afeta branch B
+- 5 testes: create, list, diff simétrico, dois branches não interferem
+
+### [ ] B3.3 — Multi-objetivo (4 h)
+Usuário compõe N objetivos com pesos, engine agrega score.
+**DoD:**
+- `Objective` model: `metric_name` (str), `direction` (minimize|maximize|target), `target_value` (opt), `weight` (float)
+- `ObjectiveAggregator.score(objectives, metric_results) -> float` — score único ponderado
+- `ObjectiveAggregator.pareto_check(objectives, candidates) -> list[Candidate]` — frente de Pareto quando 2+ objetivos conflitam
+- `Objective.set_via_event(scenario, objectives)` — grava como evento `set_objective`
+- 4 testes: single objective, dois conflitantes (Pareto), peso zero ignorado, target_value
+
+### [ ] B3.4 — Cache incremental (5 h)
+Cache sim invalida só entradas que envolvem entidades editadas.
+**DoD:**
+- `SimCache` (impl de `CacheBackend`, `diskcache` no dev) armazena `{config_hash → RunResult}` com metadata `{entities_involved, kind: quick|full, computed_at_seq}`
+- `SimCache.invalidate_touching(entity_ids)` remove entradas que envolvem entidades listadas
+- `IncrementalSimRunner.run(entities, env, n_runs, kind)`:
+  - Verifica cache — se hit, retorna direto
+  - Se miss parcial (algumas duplas cached, outras não), roda só as faltantes
+  - Registra evento `simulate` no log
+- Freshness tag por config: `computed_at_seq` = seq do último evento antes do cache. Se `head_seq > computed_at_seq`, marca stale
+- 5 testes: hit, miss full, miss parcial + reuso, invalidação por entity_id, freshness stale
+
+### [ ] B3.5 — Endpoints (4 h)
+Rotas FastAPI expondo o fluxo end-to-end com Fake LLMs.
+**DoD:**
+- `POST /scenarios` — cria scenario com domain + brief opcional
+- `GET /scenarios/{id}` — retorna current state (rebuild via replay)
+- `POST /scenarios/{id}/iterate` — dispara `IterationEngine.step` com phase no body
+- `POST /scenarios/{id}/entities` — usuário insere entidade manual (grava evento)
+- `PATCH /scenarios/{id}/entities/{entity_id}` — edita
+- `DELETE /scenarios/{id}/entities/{entity_id}` — remove
+- `POST /scenarios/{id}/objectives` — define objetivos multi-critério
+- `GET /scenarios/{id}/history` — retorna events do branch atual
+- `POST /scenarios/{id}/branches` — cria branch
+- `GET /scenarios/{id}/branches/{a}/diff/{b}` — retorna DiffReport
+- Todos usam Fakes; nenhum toca API real
+- `pytest tests/test_api_scenarios.py` cobre happy path + 404 + 422
+
+### Verificação final Sprint 3
+- [ ] Rodar sequência end-to-end via curl (script em `scripts/demo_sprint3.sh`):
+  1. `POST /scenarios` (domain card_game, brief cyberpunk)
+  2. Fake Designer gera 5 cartas — evento no log
+  3. `POST /objectives` define {maximize variedade + balance winrate}
+  4. `POST /iterate phase=simulate` roda simulator
+  5. `POST /iterate phase=judge` FakeJudge avalia
+  6. Usuário `PATCH` uma entidade manualmente
+  7. `POST /iterate phase=iterate` FakeIterator vê mudança do usuário + propõe
+  8. `POST /branches` cria branch alternativo
+  9. `GET /branches/main/diff/alt` mostra divergência
+- [ ] Cenário exportável: pasta `scenarios/<id>/` tem `manifest.json`, `events.jsonl`, `snapshots/`, `sim_cache/`
+- [ ] `tar czf backup.tar.gz scenarios/<id>` e extrair em outra pasta — carrega intacto
+
+---
+
+## Sprint 4 — Creature RPG plugin (escala + perf) (20 h)
+
+### [ ] B4.1 — `domains/creature_rpg/schema.py` (4 h)
+`Creature` (name kind `str`, type cat, hp/atk/def num, skills tag_set, resistances dict), `Skill`, `Type` enum.
+**DoD:**
+- 100 creatures seed em `domains/creature_rpg/seed_data.json`, distribuídas em 8 tipos (12-13 por tipo)
 - Cada creature tem 2-4 skills
-- Load em <2s: `pytest tests/test_creature_load.py -k test_load_perf`
+- Load em <1s (design pra escalar até 200 sem colapsar)
 - Todas validam via schema
 
-### [ ] B3.2 — `domains/creature_rpg/simulator.py` (8 h)
+### [ ] B4.2 — `domains/creature_rpg/simulator.py` (8 h)
 Gauntlet mode + tournament mode.
 **DoD:**
 - Gauntlet: `Creature` vs random N adversários, retorna estatísticas
-- Tournament: round-robin em subset de creatures, retorna resultados
-- Type matchup table (fogo > gelo > planta > água > fogo etc.), pluginável via JSON
+- Tournament: round-robin em subset de creatures
+- Type matchup table pluginável via JSON (`domains/creature_rpg/matchups.json`)
 - Ability queue com priority + cooldown
-- Determinismo com seed
+- Determinismo com seed (5 execuções mesmo output)
 - 6 testes cobrem cada modo + edge cases
 
-### [ ] B3.3 — Métricas RPG (4 h)
+### [ ] B4.3 — Métricas RPG (4 h)
 `TierEmergence`, `DominanceIndex`, `UsageCoverage`.
 **DoD:**
-- `TierEmergence`: agrupa creatures por rating em tiers S/A/B/C/D, retorna dict
-- `DominanceIndex`: fração de matches em que a top-5% ganha
+- `TierEmergence`: agrupa creatures por rating em tiers S/A/B/C/D
+- `DominanceIndex`: fração de matches em que top-5% ganha
 - `UsageCoverage`: quantas creatures aparecem em pelo menos M matches
-- Métricas usam base `Metric` do core, não hardcodam nada de creature
+- Métricas usam base `Metric` do core
 - `pytest tests/test_creature_metrics.py` verde
 
-### [ ] B3.4 — Otimização de performance (4 h)
-Paralelizar simulações via `concurrent.futures.ThreadPoolExecutor`. Cache via **`diskcache`** (dev; Redis na prod, mesma interface).
+### [ ] B4.4 — Performance profiling + tuning (4 h)
+Design assume 1000 entidades máximas com folga sobre escala real (100/500).
 **DoD:**
-- Criar abstração `core/cache_backend.py` com `CacheBackend` protocol e impl `DiskCacheBackend`
-- 200 creatures × 1000 gauntlet matches em <60s (medido)
-- Cache: chave = `sha256(entities_json + env_json + seed)`, TTL 24h
-- Cache hit em request repetido: <100ms (medido)
-- `pytest tests/test_performance.py` bench
-- `pytest tests/test_cache_backend.py` valida contract do protocol (mesmo teste rodará depois com Redis)
-
-### Verificação final Sprint 3
-- [ ] Rodar `POST /domains/creature_rpg/simulate` com 200 creatures, 1000 matches
-- [ ] Report retorna com tier list + rating + dominance
-- [ ] Segunda chamada idêntica em <200ms (cache hit)
-
----
-
-## Sprint 4 — UI genérica (20 h)
-
-### [ ] B4.1 — Setup Next.js 15 + shadcn/ui + estrutura (4 h)
-**DoD:**
-- `pnpm dev` roda em http://localhost:3000
-- shadcn/ui instalado + `<Button>`, `<Card>`, `<Input>`, `<Select>`, `<Tabs>` funcionais
-- Estrutura de rotas conforme `docs/architecture.md`
-- Domain picker (home) lista domains fetchados de `GET /domains`
-
-### [ ] B4.2 — `<EntityEditor>` genérico (8 h)
-Renderiza form a partir de `EntitySchema`.
-**DoD:**
-- Recebe `schema: EntitySchema` (JSON) e `value` inicial; emit `onChange`
-- Renderiza: input pra num (com slider se tem range), select pra cat, checkbox pra bool, tag input pra tag_set
-- Ambos domains (card + creature) usam o **mesmo componente** — testado manualmente com 2 schemas
-- Validação inline: mostra erro quando valor sai do range
-- Vitest: 5 testes
-
-### [ ] B4.3 — Dashboard de resultados genérico (6 h)
-Métricas → cards. Distributions → histograms. Ratings → bar chart / tier list.
-**DoD:**
-- `<MetricCard>` renderiza qualquer `MetricResult` baseado em `.kind`
-- `<DistributionChart>` (Recharts) plota histograma
-- `<RatingBarChart>` mostra ratings ordenados
-- Card game e creature RPG renderizam **sem componente específico** por default
-
-### [ ] B4.4 — View domain-specific opcional (heatmap card game) (2 h)
-**DoD:**
-- `domains/<name>/ui/` (frontend side) pode registrar componente custom
-- Card game registra `<MatchupHeatmap>` — mostrado quando disponível, senão fallback pro genérico
-- Creature RPG **não** registra, usa view padrão
+- `ThreadPoolExecutor` paraleliza simulate calls
+- 100 creatures × 1000 gauntlet matches em <30s (quick estimate <2s)
+- 500 cartas × 1000 matches em <60s (quick <3s)
+- Cache hit em request repetido: <100ms
+- Benchmarks em `tests/test_performance.py` — falha se regressão >20%
 
 ### Verificação final Sprint 4
-- [ ] Navegar UI: home → card game editor → simulate → results
-- [ ] Repetir pra creature RPG
-- [ ] Screenshot dos dois dashboards no `README.md`
+- [ ] 100 creatures rodando gauntlet completo produz tier list emergente
+- [ ] Cache hit second-run <200ms
+- [ ] Benchmarks documentados em `docs/performance.md`
 
 ---
 
-## Sprint 5 — Team composition + polish + docs (20 h)
+## Sprint 5 — UI (30 h)
 
-### [ ] B5.1 — `domains/team_composition/schema.py` (3 h)
-`Person(name, seniority, skills[], preferred_task_types[])`, `TaskType`.
+### [ ] B5.1 — Setup Next.js 15 + shadcn/ui + rotas (4 h)
+**DoD:**
+- `pnpm dev` roda em http://localhost:3000
+- shadcn/ui: `<Button>`, `<Card>`, `<Input>`, `<Select>`, `<Tabs>`, `<Slider>`, `<Dialog>`
+- Rotas: `/`, `/scenarios/[id]`, `/scenarios/[id]/history`, `/scenarios/[id]/branches`
+- Home lista scenarios locais (fetch `GET /scenarios`)
+
+### [ ] B5.2 — `<EntityEditor>` genérico (6 h)
+Renderiza form a partir de `EntitySchema`.
+**DoD:**
+- Recebe `schema` + `value`, emit `onChange`
+- Renderiza: input num (com slider quando tem range), select cat, checkbox bool, tag input tag_set, textarea str (com min/max caracteres)
+- Ambos domains (card + creature) usam **o mesmo componente**
+- Validação inline mostra erro quando fora do range/enum
+- Vitest: 5 testes
+
+### [ ] B5.3 — Timeline scrubber + history (6 h)
+Usuário navega no histórico do cenário.
+**DoD:**
+- Timeline horizontal mostra eventos ordenados por seq
+- Ícone/cor por `actor` (user, designer, judge, iterator)
+- Hover em evento mostra `metadata` (motivo do LLM, nota do user)
+- Click restaura view read-only pra aquele ponto (usa `Replay.rebuild_state`)
+- Filtro por actor, por kind
+- Vitest: 3 testes
+
+### [ ] B5.4 — Real-time metrics panel + freshness indicators (6 h)
+Painel lateral com métricas + indicador de estado da simulação.
+**DoD:**
+- Cada card de métrica tem:
+  - Valor
+  - Ícone de freshness: 🟢 full (N alto), 🟡 quick (N pequeno), 🔴 stale, ⏳ computing
+- Debounce: 2s de idle após edit → dispara quick; 5s → dispara full
+- SSE do backend empurra progress
+- Botão "Run Full Simulation" força
+- Vitest: 4 testes de UI + integração mockada
+
+### [ ] B5.5 — Multi-objective picker (4 h)
+UI de composição de objetivos com pesos.
+**DoD:**
+- Painel "Objectives" lista objetivos disponíveis do domain (fetch `GET /domains/{name}/metrics`)
+- Usuário adiciona objetivo, escolhe direção (min/max/target) e peso (slider)
+- Aggregate score mostrado no header
+- Frente de Pareto (2 objetivos) renderiza scatter com Pareto highlighted
+- Vitest: 3 testes
+
+### [ ] B5.6 — Diff view entre branches / pontos do timeline (4 h)
+**DoD:**
+- Selector "Compare A vs B" (branch, ou seq points)
+- Diff visual: entities added/removed/edited destacados
+- Métricas comparadas lado a lado
+- Botão "Fork from A" cria novo branch a partir do ponto A
+- Vitest: 2 testes
+
+### Verificação final Sprint 5
+- [ ] Navegação completa em 2 domínios: card game + creature RPG
+- [ ] Freshness indicators respondem corretamente a edições
+- [ ] Timeline scrubber restaura estado
+- [ ] Screenshots dos dashboards em `README.md`
+
+---
+
+## Sprint 6 — Impl real Anthropic (Designer/Judge/Iterator) + prompt tuning (20 h) — **PRIMEIRA VEZ QUE PRECISA DE API KEY**
+
+### [ ] B6.1 — `AnthropicDesigner` (4 h)
+**DoD:**
+- Impl do `DesignerLlm` protocol usando Anthropic SDK
+- `tool_use` estruturado — schema derivado do `EntitySchema` via `to_llm_schema()`
+- Retry com feedback em erro de schema (max 3 retries)
+- Constraint violations pós-geração filtradas + logadas
+- 3 testes com mock Anthropic (não hit real): sucesso, retry após inválido, filter constraint violation
+
+### [ ] B6.2 — `AnthropicJudge` (4 h)
+**DoD:**
+- Impl do `SubjectiveJudgeLlm` protocol
+- Prompts em `core/prompts/judge_<criterion>.txt` — critérios: `variety`, `cohesion`, `thematic_consistency`
+- Retorna score 0-1 + rationale
+- 3 testes com mock
+
+### [ ] B6.3 — `AnthropicIterator` (4 h)
+**DoD:**
+- Impl do `IteratorLlm` protocol
+- Prompt inclui: entidades atuais + resultados de sim + judge scores + objetivos + histórico recente de mudanças
+- Retorna `list[Modification]`
+- Nunca propõe mudança em entidade que já foi editada por user (respeita autoria; deixa comentário em `metadata.reasoning`)
+- 3 testes com mock
+
+### [ ] B6.4 — Config switch fake/anthropic + secrets (2 h)
+**DoD:**
+- Env var `LLM_BACKEND=fake|anthropic` seleciona impl no startup
+- `ANTHROPIC_API_KEY` obrigatório se `LLM_BACKEND=anthropic` — startup falha claro se ausente
+- Docs em `README.md` explicando como configurar
+
+### [ ] B6.5 — Prompt tuning + validação real (6 h)
+Rodar 5 loops completos com Anthropic real em cada domain (card + creature).
+**DoD:**
+- 5 loops card_game: brief → design → simulate → judge → iterate → converge (ou max 10 steps)
+- 5 loops creature_rpg
+- Sucesso rate (fração de entidades geradas que passam constraints) >80% card, >70% creature
+- `docs/experiments.md` documenta iterações de prompt com métricas
+- Custo total registrado no experiment log (esperado: $2-5)
+
+### Verificação final Sprint 6
+- [ ] Dois domínios convergem em <10 steps com Anthropic real
+- [ ] Custo por loop documentado (~$0.30-0.80)
+- [ ] Config switch fake/anthropic testado em ambos
+
+---
+
+## Sprint 7 — Team composition plugin + tutorial (20 h)
+
+### [ ] B7.1 — `domains/team_composition/schema.py` (3 h)
+`Person(name str, seniority cat, skills tag_set, preferred_task_types tag_set)`, `TaskType`.
 **DoD:**
 - Seed com 50 pessoas, 20 task types
 - Schema valida seed
 
-### [ ] B5.2 — `domains/team_composition/simulator.py` (8 h)
+### [ ] B7.2 — `domains/team_composition/simulator.py` (8 h)
 Modelo probabilístico de completion.
 **DoD:**
-- `WorkloadEnv(tasks, deadline_days, seed)` define workload
-- Simulator retorna: task completion rate, average time, blocked tasks
-- Seeded determinism
-- 5 testes de comportamento (todos experts fazem tudo, todos juniors fazem pouco, mismatched skills falha, etc.)
+- `WorkloadEnv(tasks, deadline_days, seed)` define carga
+- Simulator retorna: task completion rate, avg time, blocked tasks
+- Determinismo com seed
+- 5 testes de comportamento
 
-### [ ] B5.3 — Métricas team (3 h)
+### [ ] B7.3 — Métricas team (3 h)
 `SkillCoverage`, `Redundancy`, `SinglePointOfFailure`.
-**DoD:**
-- Métricas usam base `Metric` do core
-- Dashboard renderiza team results **sem código extra na UI** (usa componentes genéricos)
 
-### [ ] B5.4 — `docs/writing-a-domain.md` — tutorial (6 h)
+### [ ] B7.4 — `docs/writing-a-domain.md` — tutorial (6 h)
 Passo a passo pra criar novo domain.
 **DoD:**
-- Seção "10 minute quickstart" com exemplo minimal
-- Seção "full example" walking pelo team_composition
-- Seção "checklist" antes de PR
-- Leitor externo consegue esboçar um domain trivial em <2h seguindo o doc (validar informalmente)
+- Quickstart 10 min (hello_domain)
+- Walkthrough completo (team_composition como exemplo real)
+- Checklist antes de PR
+- Reader externo esboça um domain trivial em <2h seguindo o doc
 
-### Verificação final Sprint 5
-- [ ] 3 domains listados na home, todos rodam
+### Verificação final Sprint 7
+- [ ] 3 domains listados na UI, todos rodam
 - [ ] Tutorial pronto e revisado
 
 ---
 
-## Sprint 6 — Iteração LLM + performance (20 h)
+## Sprint 8 — Deploy + polish + migração Postgres/Redis (20 h)
 
-### [ ] B6.1 — Bateria de teste real: 10 balanceamentos por domain (4 h)
-Rodar 10 fluxos "usuário define constraint → LLM gera → simula → interpreta".
-**DoD:**
-- 10 sessions salvas em Postgres (`experiments` tabela)
-- Log estruturado de falhas: prompt inputs, LLM output, erro
-- Documentar padrões em `docs/experiments.md`
-
-### [ ] B6.2 — Prompt tuning por domain (6 h)
-Adicionar few-shot examples de sucesso no prompt de cada domain.
-**DoD:**
-- Sucesso rate (fração de generates que produzem constraint-satisfying entities) >80% no card game
-- >70% no creature RPG (constraints maiores)
-- Tabela de resultados em `docs/experiments.md`
-
-### [ ] B6.3 — Cache agressivo no LLM generator (4 h)
-**DoD:**
-- Cache também no LLM generator (`sha256(prompt + constraints + intent) → entities`)
-- Reusa `CacheBackend` do B3.4 (mesma abstração)
-- Hit rate >50% durante uso normal (medido em 10 sessions repetidas com pequenas variações)
-
-### [ ] B6.4 — Progress streaming na UI (4 h)
-**DoD:**
-- `POST /simulate` retorna Server-Sent Events com progress
-- UI mostra progress bar em tempo real (`400 of 1000 runs`)
-- Cancelamento funcional
-
-### [ ] B6.5 — Custo visível (2 h)
-**DoD:**
-- Chip "$0.XX gasto nesta sessão" no header da UI, atualiza após cada LLM call
-- Custo persistido em Postgres por experiment
-
-### Verificação final Sprint 6
-- [ ] 10 balanceamentos rodam end-to-end sem falha grave
-- [ ] Métricas de sucesso do LLM registradas
-- [ ] Cache hit rate documentado
-
----
-
-## Sprint 7 — Deploy + writeup (20 h)
-
-### [ ] B7.1 — Deploy Fly.io + Vercel + migração de infra (6 h, era 4)
+### [ ] B8.1 — Deploy Fly.io + Vercel + migração de infra (8 h)
 Momento planejado de trocar SQLite → Postgres e `diskcache` → Redis.
 **DoD:**
 - Provisionar Fly Postgres + Fly Redis (upstash) via `flyctl`
-- Implementar `RedisCacheBackend` (subclasse do `CacheBackend` protocol) — passa o mesmo `test_cache_backend.py`
-- `DATABASE_URL` em prod aponta pra Postgres; local segue SQLite via `.env`
-- Rodar `alembic upgrade head` contra Postgres remoto — schema portável desde B2.1
-- Smoke test: gerar 3 cartas via LLM, simular, cache hit numa segunda chamada
-- API + Postgres + Redis no Fly.io
+- Implementar `RedisCacheBackend` — passa mesmo test suite do `DiskCacheBackend`
+- `DATABASE_URL` prod aponta pra Postgres; local segue SQLite
+- `alembic upgrade head` roda contra Postgres remoto (schema portável desde Sprint 2)
+- Smoke: criar scenario, iterar 3 vezes, cache hit em segunda iteração
 - Frontend no Vercel
-- Secrets via `fly secrets` e Vercel env vars
+- Secrets via `fly secrets` / Vercel env vars
 - URL público funcional
 
-### [ ] B7.2 — Seed data polida (3 h)
-Card (10 unidades diversas), creature (200 balanceadas em tiers), team (50 diversos).
-**DoD:**
-- Cada domain tem seed que dá pra demonstrar imediatamente
-- Documentado no `docs/writing-a-domain.md`
+### [ ] B8.2 — Seed data polida por domain (3 h)
 
-### [ ] B7.3 — README (5 h)
-**DoD:**
-- Problema geral (balance é problema comum)
-- Arquitetura de plugin (diagrama)
-- 3 casos de uso com screenshot
-- Tutorial de extensão (link)
-- Como rodar local + deployado
-- Números de performance
-- Reader externo entende em 5 min de leitura
+### [ ] B8.3 — README completo (5 h)
 
-### [ ] B7.4 — Demo video 4 min (4 h)
-Roteiro: card game (simulate + heatmap) → troca pra creature RPG (mesma UI, dados diferentes) → mostra tier list → abre `docs/writing-a-domain.md` e mostra que team_composition virou 3º domain com 200 linhas.
+### [ ] B8.4 — Demo video 4 min + post técnico (4 h)
 
-### [ ] B7.5 — Post técnico (4 h)
-Medium/dev.to. "Framework de balance com LLM: 3 domínios, 1 core". 500-800 palavras.
-**DoD:**
-- Rascunho revisado
-- Publicado, link no README
+### Verificação final Sprint 8
+- [ ] URL público funcional compartilhado
+- [ ] Números embutidos no README
+
+---
+
+## Opções futuras (fora do MVP — atualizações se fizer sentido depois)
+
+Registrar aqui e não implementar. Cada uma é candidata a evolução pós-TCC.
+
+- **Multi-user sync colaborativo em tempo real** (~15-20 h): SSE + presença + last-write-wins conflict handling. Habilita:
+  - (b) time de design colaborando
+  - (c) loop com playtester remoto
+  - (d) iteração assíncrona overnight (worker sem UI)
+  - (f) observador read-only
+- **CRDT / merge automático de branches** (meses): sync tipo Figma/Google Docs. Fora de escala pra TCC.
+- **Managed SaaS billing** (~40 h): tier gratuito + tier pago com créditos de iteração.
+- **API pública pra integrações** (~20 h): OAuth, rate limits, endpoints públicos versionados.
+- **Import de dados existentes** (~15 h por formato): CSV, JSON de outros formatos de balance.
+- **Preset de objetivos por vertical** (~10 h): "game F2P economy", "team hiring", "product portfolio" — templates com objetivos pré-configurados.
+- **Auto-refresh entre janelas do mesmo usuário** (~2 h): file watcher local ou polling on window focus — resolve caso (a) sem sync completo.
 
 ---
 
 ## Estimativas resumidas
 
-| Sprint | Total | Cumulativo | Nota |
-|---|---:|---:|---|
-| 1 | 20 h | 20 h | Core sem domínios |
-| 2 | 20 h | 40 h | CHECKPOINT — end-to-end card game |
-| 3 | 20 h | 60 h | Creature RPG (prova de escala) |
-| 4 | 20 h | 80 h | UI genérica |
-| 5 | 20 h | 100 h | Team + tutorial de extensão |
-| 6 | 20 h | 120 h | Iteração LLM + performance |
-| 7 | 20 h | 140 h | Deploy + demo + post |
-
-**Total realista: ~140 h** (revisão pra baixo vs 200 h anterior — o plano mais estruturado corta buffer).
-
-Se apertado no calendário, cortar Sprint 5 (team composition + tutorial doc) — pode virar issue follow-up, deixando 120h.
+| Sprint | Total | Cumulativo | LLM real? |
+|---|---:|---:|---:|
+| 1 (feito) | 20 h | 20 h | — |
+| 2 | 25 h | 45 h | Fake |
+| 3 | 25 h | 70 h | Fake |
+| 4 | 20 h | 90 h | — |
+| 5 | 30 h | 120 h | Fake |
+| 6 | 20 h | 140 h | **Sim** |
+| 7 | 20 h | 160 h | — |
+| 8 | 20 h | 180 h | Só demo |

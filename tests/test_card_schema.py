@@ -9,7 +9,15 @@ def test_get_schema_shape():
     assert isinstance(schema, EntitySchema)
     assert schema.name == "Unit"
     by_name = {f.name: f for f in schema.fields}
-    assert set(by_name) == {"name", "cost", "hp", "damage", "ability_kind", "ability_value"}
+    assert set(by_name) == {
+        "name",
+        "cost",
+        "hp",
+        "damage",
+        "ability_kind",
+        "ability_value",
+        "description",
+    }
     # name is free-form text, not a closed category.
     assert by_name["name"].kind == "str"
     assert by_name["cost"].kind == "num" and by_name["cost"].range == (1, 5)
@@ -17,6 +25,17 @@ def test_get_schema_shape():
     assert by_name["damage"].range == (1, 10)
     assert by_name["ability_kind"].kind == "cat"
     assert by_name["ability_kind"].enum == ABILITY_KINDS
+    # ability_kind is a closed set of the four real abilities (no "none")
+    assert ABILITY_KINDS == ["deal_damage", "heal", "shield", "draw"]
+    # description is optional (may be omitted by user or LLM)
+    assert by_name["description"].kind == "str" and by_name["description"].required is False
+
+
+def test_description_optional_in_model():
+    model = get_schema().build_model()
+    # a unit without a description validates; the field defaults to None
+    unit = model(name="X", cost=1, hp=1, damage=1, ability_kind="draw", ability_value=0)
+    assert unit.description is None
 
 
 def test_seed_has_ten_units():
