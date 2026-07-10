@@ -103,7 +103,7 @@ Gera candidatos via `tool_use` estruturado, retry com feedback em erro.
 - Constraint violations pós-geração são filtradas (retorna só válidas + logs os inválidos)
 - Teste com Anthropic mockado: 1º call retorna dados inválidos, 2º retorna válidos, resultado tem 3 entidades
 
-### [ ] B2.4 — Endpoint `POST /domains/{name}/simulate` (5 h)
+### [x] B2.4 — Endpoint `POST /domains/{name}/simulate` (5 h)
 Rota agnóstica. Registry carrega `domains/card_game` no startup.
 **DoD:**
 - `POST /domains/card_game/simulate` com body `{entities: [...], env: {...}, n_runs: 10}` retorna `Report`
