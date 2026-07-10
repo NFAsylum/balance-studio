@@ -185,7 +185,7 @@ Rotas FastAPI expondo o fluxo end-to-end com Fake LLMs.
 
 ## Sprint 4 — Creature RPG plugin (escala + perf) (20 h)
 
-### [ ] B4.1 — `domains/creature_rpg/schema.py` (4 h)
+### [x] B4.1 — `domains/creature_rpg/schema.py` (4 h)
 `Creature` (name kind `str`, type cat, hp/atk/def num, skills tag_set, resistances dict), `Skill`, `Type` enum.
 **DoD:**
 - 100 creatures seed em `domains/creature_rpg/seed_data.json`, distribuídas em 8 tipos (12-13 por tipo)

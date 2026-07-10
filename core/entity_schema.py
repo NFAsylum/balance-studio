@@ -12,7 +12,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, create_model, model_validator
 
-FieldKind = Literal["num", "cat", "bool", "tag_set", "str"]
+FieldKind = Literal["num", "cat", "bool", "tag_set", "str", "map"]
 
 
 class FieldSpec(BaseModel):
@@ -40,8 +40,9 @@ class FieldSpec(BaseModel):
         # Params must match their kind — reject silent regressions.
         if self.kind != "num" and self.range is not None:
             raise ValueError(f"field '{self.name}': 'range' is only valid for kind 'num'")
-        if self.kind != "cat" and self.enum is not None:
-            raise ValueError(f"field '{self.name}': 'enum' is only valid for kind 'cat'")
+        # 'enum' names the allowed values (cat) or the allowed keys (map).
+        if self.kind not in ("cat", "map") and self.enum is not None:
+            raise ValueError(f"field '{self.name}': 'enum' is only valid for kind 'cat' or 'map'")
         if self.kind != "str" and (self.min_len is not None or self.max_len is not None):
             raise ValueError(
                 f"field '{self.name}': 'min_len'/'max_len' are only valid for kind 'str'"
@@ -158,6 +159,8 @@ class EntitySchema(BaseModel):
         elif spec.kind == "str":
             annotation = str
             kwargs["min_length"], kwargs["max_length"] = spec.min_len, spec.max_len
+        elif spec.kind == "map":
+            annotation = dict[str, float]  # key->value map (e.g. type resistances)
         else:  # tag_set — required list (may be empty)
             annotation = list[str]
 
@@ -185,6 +188,9 @@ class EntitySchema(BaseModel):
                 base["minLength"] = spec.min_len
             if spec.max_len is not None:
                 base["maxLength"] = spec.max_len
+        elif spec.kind == "map":
+            base["type"] = "object"
+            base["additionalProperties"] = {"type": "number"}
         else:  # tag_set
             base["type"] = "array"
             base["items"] = {"type": "string"}

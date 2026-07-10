@@ -90,6 +90,19 @@ def test_str_field_llm_schema_and_invalid_spec():
         FieldSpec(name="x", kind="str", min_len=5, max_len=2)
 
 
+# -- map ------------------------------------------------------------------
+
+
+def test_map_field():
+    Model = _schema({"name": "resistances", "kind": "map"}).build_model()
+    assert Model(resistances={"fire": 0.5, "water": 2.0}).resistances == {"fire": 0.5, "water": 2.0}
+    assert Model(resistances={}).resistances == {}
+    with pytest.raises(ValidationError):
+        Model(resistances="not-a-map")
+    prop = _schema({"name": "r", "kind": "map"}).to_llm_schema()["input_schema"]["properties"]["r"]
+    assert prop == {"type": "object", "additionalProperties": {"type": "number"}}
+
+
 # -- optional (required=False) --------------------------------------------
 
 
