@@ -107,15 +107,15 @@ Três `Protocol`s em `core/llm_hats.py`. Impl `Fake*` deterministicas em `core/l
 - 8 testes cobrem cada protocol + cada Fake
 
 ### Verificação final Sprint 2
-- [ ] `pytest` inteiro verde
-- [ ] Rodar end-to-end **com Fakes**:
+- [x] `pytest` inteiro verde (90 testes)
+- [x] Rodar end-to-end **com Fakes**:
   ```bash
   poetry run python -m scripts.demo_sprint2 \
     --brief "aggro deck with cheap units" \
     --n 5 --domain card_game
   ```
-- [ ] Script deve: criar Scenario, FakeDesigner gera 5 unidades, CardGameSimulator roda 100 matches, FakeJudge avalia, FakeIterator propõe 2 modificações, tudo persistido em `scenarios/<id>/events.jsonl` + snapshot
-- [ ] Rodar de novo com mesmo brief + seed produz idêntico output
+- [x] Script cria Scenario, FakeDesigner gera 5 unidades, CardGameSimulator roda 100 matches (round-robin de decks-solo → winrate por unidade), FakeJudge avalia, FakeIterator propõe modificações, tudo persistido em `scenarios/<id>/events.jsonl` + `manifest.json` + snapshot zstd (verificado + portátil via tar)
+- [x] Rodar de novo com mesmo brief + seed produz output idêntico (guardado por `tests/test_demo_sprint2.py`)
 
 ---
 
