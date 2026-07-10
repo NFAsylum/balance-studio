@@ -212,7 +212,7 @@ Gauntlet mode + tournament mode.
 - Métricas usam base `Metric` do core
 - `pytest tests/test_creature_metrics.py` verde
 
-### [ ] B4.4 — Performance profiling + tuning (4 h)
+### [x] B4.4 — Performance profiling + tuning (4 h)
 Design assume 1000 entidades máximas com folga sobre escala real (100/500).
 **DoD:**
 - `ThreadPoolExecutor` paraleliza simulate calls
@@ -222,9 +222,9 @@ Design assume 1000 entidades máximas com folga sobre escala real (100/500).
 - Benchmarks em `tests/test_performance.py` — falha se regressão >20%
 
 ### Verificação final Sprint 4
-- [ ] 100 creatures rodando gauntlet completo produz tier list emergente
-- [ ] Cache hit second-run <200ms
-- [ ] Benchmarks documentados em `docs/performance.md`
+- [x] 100 creatures rodando gauntlet completo produz tier list emergente (S/A/B/C/D 20 cada, 1000 battles em 0,030s)
+- [x] Cache hit second-run <200ms (medido <5ms com InMemory; guardado por `test_performance.py`)
+- [x] Benchmarks documentados em `docs/performance.md`
 
 ---
 
