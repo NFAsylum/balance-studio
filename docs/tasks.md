@@ -256,7 +256,7 @@ Usuário navega no histórico do cenário.
 - Filtro por actor, por kind
 - Vitest: 3 testes
 
-### [ ] B5.4 — Real-time metrics panel + freshness indicators (6 h)
+### [x] B5.4 — Real-time metrics panel + freshness indicators (6 h)
 Painel lateral com métricas + indicador de estado da simulação.
 **DoD:**
 - Cada card de métrica tem:

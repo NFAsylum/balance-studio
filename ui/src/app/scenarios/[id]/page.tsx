@@ -5,17 +5,33 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { MetricsPanel, type Freshness, type MetricResult } from "@/components/MetricsPanel";
 
 const PHASES = ["design", "simulate", "judge", "iterate"] as const;
+
+/** Pull the metrics + freshness from the latest `simulate` event vs the current head. */
+function useMetrics(id: string, headSeq: number) {
+  const history = useQuery({ queryKey: ["history", id], queryFn: () => api.history(id) });
+  const events = history.data?.events ?? [];
+  const lastSim = [...events].reverse().find((e) => e.kind === "simulate");
+  const raw = (lastSim?.after?.metrics ?? {}) as Record<string, MetricResult>;
+  const results = Object.values(raw);
+  const freshness: Freshness = !lastSim ? "stale" : headSeq > lastSim.seq ? "stale" : "full";
+  return { results, freshness };
+}
 
 export default function ScenarioPage() {
   const { id } = useParams<{ id: string }>();
   const qc = useQueryClient();
   const scenario = useQuery({ queryKey: ["scenario", id], queryFn: () => api.getScenario(id) });
+  const metrics = useMetrics(id, scenario.data?.head_seq ?? 0);
 
   const iterate = useMutation({
     mutationFn: (phase: (typeof PHASES)[number]) => api.iterate(id, phase),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["scenario", id] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["scenario", id] });
+      qc.invalidateQueries({ queryKey: ["history", id] });
+    },
   });
 
   if (scenario.isLoading) return <p className="text-sm text-neutral-500">carregando…</p>;
@@ -55,6 +71,14 @@ export default function ScenarioPage() {
           </Button>
         ))}
       </div>
+
+      {metrics.results.length > 0 && (
+        <MetricsPanel
+          results={metrics.results}
+          freshness={iterate.isPending ? "computing" : metrics.freshness}
+          onRunFull={() => iterate.mutate("simulate")}
+        />
+      )}
 
       <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {entities.length === 0 && (
