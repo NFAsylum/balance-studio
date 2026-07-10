@@ -25,7 +25,7 @@ Poetry, FastAPI, dependencies, `.env.example`. **SQLite** pro dev + **`diskcache
 - Nenhum `docker-compose.yml` no repo (grep verifica) ✅
 - `psycopg2-binary` e `redis` **não** aparecem no `pyproject.toml` ✅ (nem no `poetry.lock`)
 
-### [ ] B1.2 — `core/entity_schema.py` (5 h)
+### [x] B1.2 — `core/entity_schema.py` (5 h)
 DSL declarativa: dict → Pydantic model dinâmico + JSON schema pra LLM tool_use.
 **DoD:**
 - `EntitySchema.from_dict({...}).build_model()` retorna classe Pydantic funcional
