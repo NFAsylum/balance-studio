@@ -94,7 +94,7 @@ Turn-based combat 1v1, seeded RNG, retorna `RunResult`.
 - 4 abilities: `deal_damage`, `heal`, `shield`, `draw`
 - `pytest tests/test_card_simulator.py` cobre determinism, cada ability, edge case de empate
 
-### [ ] B2.3 — `core/llm_generator.py` (6 h)
+### [x] B2.3 — `core/llm_generator.py` (6 h)
 Gera candidatos via `tool_use` estruturado, retry com feedback em erro.
 **DoD:**
 - `LlmGenerator(client, schema).generate(n=3, constraints=[...])` retorna 3 entidades Pydantic válidas
