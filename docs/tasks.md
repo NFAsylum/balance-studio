@@ -230,7 +230,7 @@ Design assume 1000 entidades máximas com folga sobre escala real (100/500).
 
 ## Sprint 5 — UI (30 h)
 
-### [ ] B5.1 — Setup Next.js 15 + shadcn/ui + rotas (4 h)
+### [x] B5.1 — Setup Next.js 15 + shadcn/ui + rotas (4 h)
 **DoD:**
 - `pnpm dev` roda em http://localhost:3000
 - shadcn/ui: `<Button>`, `<Card>`, `<Input>`, `<Select>`, `<Tabs>`, `<Slider>`, `<Dialog>`

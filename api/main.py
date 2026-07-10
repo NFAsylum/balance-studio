@@ -14,6 +14,7 @@ from contextlib import asynccontextmanager
 from typing import Any, Literal
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, ValidationError
 
 from api.registry import registry
@@ -61,6 +62,14 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Balance Studio", lifespan=lifespan)
+
+# Dev CORS: the Next.js UI (localhost:3000) calls this API directly.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class SimulateRequest(BaseModel):
@@ -190,6 +199,11 @@ def _validate_entity(domain: str, data: dict[str, Any]) -> dict[str, Any]:
         return model(**data).model_dump()
     except ValidationError as exc:
         raise HTTPException(status_code=422, detail=exc.errors(include_url=False)) from exc
+
+
+@app.get("/scenarios")
+def list_scenarios() -> dict[str, list[dict[str, Any]]]:
+    return {"scenarios": [s.model_dump() for s in services.event_log.list_scenarios()]}
 
 
 @app.post("/scenarios")

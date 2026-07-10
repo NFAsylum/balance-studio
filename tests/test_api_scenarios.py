@@ -25,6 +25,13 @@ def _unit(name="Custom", cost=2):
     return {"name": name, "cost": cost, "hp": 5, "damage": 3, "ability_kind": "heal", "ability_value": 2}
 
 
+def test_list_scenarios(client):
+    assert client.get("/scenarios").json()["scenarios"] == []
+    sid = _new_scenario(client)
+    listed = client.get("/scenarios").json()["scenarios"]
+    assert [s["id"] for s in listed] == [sid]
+
+
 def test_create_and_get_scenario(client):
     sid = _new_scenario(client)
     resp = client.get(f"/scenarios/{sid}")

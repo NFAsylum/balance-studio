@@ -100,6 +100,16 @@ class EventLog:
     def scenario(self, scenario_id: str) -> Scenario:
         return self._read_manifest(scenario_id)[0]
 
+    def list_scenarios(self) -> list[Scenario]:
+        """Return every scenario under the base dir (folders with a manifest)."""
+        if not self.base.exists():
+            return []
+        scenarios: list[Scenario] = []
+        for child in sorted(self.base.iterdir()):
+            if (child / "manifest.json").exists():
+                scenarios.append(self.scenario(child.name))
+        return scenarios
+
     def branch_ids(self, scenario_id: str) -> list[str]:
         return list(self._read_manifest(scenario_id)[1])
 
