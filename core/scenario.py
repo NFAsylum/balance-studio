@@ -86,27 +86,66 @@ class EventLog:
         """Create the scenario folder, an empty event log, and register ``main``."""
         self._dir(scenario.id).mkdir(parents=True, exist_ok=True)
         self._events_path(scenario.id).touch()
-        self._write_manifest(scenario, [MAIN_BRANCH])
+        main_meta = {MAIN_BRANCH: {"name": MAIN_BRANCH, "parent_branch": None, "fork_seq": 0}}
+        self._write_manifest(scenario, main_meta)
 
-    def _write_manifest(self, scenario: Scenario, branches: list[str]) -> None:
+    def _write_manifest(self, scenario: Scenario, branches: dict[str, dict[str, Any]]) -> None:
         payload = {"scenario": scenario.model_dump(mode="json"), "branches": branches}
         self._manifest_path(scenario.id).write_text(json.dumps(payload, indent=2))
 
-    def _read_manifest(self, scenario_id: str) -> tuple[Scenario, list[str]]:
+    def _read_manifest(self, scenario_id: str) -> tuple[Scenario, dict[str, dict[str, Any]]]:
         data = json.loads(self._manifest_path(scenario_id).read_text())
         return Scenario(**data["scenario"]), data["branches"]
 
     def scenario(self, scenario_id: str) -> Scenario:
         return self._read_manifest(scenario_id)[0]
 
-    def branches(self, scenario_id: str) -> list[str]:
-        return self._read_manifest(scenario_id)[1]
+    def branch_ids(self, scenario_id: str) -> list[str]:
+        return list(self._read_manifest(scenario_id)[1])
 
-    def register_branch(self, scenario_id: str, branch_id: str) -> None:
+    def branch_meta(self, scenario_id: str, branch_id: str) -> dict[str, Any]:
+        return self._read_manifest(scenario_id)[1][branch_id]
+
+    def register_branch(
+        self,
+        scenario_id: str,
+        branch_id: str,
+        name: str | None = None,
+        parent_branch: str | None = None,
+        fork_seq: int = 0,
+    ) -> None:
         scenario, branches = self._read_manifest(scenario_id)
         if branch_id not in branches:
-            branches.append(branch_id)
+            branches[branch_id] = {
+                "name": name or branch_id,
+                "parent_branch": parent_branch,
+                "fork_seq": fork_seq,
+            }
             self._write_manifest(scenario, branches)
+
+    def fork_branch(
+        self,
+        scenario_id: str,
+        new_branch: str,
+        name: str,
+        parent_branch: str,
+        parent_seq: int,
+    ) -> None:
+        """Create ``new_branch`` by copying ``parent_branch``'s events up to ``parent_seq``.
+
+        Copies re-tag ``branch_id`` only (seq/parent_seq/timestamp/content preserved), so each
+        branch is self-contained and independent — an event on one never affects the other.
+        """
+        if new_branch in self.branch_ids(scenario_id):
+            raise ValueError(f"branch '{new_branch}' already exists in scenario '{scenario_id}'")
+        prefix = self.read(scenario_id, branch_id=parent_branch, up_to_seq=parent_seq)
+        self.register_branch(scenario_id, new_branch, name, parent_branch, parent_seq)
+        if prefix:
+            with self._events_path(scenario_id).open("a", encoding="utf-8") as fh:
+                fh.writelines(
+                    e.model_copy(update={"branch_id": new_branch}).model_dump_json() + "\n"
+                    for e in prefix
+                )
 
     # -- events ------------------------------------------------------------
 

@@ -130,7 +130,7 @@ Sem state machine rígida. Loop reativo: `iterate(scenario)` puxa estado atual, 
 - Detectar "user injection": se `EventLog.head()` cresceu entre início e fim do step, engine incorpora o novo estado antes de próximo step
 - 6 testes: single step, full auto loop, user injection mid-loop respeitada, atomic rollback em erro
 
-### [ ] B3.2 — Branching + diff (5 h)
+### [x] B3.2 — Branching + diff (5 h)
 Branch = novo `branch_id`, primeiro evento aponta pra `parent_seq` do fork point.
 **DoD:**
 - `Branch.create(scenario_id, parent_seq, name) -> branch_id`
