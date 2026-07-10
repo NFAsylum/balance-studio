@@ -72,7 +72,11 @@ def test_invalid_env_422(client):
     assert resp.status_code == 422
 
 
-def test_generate_without_api_key_503(client, monkeypatch):
-    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
-    resp = client.post("/domains/card_game/generate", json={"n": 3})
-    assert resp.status_code == 503
+def test_generate_returns_entities_via_fake_designer(client):
+    resp = client.post("/domains/card_game/generate", json={"n": 3, "user_intent": "aggro"})
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["requested"] == 3
+    assert len(body["entities"]) == 3
+    # generated units validate against the card schema (schema-shaped output)
+    assert all("ability_kind" in u for u in body["entities"])

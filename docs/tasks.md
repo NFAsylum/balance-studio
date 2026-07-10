@@ -94,7 +94,7 @@ Snapshot é dump completo do state num ponto do event log. Fica em `scenarios/<i
 - Auto-snapshot a cada 50 eventos (configurável)
 - 5 testes: save/load round-trip, replay determinístico, snapshot mais próximo, ausência de snapshot cai pra replay do zero, compressão reduz tamanho
 
-### [ ] B2.5 — LLM protocols (3 hats) + Fakes (6 h)
+### [x] B2.5 — LLM protocols (3 hats) + Fakes (6 h)
 Três `Protocol`s em `core/llm_hats.py`. Impl `Fake*` deterministicas em `core/llm_fakes.py`.
 **DoD:**
 - `DesignerLlm` protocol: `design(brief: str, schema: EntitySchema, constraints, n: int) -> list[Entity]`
