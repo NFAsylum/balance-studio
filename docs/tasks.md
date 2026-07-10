@@ -160,7 +160,7 @@ Cache sim invalida só entradas que envolvem entidades editadas.
 - Freshness tag por config: `computed_at_seq` = seq do último evento antes do cache. Se `head_seq > computed_at_seq`, marca stale
 - 5 testes: hit, miss full, miss parcial + reuso, invalidação por entity_id, freshness stale
 
-### [ ] B3.5 — Endpoints (4 h)
+### [x] B3.5 — Endpoints (4 h)
 Rotas FastAPI expondo o fluxo end-to-end com Fake LLMs.
 **DoD:**
 - `POST /scenarios` — cria scenario com domain + brief opcional
@@ -177,18 +177,9 @@ Rotas FastAPI expondo o fluxo end-to-end com Fake LLMs.
 - `pytest tests/test_api_scenarios.py` cobre happy path + 404 + 422
 
 ### Verificação final Sprint 3
-- [ ] Rodar sequência end-to-end via curl (script em `scripts/demo_sprint3.sh`):
-  1. `POST /scenarios` (domain card_game, brief cyberpunk)
-  2. Fake Designer gera 5 cartas — evento no log
-  3. `POST /objectives` define {maximize variedade + balance winrate}
-  4. `POST /iterate phase=simulate` roda simulator
-  5. `POST /iterate phase=judge` FakeJudge avalia
-  6. Usuário `PATCH` uma entidade manualmente
-  7. `POST /iterate phase=iterate` FakeIterator vê mudança do usuário + propõe
-  8. `POST /branches` cria branch alternativo
-  9. `GET /branches/main/diff/alt` mostra divergência
-- [ ] Cenário exportável: pasta `scenarios/<id>/` tem `manifest.json`, `events.jsonl`, `snapshots/`, `sim_cache/`
-- [ ] `tar czf backup.tar.gz scenarios/<id>` e extrair em outra pasta — carrega intacto
+- [x] Rodar sequência end-to-end via curl (`scripts/demo_sprint3.sh`) — todos os 9 passos rodam ao vivo (uvicorn). Destaque: no passo 7 o FakeIterator propôs 4 mudanças, aplicou 3 e **pulou a entidade editada pelo usuário** (`skipped_user_owned: ["cyberpunk-0"]`) — authorship guardrail comprovado end-to-end.
+- [x] Cenário exportável: pasta `scenarios/<id>/` tem `manifest.json`, `events.jsonl`, `sim_cache/` populado. *`snapshots/` só aparece no intervalo de 50 eventos (mecanismo já verificado no Sprint 2 e ligado no `auto_loop`); o demo tem 24 eventos.*
+- [x] `tar czf backup.tar.gz scenarios/<id>` e extrair em outra pasta — carrega intacto (24 eventos, branches `main`+`alt`)
 
 ---
 

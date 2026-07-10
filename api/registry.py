@@ -49,5 +49,8 @@ class DomainRegistry:
     def get(self, name: str) -> SimulatorInterface | None:
         return self._simulators.get(name)
 
+    def all(self) -> dict[str, SimulatorInterface]:
+        return dict(self._simulators)
+
 
 registry = DomainRegistry()

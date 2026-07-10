@@ -13,9 +13,10 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
+from core.cache_backend import DiskCacheBackend
 from core.llm_hats import DesignerLlm, IteratorLlm, SubjectiveJudgeLlm
-from core.metrics.aggregators import aggregate_metrics
 from core.scenario import Event, EventLog
+from core.sim_cache import IncrementalSimRunner, SimCache
 from core.simulator_interface import SimulatorInterface
 from core.snapshot import Replay
 
@@ -48,6 +49,7 @@ class IterationEngine:
         iterator: IteratorLlm,
         sim_seed: int = 42,
         n_runs: int = 100,
+        snapshot_interval: int = 50,
     ):
         self.events = event_log
         self.replay = replay
@@ -57,6 +59,7 @@ class IterationEngine:
         self.iterator = iterator
         self.sim_seed = sim_seed
         self.n_runs = n_runs
+        self.snapshot_interval = snapshot_interval
 
     # -- public API --------------------------------------------------------
 
@@ -100,6 +103,7 @@ class IterationEngine:
             steps.append(self.step(scenario_id, "judge"))
             iterate = self.step(scenario_id, "iterate")
             steps.append(iterate)
+            self.replay.auto_snapshot_if_due(scenario_id, branch, self.snapshot_interval)
             expected_head = self.events.head(scenario_id, branch)
             if stop_on_convergence and iterate.details.get("applied", 0) == 0:
                 converged = True
@@ -124,18 +128,21 @@ class IterationEngine:
         if not instances:
             return StepResult(phase="simulate", events_appended=0, details={"skipped": "no entities"})
         env = simulator.environment_schema()(seed=self.sim_seed)
-        runs = simulator.run_batch(instances, env, self.n_runs)
-        metrics = {k: v.model_dump() for k, v in aggregate_metrics(simulator.default_metrics(), runs).items()}
-        event = Event(
-            branch_id=branch,
-            actor="user",
-            kind="simulate",
-            target="scenario",
-            after={"n_runs": len(runs), "metrics": metrics},
+        # Incremental cache per scenario: re-running only re-simulates matchups that changed.
+        cache = SimCache(DiskCacheBackend(self.events.base / scenario_id / "sim_cache"))
+        runner = IncrementalSimRunner(simulator, cache, self.events)
+        report = runner.run(scenario_id, instances, env, self.n_runs, kind="full", branch=branch)
+        winrate = report.metrics.get("winrate_distribution", {}).get("data", {}).get("per_entity", {})
+        return StepResult(
+            phase="simulate",
+            events_appended=1,
+            details={
+                "n_runs": report.n_runs,
+                "winrate": winrate,
+                "matchups_reused": report.matchups_reused,
+                "matchups_computed": report.matchups_computed,
+            },
         )
-        self.events.append_many(scenario_id, [event])
-        winrate = metrics.get("winrate_distribution", {}).get("data", {}).get("per_entity", {})
-        return StepResult(phase="simulate", events_appended=1, details={"n_runs": len(runs), "winrate": winrate})
 
     def _judge(self, scenario_id, branch, instances) -> StepResult:
         if not instances:
