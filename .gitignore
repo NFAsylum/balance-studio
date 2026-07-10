@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+.env
+*.egg-info/
+.mypy_cache/
+.ruff_cache/
+.DS_Store
+
+# Frontend
+node_modules/
+.next/
+out/
+dist/
+.turbo/
+
+# Non-project files present in this shared workspace (not part of balance-studio)
+.claude/
+.claude.json
+.claude.json.backup*
+dev-marco/
+docker/
+CLAUDE.csharp-legacy.md
+portfolio-brief-para-outra-claude.md
+/package.json
+/package-lock.json
