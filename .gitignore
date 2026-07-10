@@ -33,5 +33,5 @@ portfolio-brief-para-outra-claude.md
 /package.json
 /package-lock.json
 
-# User scenario data
-scenarios/
+# User scenario data (root only — must not match ui/src/app/scenarios/)
+/scenarios/
