@@ -10,13 +10,13 @@ Total: 200 h realista. Ordem sequencial entre sprints; dentro do sprint, algumas
 
 Sem domínios ainda. Só framework.
 
-### [ ] B1.1 — Setup do projeto (3 h)
+### [x] B1.1 — Setup do projeto (3 h)
 Poetry, FastAPI, dependencies, docker-compose com Postgres + Redis, .env.example.
 **DoD:**
-- `docker compose up -d` sobe Postgres + Redis
-- `poetry install` sem erro
-- `poetry run pytest` executa (0 testes ainda)
-- `.env.example` lista `ANTHROPIC_API_KEY`, `DATABASE_URL`, `REDIS_URL`
+- `docker compose up -d` sobe Postgres + Redis — *compose validado (postgres:16 + redis:7-alpine, ports, volumes); `up -d` não executado por falta de daemon docker no sandbox — **confirmar local***
+- `poetry install` sem erro ✅ (poetry 2.4.1, 30 deps, poetry.lock gerado)
+- `poetry run pytest` executa (0 testes ainda) ✅ (0 coletados, exit 5)
+- `.env.example` lista `ANTHROPIC_API_KEY`, `DATABASE_URL`, `REDIS_URL` ✅
 
 ### [ ] B1.2 — `core/entity_schema.py` (5 h)
 DSL declarativa: dict → Pydantic model dinâmico + JSON schema pra LLM tool_use.
