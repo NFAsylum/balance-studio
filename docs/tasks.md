@@ -83,7 +83,7 @@ Event log append-only em JSON-Lines. Cada evento é imutável.
 - `EventLog.head(scenario_id, branch_id)` retorna último seq
 - 6 testes: append, read, sequencing correto, branch isolation, up_to_seq slice, evento em branch inexistente falha
 
-### [ ] B2.4 — Snapshot infra + replay + zstd (5 h)
+### [x] B2.4 — Snapshot infra + replay + zstd (5 h)
 Snapshot é dump completo do state num ponto do event log. Fica em `scenarios/<id>/snapshots/`, comprimido zstd (adicionar `zstandard` ao pyproject).
 **DoD:**
 - `Snapshot(scenario_id, at_seq, entities, env, sim_results_index)` model
