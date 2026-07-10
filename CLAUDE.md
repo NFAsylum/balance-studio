@@ -2,19 +2,29 @@
 
 ## Missão
 
-Construir um **framework** (não um app) que resolve balance de qualquer domínio via plugins. Core cuida de schema de entidades, geração LLM, constraint validation, simulação, métricas, UI. Cada domínio pluga simulador + schema em ~200-500 linhas.
+Construir um **framework** de balance colaborativo humano+LLM, com plugins por domínio. Core cuida de: schema declarativo de entidades, event log persistente por cenário, motor de iteração event-based, constraint validation, simulação determinística, métricas numéricas + subjetivas, freshness em UI em tempo real.
 
-MVP entrega 2 domínios funcionais (card game + creature RPG) e 1 demo de extensibilidade (team composition). Projeto tocado como portfólio de TCC. Prazo ~7 semanas @ 20h/sem. Você (Claude) executa; o dev humano (marco) intervém em decisões de escopo e prompt tuning.
+MVP entrega 2 domínios funcionais (card game + creature RPG), 1 demo de extensibilidade (team composition), e o workflow completo: brief → LLM projeta → simula → LLM+métricas avaliam → LLM ou usuário propõem mudanças → repete. Cenários exportáveis como pasta portátil.
+
+Projeto tocado como portfólio + experimento comercial (Babel é o TCC do marco, projeto separado). Prazo flexível — não há banca. Alvo: ~9 semanas @ 20h/sem (180h total), ajustável. Você (Claude) executa; o dev humano (marco) intervém em decisões de escopo e prompt tuning.
 
 ## Diferencial vs "balanceador de card game"
 
-Um "balanceador de cartas" é software vertical. **Este é framework**. O contraste no portfólio é decisivo:
-- Card game com 10 unidades? OK, resolve.
-- RPG com 200 monstros? Mesma UI, muda o plugin.
-- Distribuir produtos em corredores de supermercado? Novo plugin, mesmo core.
-- Distribuir funcionários por times? Novo plugin, mesmo core.
+- **Framework, não vertical**: mesma UI/core, muda o plugin. Card game / RPG / equipe / produtos.
+- **Colaboração fluida**: usuário e LLM editam o mesmo estado a qualquer momento. Sem "agora é a vez do LLM".
+- **Multi-objetivo**: usuário compõe critérios (balance numérico + variedade + coesão + o que for). Framework mostra trade-offs.
+- **Time travel + branches**: qualquer ponto do histórico é recuperável. Branch pra explorar "e se". Todos os eventos persistidos em disco (portátil, comprimido).
+- **Freshness ao vivo**: métricas atualizam em tempo real (quick estimate + full recompute) com indicadores de estado por card.
 
-Cada domínio novo custa horas de plugin, não semanas de reescrever tudo.
+## Papel do LLM (três hats)
+
+- **`DesignerLlm`**: brief em linguagem natural → entidades. "Jogo cyberpunk com atk/def/upgrade" → 30 cartas coerentes.
+- **`SubjectiveJudgeLlm`**: avalia qualitativamente. Complementa métricas numéricas. Diz "essa carta quebra a coesão temática" ou "variedade tá baixa, três cartas são clones".
+- **`IteratorLlm`**: dado estado + sim + judges + objetivos → propõe modificações (create/edit/delete). Nunca sobrescreve edição do usuário.
+
+Cada hat tem `Fake*` (dev, sem custo) e `Anthropic*` (Sprint 6, real). Config switch via env var.
+
+**Simulação é sempre LLM-free** — determinismo garante que "ganhou 62% dos matches" é ground truth, não opinião de LLM. É onde vive a credibilidade objetiva do framework.
 
 ## Stack fixado
 
@@ -35,41 +45,41 @@ Não trocar sem justificativa forte + confirmação do humano.
 balance-studio/
 ├── CLAUDE.md                       # este arquivo
 ├── docs/
-│   ├── architecture.md             # core + plugin system
+│   ├── architecture.md             # core + plugin system + Scenario/Event log
 │   ├── tasks.md                    # sprints com definition of done
-│   ├── prompts.md                  # templates LLM iteráveis
-│   ├── writing-a-domain.md         # tutorial de plugin (deliverable)
-│   └── experiments.md              # log de tuning, criado no Sprint 6
+│   ├── prompts.md                  # templates LLM iteráveis (Sprint 6)
+│   ├── writing-a-domain.md         # tutorial de plugin
+│   └── experiments.md              # log de tuning
 ├── bootstrap.sh
 ├── pyproject.toml
-├── docker-compose.yml              # Postgres + Redis
 ├── core/
-│   ├── entity_schema.py
+│   ├── entity_schema.py            # DSL de entidade
 │   ├── constraint_engine.py
-│   ├── llm_generator.py
-│   ├── simulator_interface.py
-│   ├── report_engine.py
-│   └── metrics/
-│       ├── base.py
-│       ├── rating.py               # Elo-MMR
-│       ├── distribution.py
-│       └── aggregators.py
+│   ├── simulator_interface.py      # ABC pra domain plugins
+│   ├── metrics/
+│   │   ├── base.py
+│   │   ├── rating.py               # Elo-MMR
+│   │   ├── distribution.py
+│   │   └── aggregators.py
+│   ├── scenario.py                 # Scenario + Event + EventLog
+│   ├── snapshot.py                 # SnapshotStore + Replay + zstd
+│   ├── llm_hats.py                 # Designer/Judge/Iterator protocols
+│   ├── llm_fakes.py                # FakeDesigner/FakeJudge/FakeIterator
+│   ├── llm_anthropic.py            # Sprint 6: impls reais
+│   ├── iteration_engine.py         # motor de iteração event-based
+│   ├── objectives.py               # multi-objetivo + Pareto
+│   ├── cache_backend.py            # CacheBackend + DiskCacheBackend
+│   └── sim_cache.py                # incremental sim cache + freshness
 ├── domains/                        # cada plugin autocontido
 │   ├── card_game/
-│   │   ├── schema.py
-│   │   ├── simulator.py
-│   │   ├── metrics.py
-│   │   └── seed_data.json
 │   ├── creature_rpg/
-│   │   ├── schema.py
-│   │   ├── simulator.py
-│   │   ├── metrics.py
-│   │   └── seed_data.json
-│   └── team_composition/           # demo de extensibilidade
-│       ├── schema.py
-│       ├── simulator.py
-│       ├── metrics.py
-│       └── seed_data.json
+│   └── team_composition/
+├── scenarios/                      # cenários dos usuários (gitignored)
+│   └── <scenario-id>/
+│       ├── manifest.json
+│       ├── events.jsonl            # append-only event log
+│       ├── snapshots/              # comprimidos zstd
+│       └── sim_cache/              # resultados de simulação cacheados
 ├── api/                            # FastAPI
 ├── ui/                             # Next.js 15
 ├── tests/
