@@ -60,6 +60,36 @@ def test_tag_set_field():
         Model(tags="not-a-list")
 
 
+# -- str ------------------------------------------------------------------
+
+
+def test_str_field_no_constraints():
+    Model = _schema({"name": "title", "kind": "str"}).build_model()
+    assert Model(title="anything goes").title == "anything goes"
+    assert Model(title="").title == ""
+
+
+def test_str_field_min_max_len():
+    Model = _schema({"name": "name", "kind": "str", "min_len": 2, "max_len": 5}).build_model()
+    assert Model(name="abc").name == "abc"
+    with pytest.raises(ValidationError):
+        Model(name="a")  # below min_len
+    with pytest.raises(ValidationError):
+        Model(name="toolong")  # above max_len
+
+
+def test_str_field_llm_schema_and_invalid_spec():
+    schema = _schema({"name": "name", "kind": "str", "min_len": 1, "max_len": 40})
+    prop = schema.to_llm_schema()["input_schema"]["properties"]["name"]
+    assert prop == {"type": "string", "minLength": 1, "maxLength": 40}
+    # min_len/max_len are str-only; using them on another kind is an error.
+    with pytest.raises(ValidationError):
+        FieldSpec(name="x", kind="num", min_len=1)
+    # inverted length bounds
+    with pytest.raises(ValidationError):
+        FieldSpec(name="x", kind="str", min_len=5, max_len=2)
+
+
 # -- extra fields forbidden ----------------------------------------------
 
 

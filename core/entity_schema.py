@@ -12,14 +12,16 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, create_model, model_validator
 
-FieldKind = Literal["num", "cat", "bool", "tag_set"]
+FieldKind = Literal["num", "cat", "bool", "tag_set", "str"]
 
 
 class FieldSpec(BaseModel):
     """One field of an entity.
 
-    ``num`` uses ``range`` (inclusive min/max); ``cat`` uses ``enum``; ``bool`` and
-    ``tag_set`` use neither. ``tag_set`` is an unordered list of free-form string tags.
+    ``num`` uses ``range`` (inclusive min/max); ``cat`` uses ``enum``; ``str`` is free-form
+    text with optional ``min_len``/``max_len``; ``bool`` and ``tag_set`` use none of these.
+    ``tag_set`` is an unordered list of free-form string tags. Open-ended text (names,
+    descriptions) must use ``str`` — never ``cat`` without an enum.
     """
 
     model_config = ConfigDict(extra="forbid")
@@ -28,13 +30,23 @@ class FieldSpec(BaseModel):
     kind: FieldKind
     range: tuple[float, float] | None = None  # num only
     enum: list[str] | None = None  # cat only
+    min_len: int | None = None  # str only
+    max_len: int | None = None  # str only
     description: str = ""
 
     @model_validator(mode="after")
     def _validate_kind_params(self) -> FieldSpec:
+        # Params must match their kind — reject silent regressions.
+        if self.kind != "num" and self.range is not None:
+            raise ValueError(f"field '{self.name}': 'range' is only valid for kind 'num'")
+        if self.kind != "cat" and self.enum is not None:
+            raise ValueError(f"field '{self.name}': 'enum' is only valid for kind 'cat'")
+        if self.kind != "str" and (self.min_len is not None or self.max_len is not None):
+            raise ValueError(
+                f"field '{self.name}': 'min_len'/'max_len' are only valid for kind 'str'"
+            )
+
         if self.kind == "num":
-            if self.enum is not None:
-                raise ValueError(f"field '{self.name}': 'enum' is only valid for kind 'cat'")
             if self.range is not None:
                 lo, hi = self.range
                 if lo > hi:
@@ -42,17 +54,27 @@ class FieldSpec(BaseModel):
                         f"field '{self.name}': range min {lo} is greater than max {hi}"
                     )
         elif self.kind == "cat":
-            if self.range is not None:
-                raise ValueError(f"field '{self.name}': 'range' is only valid for kind 'num'")
+            # A 'cat' with no enum is an error, not a free-string fallback — use kind 'str'.
             if not self.enum:
-                raise ValueError(f"field '{self.name}': kind 'cat' requires a non-empty 'enum'")
+                raise ValueError(
+                    f"field '{self.name}': kind 'cat' requires a non-empty 'enum' "
+                    f"(use kind 'str' for free-form text)"
+                )
             if len(set(self.enum)) != len(self.enum):
                 raise ValueError(f"field '{self.name}': 'enum' has duplicate values")
-        else:  # bool, tag_set
-            if self.range is not None:
-                raise ValueError(f"field '{self.name}': 'range' is only valid for kind 'num'")
-            if self.enum is not None:
-                raise ValueError(f"field '{self.name}': 'enum' is only valid for kind 'cat'")
+        elif self.kind == "str":
+            if self.min_len is not None and self.min_len < 0:
+                raise ValueError(f"field '{self.name}': 'min_len' must be >= 0")
+            if self.max_len is not None and self.max_len < 0:
+                raise ValueError(f"field '{self.name}': 'max_len' must be >= 0")
+            if (
+                self.min_len is not None
+                and self.max_len is not None
+                and self.min_len > self.max_len
+            ):
+                raise ValueError(
+                    f"field '{self.name}': min_len {self.min_len} greater than max_len {self.max_len}"
+                )
         return self
 
 
@@ -128,6 +150,12 @@ class EntitySchema(BaseModel):
             return Literal[tuple(spec.enum)], Field(description=spec.description)  # type: ignore[valid-type]
         if spec.kind == "bool":
             return bool, Field(description=spec.description)
+        if spec.kind == "str":
+            return str, Field(
+                min_length=spec.min_len,
+                max_length=spec.max_len,
+                description=spec.description,
+            )
         # tag_set — required list (may be empty); kept in sync with to_llm_schema 'required'
         return list[str], Field(description=spec.description)
 
@@ -145,6 +173,12 @@ class EntitySchema(BaseModel):
             base["enum"] = spec.enum
         elif spec.kind == "bool":
             base["type"] = "boolean"
+        elif spec.kind == "str":
+            base["type"] = "string"
+            if spec.min_len is not None:
+                base["minLength"] = spec.min_len
+            if spec.max_len is not None:
+                base["maxLength"] = spec.max_len
         else:  # tag_set
             base["type"] = "array"
             base["items"] = {"type": "string"}

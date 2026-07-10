@@ -34,6 +34,17 @@ DSL declarativa: dict → Pydantic model dinâmico + JSON schema pra LLM tool_us
 - 5 testes cobrem cada tipo + campos inválidos + geração de tool_use schema
 - `pytest tests/test_entity_schema.py` verde
 
+### [x] B1.2.1 — Adicionar kind `str` ao FieldSpec (1 h, follow-up de B2.1 blocker)
+Lacuna descoberta durante B2.1: campos free-form (Unit.name, Creature.name, Person.name) não têm kind válido. Solução: novo kind `str` com `min_len`/`max_len` opcionais. Ver `docs/architecture.md#core` para spec completa.
+**DoD:**
+- `FieldSpec.kind` inclui `"str"` no Literal
+- `FieldSpec` ganha campos opcionais `min_len: int | None`, `max_len: int | None`
+- `build_model()` gera Pydantic `str` field com `Field(min_length=..., max_length=...)`
+- `to_llm_schema()` emite `{"type": "string", "minLength": ..., "maxLength": ...}` quando presentes
+- 3 novos testes: str sem constraints, str com min/max, str inválido (violates min_len)
+- `pytest tests/test_entity_schema.py` continua verde (5 originais + 3 novos = 8)
+- **Não** aceitar `cat` sem enum como fallback — regressão silenciosa. Levantar erro claro se `cat` sem `enum`.
+
 ### [x] B1.3 — `core/constraint_engine.py` (4 h)
 Valida entidades contra constraints declarativas.
 **DoD:**
