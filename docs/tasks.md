@@ -42,7 +42,7 @@ Valida entidades contra constraints declarativas.
 - 8 testes: cada kind com happy path + edge case
 - `pytest tests/test_constraint_engine.py` verde
 
-### [ ] B1.4 — `core/simulator_interface.py` ABC (2 h)
+### [x] B1.4 — `core/simulator_interface.py` ABC (2 h)
 ABC pura, sem implementação. Só define contrato.
 **DoD:**
 - `SimulatorInterface`, `RunResult`, `Environment` classes definidas
