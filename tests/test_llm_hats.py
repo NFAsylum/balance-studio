@@ -62,6 +62,23 @@ def test_designer_is_deterministic():
     assert [e.model_dump() for e in a] == [e.model_dump() for e in b]
 
 
+def test_designer_handles_map_and_tag_set_fields():
+    schema = EntitySchema.from_dict(
+        {
+            "name": "C",
+            "fields": [
+                {"name": "name", "kind": "str"},
+                {"name": "skills", "kind": "tag_set"},
+                {"name": "resistances", "kind": "map", "enum": ["fire", "water"]},
+            ],
+        }
+    )
+    for entity in FakeDesigner().design("brief", schema, [], 3):
+        data = entity.model_dump()
+        assert isinstance(data["resistances"], dict)
+        assert isinstance(data["skills"], list)
+
+
 def test_designer_respects_ranges_and_enums():
     schema = _card_schema()
     for e in FakeDesigner().design("x", schema, [], n=20):

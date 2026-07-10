@@ -63,6 +63,11 @@ class FakeDesigner:
             if field.min_len is not None and len(token) < field.min_len:
                 token = (token + "x" * field.min_len)[: field.min_len]
             return token
+        if field.kind == "map":
+            # a deterministic 1-key map (e.g. a type resistance); keys from the enum if given
+            if field.enum:
+                return {field.enum[h % len(field.enum)]: 1.0}
+            return {}
         return []  # tag_set
 
 

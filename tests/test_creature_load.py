@@ -4,6 +4,7 @@ import time
 from collections import Counter
 
 from core.entity_schema import EntitySchema
+from core.llm_fakes import FakeDesigner
 from domains.creature_rpg.schema import TYPES, get_schema, load_seed
 
 
@@ -34,6 +35,13 @@ def test_all_creatures_validate():
     for c in load_seed():
         data = c.model_dump()
         assert model(**data).model_dump() == data
+
+
+def test_fake_designer_generates_valid_creatures():
+    # regression: the map field (resistances) must be generated as a dict, not a list
+    designed = FakeDesigner().design("balanced roster", get_schema(), [], 8)
+    assert len(designed) == 8  # each validates on construction (map -> dict)
+    assert all(isinstance(c.model_dump()["resistances"], dict) for c in designed)
 
 
 def test_load_perf():

@@ -285,10 +285,10 @@ UI de composição de objetivos com pesos.
 - Vitest: 2 testes
 
 ### Verificação final Sprint 5
-- [ ] Navegação completa em 2 domínios: card game + creature RPG
-- [ ] Freshness indicators respondem corretamente a edições
-- [ ] Timeline scrubber restaura estado
-- [ ] Screenshots dos dashboards em `README.md`
+- [x] Navegação completa em 2 domínios: card game + creature RPG (ao vivo: ambos criam/iteram via API, todas as rotas UI servem 200; creature já emite tier_emergence/dominance_index/usage_coverage)
+- [x] Freshness indicators respondem a edições (MetricsPanel: stale quando head > último simulate; testado)
+- [x] Timeline scrubber restaura estado (Timeline + `GET /scenarios/{id}?at_seq=N` via replay; testado)
+- [ ] Screenshots dos dashboards em `README.md` — **pendente: precisa de browser** (sandbox sem headless chromium). Instruções de captura no `ui/README.md`; screenshots reais ficam pra quando o Marco rodar `pnpm dev` local, ou pro Sprint 8 (deploy).
 
 ---
 
