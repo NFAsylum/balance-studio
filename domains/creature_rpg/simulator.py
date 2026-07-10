@@ -22,6 +22,7 @@ from core.entity_schema import EntitySchema
 from core.metrics import DurationStats, EloMmrRating, WinRateDistribution
 from core.metrics.base import Metric
 from core.simulator_interface import Environment, RunResult, SimulatorInterface
+from domains.creature_rpg.metrics import DominanceIndex, TierEmergence, UsageCoverage
 from domains.creature_rpg.schema import SKILLS_BY_NAME, Skill, get_schema
 
 _MATCHUPS_PATH = Path(__file__).with_name("matchups.json")
@@ -101,7 +102,14 @@ class CreatureRpgSimulator(SimulatorInterface):
         return GauntletEnv
 
     def default_metrics(self) -> list[Metric]:
-        return [EloMmrRating(), WinRateDistribution(), DurationStats()]
+        return [
+            EloMmrRating(),
+            WinRateDistribution(),
+            DurationStats(),
+            TierEmergence(),
+            DominanceIndex(),
+            UsageCoverage(),
+        ]
 
     def llm_generation_prompt(self, constraints: list[Any]) -> str:
         return (

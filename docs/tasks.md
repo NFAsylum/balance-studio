@@ -203,7 +203,7 @@ Gauntlet mode + tournament mode.
 - Determinismo com seed (5 execuções mesmo output)
 - 6 testes cobrem cada modo + edge cases
 
-### [ ] B4.3 — Métricas RPG (4 h)
+### [x] B4.3 — Métricas RPG (4 h)
 `TierEmergence`, `DominanceIndex`, `UsageCoverage`.
 **DoD:**
 - `TierEmergence`: agrupa creatures por rating em tiers S/A/B/C/D
