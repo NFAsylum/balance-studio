@@ -276,7 +276,7 @@ UI de composição de objetivos com pesos.
 - Frente de Pareto (2 objetivos) renderiza scatter com Pareto highlighted
 - Vitest: 3 testes
 
-### [ ] B5.6 — Diff view entre branches / pontos do timeline (4 h)
+### [x] B5.6 — Diff view entre branches / pontos do timeline (4 h)
 **DoD:**
 - Selector "Compare A vs B" (branch, ou seq points)
 - Diff visual: entities added/removed/edited destacados

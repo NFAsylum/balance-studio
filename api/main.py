@@ -318,6 +318,12 @@ def get_history(scenario_id: str) -> dict[str, Any]:
     return {"events": [e.model_dump(mode="json") for e in events]}
 
 
+@app.get("/scenarios/{scenario_id}/branches")
+def list_branches(scenario_id: str) -> dict[str, list[dict[str, Any]]]:
+    _load_scenario(scenario_id)
+    return {"branches": [b.model_dump() for b in services.branch.list(scenario_id)]}
+
+
 @app.post("/scenarios/{scenario_id}/branches")
 def create_branch(scenario_id: str, request: CreateBranchRequest) -> dict[str, Any]:
     _load_scenario(scenario_id)

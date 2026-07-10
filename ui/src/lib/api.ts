@@ -73,4 +73,23 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ objectives }),
     }),
+  listBranches: (id: string) => request<{ branches: BranchInfo[] }>(`/scenarios/${id}/branches`),
+  createBranch: (id: string, parent_seq: number, name: string) =>
+    request<{ branch_id: string }>(`/scenarios/${id}/branches`, {
+      method: "POST",
+      body: JSON.stringify({ parent_seq, name }),
+    }),
+  diffBranches: (id: string, a: string, b: string) =>
+    request<DiffReport>(`/scenarios/${id}/branches/${a}/diff/${b}`),
+};
+
+export type BranchInfo = { branch_id: string; name: string; head_seq: number; event_count: number };
+
+export type DiffReport = {
+  branch_a: string;
+  branch_b: string;
+  exclusive_events_a: number;
+  exclusive_events_b: number;
+  entities: { only_in_a: string[]; only_in_b: string[]; changed: string[] };
+  metrics_diff: Record<string, { a: number | null; b: number | null }>;
 };
