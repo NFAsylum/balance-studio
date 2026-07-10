@@ -85,7 +85,7 @@ Define `Unit`, `Ability`, `Deck` via `EntitySchema`.
 - Campos: `name` (cat/free-string), `cost` (num 1-5), `hp` (num 1-20), `damage` (num 1-10), `ability_kind` (cat), `ability_value` (num)
 - Load `domains/card_game/seed_data.json` com 10 unidades e validar todas — `pytest tests/test_card_schema.py` verde
 
-### [ ] B2.2 — `domains/card_game/simulator.py` (6 h)
+### [x] B2.2 — `domains/card_game/simulator.py` (6 h)
 Turn-based combat 1v1, seeded RNG, retorna `RunResult`.
 **DoD:**
 - `CardGameSimulator().run(entities=[deck_a, deck_b], env=MatchEnv(seed=42))` roda
