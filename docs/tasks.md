@@ -34,7 +34,7 @@ DSL declarativa: dict → Pydantic model dinâmico + JSON schema pra LLM tool_us
 - 5 testes cobrem cada tipo + campos inválidos + geração de tool_use schema
 - `pytest tests/test_entity_schema.py` verde
 
-### [ ] B1.3 — `core/constraint_engine.py` (4 h)
+### [x] B1.3 — `core/constraint_engine.py` (4 h)
 Valida entidades contra constraints declarativas.
 **DoD:**
 - 5 kinds implementados: `range`, `sum_of_fields`, `forbidden_combo`, `required_tag`, `unique_across_set`
