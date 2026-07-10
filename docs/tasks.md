@@ -121,7 +121,7 @@ Três `Protocol`s em `core/llm_hats.py`. Impl `Fake*` deterministicas em `core/l
 
 ## Sprint 3 — Motor de iteração + branching + multi-objetivo + cache incremental (25 h)
 
-### [ ] B3.1 — Motor de iteração event-based (7 h)
+### [x] B3.1 — Motor de iteração event-based (7 h)
 Sem state machine rígida. Loop reativo: `iterate(scenario)` puxa estado atual, chama Designer/Iterator conforme fase, aplica mudanças propostas (se autorizadas), roda simulate/judge, grava eventos. Usuário pode inserir evento manual entre qualquer chamada.
 **DoD:**
 - `IterationEngine.step(scenario_id, phase: Literal["design","iterate","simulate","judge"])` — executa uma fase, grava eventos

@@ -85,6 +85,21 @@ class SimulatorInterface(ABC):
         parallelises and caches runs on the assumption of purity.
         """
 
+    def run_batch(
+        self, entities: list[BaseModel], env: Environment, n_runs: int
+    ) -> list[RunResult]:
+        """Run ``n_runs`` matches over an entity *set* and return every RunResult.
+
+        This is the seam the iteration engine and sim cache use: given a pool of entities,
+        the domain decides matchmaking (card game: round-robin of solo decks; creature RPG:
+        gauntlet). The default treats the whole list as one matchup repeated with varied
+        seeds — domains with set-level structure override it.
+        """
+        return [
+            self.run(entities, env.model_copy(update={"seed": env.seed + i}))
+            for i in range(n_runs)
+        ]
+
     @abstractmethod
     def default_metrics(self) -> list[Metric]:
         """Return the metrics this domain computes by default over a batch of runs.

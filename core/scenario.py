@@ -52,6 +52,8 @@ class Scenario(BaseModel):
     id: str
     domain: str
     name: str
+    brief: str = ""  # design prompt for the Designer hat
+    n_entities: int = 8  # how many entities the design phase targets
     objectives: list[Objective] = Field(default_factory=list)
     head_event_seq: int = 0
     current_branch: str = MAIN_BRANCH
@@ -128,6 +130,36 @@ class EventLog:
 
         if stored.branch_id == scenario.current_branch:
             scenario.head_event_seq = stored.seq
+            self._write_manifest(scenario, branches)
+        return stored
+
+    def append_many(self, scenario_id: str, events: list[Event]) -> list[Event]:
+        """Append several events to one branch atomically (single file write).
+
+        All events must share a branch (the caller's phase). Seqs are assigned sequentially.
+        Nothing is written if the branch is unregistered — this gives the iteration engine
+        all-or-nothing steps: a phase that raises before calling this appends no events.
+        """
+        if not events:
+            return []
+        branch = events[0].branch_id
+        scenario, branches = self._read_manifest(scenario_id)
+        if branch not in branches:
+            raise ValueError(f"branch '{branch}' not registered for scenario '{scenario_id}'")
+        if any(e.branch_id != branch for e in events):
+            raise ValueError("append_many requires all events on the same branch")
+
+        head = self.head(scenario_id, branch)
+        stored: list[Event] = []
+        for offset, event in enumerate(events):
+            seq = head + 1 + offset
+            parent = seq - 1 if seq > 1 else event.parent_seq
+            stored.append(event.model_copy(update={"seq": seq, "parent_seq": parent}))
+        with self._events_path(scenario_id).open("a", encoding="utf-8") as fh:
+            fh.writelines(e.model_dump_json() + "\n" for e in stored)
+
+        if branch == scenario.current_branch:
+            scenario.head_event_seq = stored[-1].seq
             self._write_manifest(scenario, branches)
         return stored
 

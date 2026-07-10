@@ -26,6 +26,7 @@ Abilities (trigger on play):
 
 from __future__ import annotations
 
+import itertools
 import random
 from dataclasses import dataclass, field
 from typing import Any
@@ -134,6 +135,32 @@ class CardGameSimulator(SimulatorInterface):
         deck_a = _coerce_deck(entities[0], 0)
         deck_b = _coerce_deck(entities[1], 1)
         return _Match(deck_a, deck_b, env).play()
+
+    def run_batch(
+        self, entities: list[Any], env: Environment, n_runs: int
+    ) -> list[RunResult]:
+        """Round-robin of solo decks so win rate is attributed per unit (by unit name).
+
+        Each unit becomes a single-card deck; every unordered pair plays enough matches
+        (with varied seeds) to total roughly ``n_runs``.
+        """
+        units = [_to_unit_dict(u) for u in entities]
+        names = [u["name"] for u in units]
+        pairs = list(itertools.combinations(range(len(units)), 2))
+        if not pairs:
+            return []
+        per_pair = max(1, round(n_runs / len(pairs)))
+        base_seed = env.seed if isinstance(env, MatchEnv) else env.seed
+        results: list[RunResult] = []
+        seed = base_seed
+        for i, j in pairs:
+            for _ in range(per_pair):
+                match_env = MatchEnv(**{**env.model_dump(), "seed": seed})
+                seed += 1
+                deck_a = Deck(id=names[i], units=[units[i]])
+                deck_b = Deck(id=names[j], units=[units[j]])
+                results.append(_Match(deck_a, deck_b, match_env).play())
+        return results
 
 
 class _Match:
