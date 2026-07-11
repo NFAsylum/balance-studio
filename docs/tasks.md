@@ -324,13 +324,13 @@ Rodar **2 loops** completos por domain (card + creature) com o LLM local.
 
 ## Sprint 7 — Team composition plugin + tutorial (20 h)
 
-### [ ] B7.1 — `domains/team_composition/schema.py` (3 h)
+### [x] B7.1 — `domains/team_composition/schema.py` (3 h)
 `Person(name str, seniority cat, skills tag_set, preferred_task_types tag_set)`, `TaskType`.
 **DoD:**
 - Seed com 50 pessoas, 20 task types
 - Schema valida seed
 
-### [ ] B7.2 — `domains/team_composition/simulator.py` (8 h)
+### [x] B7.2 — `domains/team_composition/simulator.py` (8 h)
 Modelo probabilístico de completion.
 **DoD:**
 - `WorkloadEnv(tasks, deadline_days, seed)` define carga
@@ -338,7 +338,7 @@ Modelo probabilístico de completion.
 - Determinismo com seed
 - 5 testes de comportamento
 
-### [ ] B7.3 — Métricas team (3 h)
+### [x] B7.3 — Métricas team (3 h)
 `SkillCoverage`, `Redundancy`, `SinglePointOfFailure`.
 
 ### [ ] B7.4 — `docs/writing-a-domain.md` — tutorial (6 h)
