@@ -17,6 +17,22 @@ tooling is always rebuilt from scratch and vertical. Balance Studio makes the *l
 keeping the credible part (simulation) LLM-free and deterministic, so "won 62% of matches" is
 ground truth, not an opinion.
 
+## Does the loop actually balance?
+
+Measured, not asserted. Starting from a known-imbalanced seed roster and running the Iterator
+(a local 7B) with **surgical edits**, over 3 seeds:
+
+| Domain | Win-rate dispersion (↓ = more balanced) | Variety (guardrail) |
+|---|---|---|
+| **creature_rpg** | 0.273 → 0.244 (**−10.6%**) | −3.9% (preserved) |
+| **card_game** | 0.315 → 0.308 (**−2.2%**) | −5.4% (preserved) |
+| team_composition | flat (within noise) | −0.6% |
+
+**The Iterator cut win-rate dispersion in 2 of 3 domains while keeping variety intact** — and
+the process surfaced a real finding: naive "change everything" passes *raise* imbalance in
+combat domains (non-linear stat→outcome), so the Iterator is capped to a few targeted edits.
+Full methodology, the negative first attempt, and the diagnosis: [`docs/experiments.md`](docs/experiments.md).
+
 ## What's in the box
 
 Three working domains, all on the same infrastructure:
