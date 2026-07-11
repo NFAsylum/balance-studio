@@ -43,7 +43,7 @@ export function Timeline({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex gap-2 text-sm">
-        <select aria-label="filter actor" className="h-8 rounded border border-neutral-300 px-2" value={actor} onChange={(e) => setActor(e.target.value)}>
+        <select aria-label="filter actor" className="h-8 rounded border border-input bg-background px-2" value={actor} onChange={(e) => setActor(e.target.value)}>
           <option value="all">all actors</option>
           {actors.map((a) => (
             <option key={a} value={a}>
@@ -51,7 +51,7 @@ export function Timeline({
             </option>
           ))}
         </select>
-        <select aria-label="filter kind" className="h-8 rounded border border-neutral-300 px-2" value={kind} onChange={(e) => setKind(e.target.value)}>
+        <select aria-label="filter kind" className="h-8 rounded border border-input bg-background px-2" value={kind} onChange={(e) => setKind(e.target.value)}>
           <option value="all">all kinds</option>
           {kinds.map((k) => (
             <option key={k} value={k}>
@@ -74,15 +74,15 @@ export function Timeline({
                 onClick={() => onSelect?.(e.seq)}
                 className={cn(
                   "flex min-w-[84px] flex-col items-start gap-1 rounded border px-2 py-1 text-left text-xs",
-                  selectedSeq === e.seq ? "border-neutral-900 ring-1 ring-neutral-900" : "border-neutral-200"
+                  selectedSeq === e.seq ? "border-foreground ring-1 ring-ring" : "border-border"
                 )}
               >
                 <span className="flex items-center gap-1">
                   <span className={cn("h-2 w-2 rounded-full", style.dot)} />
-                  <span className="text-neutral-400">#{e.seq}</span>
+                  <span className="text-muted-foreground">#{e.seq}</span>
                 </span>
                 <span className="font-medium">{e.kind}</span>
-                <span className="text-neutral-500">{style.label}</span>
+                <span className="text-muted-foreground">{style.label}</span>
               </button>
             </li>
           );

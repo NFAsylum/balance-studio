@@ -29,3 +29,18 @@ os caches pra um dir gravável se `~/.npm`/`~/.local` não forem:
 - `src/app/` — rotas (home, `scenarios/[id]`, `/history`, `/branches`)
 - `src/components/ui/` — componentes shadcn-style (Button, Card, Input, Select, Tabs, Slider, Dialog)
 - `src/lib/api.ts` — client da API
+
+## Features de UX
+
+- **Edição inline de entidades** — no board do cenário, cada card abre no `EntityEditor`
+  (form schema-driven, o mesmo pra qualquer domínio). Salvar dispara `PATCH /entities/{id}`,
+  registrado como evento de **usuário** — o LLM iterator nunca sobrescreve edição do usuário.
+- **Dark mode** — toggle no header (`src/lib/theme.tsx`, class-based, sem dependência).
+  Persiste em `localStorage` e respeita `prefers-color-scheme`; um script inline no `<head>`
+  evita flash. Cores via tokens semânticos (`bg-background`, `text-muted-foreground`, …)
+  definidos em `globals.css` (`:root` + `.dark`) e mapeados no `tailwind.config.ts`.
+- **i18n (EN/PT)** — `src/lib/i18n.tsx`, dicionário + context leve (sem mudança de rota).
+  Toggle no header, persiste em `localStorage`, default pelo `navigator.language`. `useT()`
+  funciona sem provider (fallback EN) pra testes de componente isolados.
+- **Tooltips** — botões de fase (design/simulate/judge/iterate) e o botão de editar têm
+  `title` explicando o que fazem.

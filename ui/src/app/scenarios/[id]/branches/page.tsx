@@ -4,11 +4,13 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { useT } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { DiffView } from "@/components/DiffView";
 
 export default function BranchesPage() {
   const { id } = useParams<{ id: string }>();
+  const { t } = useT();
   const qc = useQueryClient();
   const branches = useQuery({ queryKey: ["branches", id], queryFn: () => api.listBranches(id) });
   const scenario = useQuery({ queryKey: ["scenario", id], queryFn: () => api.getScenario(id) });
@@ -32,21 +34,21 @@ export default function BranchesPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Branches</h1>
+        <h1 className="text-2xl font-semibold">{t("branches")}</h1>
         <Button asChild variant="outline">
-          <Link href={`/scenarios/${id}`}>Back</Link>
+          <Link href={`/scenarios/${id}`}>{t("back")}</Link>
         </Button>
       </div>
 
       <div className="flex items-center gap-2 text-sm">
-        <span>Compare</span>
+        <span>{t("compare")}</span>
         <BranchSelect label="A" value={a} onChange={setA} options={options.map((o) => o.branch_id)} />
-        <span className="text-neutral-400">vs</span>
+        <span className="text-muted-foreground">{t("vs")}</span>
         <BranchSelect label="B" value={b} onChange={setB} options={options.map((o) => o.branch_id)} />
       </div>
 
       {diff.data && <DiffView diff={diff.data} onForkA={() => fork.mutate()} />}
-      {a && b && a === b && <p className="text-sm text-neutral-500">Pick two different branches.</p>}
+      {a && b && a === b && <p className="text-sm text-muted-foreground">{t("pickTwo")}</p>}
     </div>
   );
 }
@@ -65,7 +67,7 @@ function BranchSelect({
   return (
     <select
       aria-label={`branch ${label}`}
-      className="h-8 rounded border border-neutral-300 px-2"
+      className="h-8 rounded border border-input bg-background px-2"
       value={value}
       onChange={(e) => onChange(e.target.value)}
     >

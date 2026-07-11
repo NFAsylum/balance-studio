@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import "./globals.css";
 import { Providers } from "./providers";
+import { SiteHeader } from "@/components/SiteHeader";
+import { themeInitScript } from "@/lib/theme";
 
 export const metadata: Metadata = {
   title: "Balance Studio",
@@ -10,17 +11,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Set the theme class before paint to avoid a light/dark flash. */}
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body>
         <Providers>
-          <header className="border-b border-neutral-200 bg-white">
-            <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-              <Link href="/" className="font-semibold">
-                Balance Studio
-              </Link>
-              <span className="text-xs text-neutral-500">framework de balance · humano + LLM</span>
-            </div>
-          </header>
+          <SiteHeader />
           <main className="mx-auto max-w-6xl px-6 py-8">{children}</main>
         </Providers>
       </body>

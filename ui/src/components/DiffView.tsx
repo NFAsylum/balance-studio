@@ -13,7 +13,7 @@ export function DiffView({ diff, onForkA }: { diff: DiffReport; onForkA?: () => 
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">
-          {diff.branch_a} <span className="text-neutral-400">vs</span> {diff.branch_b}
+          {diff.branch_a} <span className="text-muted-foreground">vs</span> {diff.branch_b}
         </h2>
         {onForkA && (
           <Button size="sm" variant="outline" onClick={onForkA}>
@@ -22,7 +22,7 @@ export function DiffView({ diff, onForkA }: { diff: DiffReport; onForkA?: () => 
         )}
       </div>
 
-      <p className="text-sm text-neutral-500">
+      <p className="text-sm text-muted-foreground">
         {diff.exclusive_events_a} events only in {diff.branch_a} · {diff.exclusive_events_b} only in {diff.branch_b}
       </p>
 
@@ -45,7 +45,7 @@ export function DiffView({ diff, onForkA }: { diff: DiffReport; onForkA?: () => 
           <CardContent>
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-neutral-500">
+                <tr className="text-left text-muted-foreground">
                   <th className="py-1">entity</th>
                   <th>{diff.branch_a}</th>
                   <th>{diff.branch_b}</th>
@@ -71,12 +71,12 @@ export function DiffView({ diff, onForkA }: { diff: DiffReport; onForkA?: () => 
 function DiffLine({ label, testid, color, ids }: { label: string; testid: string; color: string; ids: string[] }) {
   return (
     <div data-testid={`diff-${testid}`} className="flex flex-wrap items-center gap-2">
-      <span className="w-40 shrink-0 text-neutral-500">{label}</span>
+      <span className="w-40 shrink-0 text-muted-foreground">{label}</span>
       {ids.length === 0 ? (
-        <span className="text-neutral-300">none</span>
+        <span className="text-muted-foreground/60">none</span>
       ) : (
         ids.map((id) => (
-          <span key={id} className={`rounded bg-neutral-100 px-2 py-0.5 text-xs ${color}`}>
+          <span key={id} className={`rounded bg-muted px-2 py-0.5 text-xs ${color}`}>
             {id}
           </span>
         ))
