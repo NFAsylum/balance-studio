@@ -78,6 +78,17 @@ def get_schema() -> EntitySchema:
     return EntitySchema.from_dict(_PERSON_SCHEMA_DICT)
 
 
+_FIRST_NAMES = [
+    "Ana", "Bruno", "Clara", "Diego", "Elena", "Felipe", "Gabi", "Hugo", "Iris", "João",
+    "Kira", "Lucas", "Maya", "Nina", "Otto", "Paula", "Quinn", "Rafa", "Sofia", "Théo",
+]
+_LAST_NAMES = ["Alves", "Braga", "Costa", "Dias", "Faria", "Gomes", "Lima", "Melo", "Nunes", "Rocha"]
+
+
+def _person_name(i: int) -> str:
+    return f"{_FIRST_NAMES[i % len(_FIRST_NAMES)]} {_LAST_NAMES[(i // len(_FIRST_NAMES)) % len(_LAST_NAMES)]}"
+
+
 def generate_seed(n: int = 50) -> list[dict]:
     """Deterministically generate ``n`` people across seniorities and skills."""
     people: list[dict] = []
@@ -90,7 +101,7 @@ def generate_seed(n: int = 50) -> list[dict]:
         prefs = sorted({f"task_{((h // (3 ** k)) % 20):02d}" for k in range(n_pref + 1)})[:n_pref]
         people.append(
             {
-                "name": f"Person-{i:03d}",
+                "name": _person_name(i),
                 "seniority": seniority,
                 "skills": skills,
                 "preferred_task_types": prefs,

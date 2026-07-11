@@ -369,9 +369,9 @@ Momento planejado de trocar SQLite → Postgres e `diskcache` → Redis.
 - Secrets via `fly secrets` / Vercel env vars
 - URL público funcional
 
-### [ ] B8.2 — Seed data polida por domain (3 h)
+### [x] B8.2 — Seed data polida por domain (3 h)
 
-### [ ] B8.3 — README completo (5 h)
+### [x] B8.3 — README completo (5 h)
 
 ### [ ] B8.4 — Demo video 4 min + post técnico (4 h)
 

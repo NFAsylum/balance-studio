@@ -72,11 +72,33 @@ def beaten_by(defender_type: str) -> str:
     return TYPES[(TYPES.index(defender_type) - 1) % len(TYPES)]
 
 
+# Flavourful name parts per type (prefix x suffix gives plenty of unique names per type).
+_NAME_PREFIX = {
+    "fire": ["Ember", "Cinder", "Magma", "Pyre", "Ash", "Scorch"],
+    "water": ["Tide", "Brine", "Coral", "Mist", "Wave", "Aqua"],
+    "plant": ["Thorn", "Bramble", "Moss", "Petal", "Vine", "Bloom"],
+    "ice": ["Frost", "Glacier", "Rime", "Sleet", "Chill", "Hail"],
+    "electric": ["Volt", "Spark", "Arc", "Surge", "Bolt", "Static"],
+    "rock": ["Boulder", "Granite", "Slate", "Crag", "Basalt", "Flint"],
+    "wind": ["Gale", "Zephyr", "Gust", "Cyclo", "Breeze", "Squall"],
+    "shadow": ["Umbra", "Night", "Dusk", "Void", "Shade", "Gloom"],
+}
+_NAME_SUFFIX = ["ling", "wing", "maw", "lisk", "fang", "claw", "spawn", "horn"]
+
+
+def _creature_name(ctype: str, k: int) -> str:
+    prefixes = _NAME_PREFIX[ctype]
+    return f"{prefixes[k % len(prefixes)]}{_NAME_SUFFIX[(k // len(prefixes)) % len(_NAME_SUFFIX)]}"
+
+
 def generate_seed(n: int = 100) -> list[dict]:
     """Deterministically generate ``n`` creatures spread evenly across the 8 types."""
     creatures: list[dict] = []
+    per_type: dict[str, int] = {}
     for i in range(n):
         ctype = TYPES[i % len(TYPES)]
+        type_idx = per_type.get(ctype, 0)
+        per_type[ctype] = type_idx + 1
         h = int(hashlib.sha256(str(i).encode()).hexdigest(), 16)
         own = [s.name for s in SKILLS if s.type == ctype]
         pool = own + [name for name in _SKILL_NAMES if name not in own]
@@ -96,7 +118,7 @@ def generate_seed(n: int = 100) -> list[dict]:
 
         creatures.append(
             {
-                "name": f"{ctype.capitalize()}-{i:03d}",
+                "name": _creature_name(ctype, type_idx),
                 "type": ctype,
                 "hp": 20 + h % 281,
                 "atk": 10 + (h // 7) % 141,
