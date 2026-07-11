@@ -32,17 +32,28 @@ class SimCacheEntry(BaseModel):
 
 
 class SimCache:
-    """Stores per-matchup results and a reverse index for entity-level invalidation."""
+    """Stores per-matchup results and a reverse index for entity-level invalidation.
 
-    def __init__(self, backend: CacheBackend):
+    ``key_prefix`` namespaces keys so a *shared* backend (Redis in prod) isolates scenarios;
+    with a per-scenario disk dir it's simply harmless.
+    """
+
+    def __init__(self, backend: CacheBackend, key_prefix: str = ""):
         self.backend = backend
+        self._prefix = f"{key_prefix}:" if key_prefix else ""
+
+    def _sim_key(self, config_hash: str) -> str:
+        return f"{self._prefix}{_SIM_PREFIX}{config_hash}"
+
+    def _idx_key(self, entity_id: str) -> str:
+        return f"{self._prefix}{_IDX_PREFIX}{entity_id}"
 
     def get(self, config_hash: str) -> SimCacheEntry | None:
-        raw = self.backend.get(_SIM_PREFIX + config_hash)
+        raw = self.backend.get(self._sim_key(config_hash))
         return SimCacheEntry.model_validate_json(raw) if raw is not None else None
 
     def put(self, entry: SimCacheEntry) -> None:
-        self.backend.set(_SIM_PREFIX + entry.config_hash, entry.model_dump_json().encode())
+        self.backend.set(self._sim_key(entry.config_hash), entry.model_dump_json().encode())
         for entity_id in entry.entities_involved:
             self._index_add(entity_id, entry.config_hash)
 
@@ -51,9 +62,9 @@ class SimCache:
         removed = 0
         for entity_id in entity_ids:
             for config_hash in self._index_get(entity_id):
-                self.backend.delete(_SIM_PREFIX + config_hash)
+                self.backend.delete(self._sim_key(config_hash))
                 removed += 1
-            self.backend.delete(_IDX_PREFIX + entity_id)
+            self.backend.delete(self._idx_key(entity_id))
         return removed
 
     @staticmethod
@@ -69,14 +80,14 @@ class SimCache:
     # -- index -------------------------------------------------------------
 
     def _index_get(self, entity_id: str) -> list[str]:
-        raw = self.backend.get(_IDX_PREFIX + entity_id)
+        raw = self.backend.get(self._idx_key(entity_id))
         return json.loads(raw) if raw is not None else []
 
     def _index_add(self, entity_id: str, config_hash: str) -> None:
         current = self._index_get(entity_id)
         if config_hash not in current:
             current.append(config_hash)
-            self.backend.set(_IDX_PREFIX + entity_id, json.dumps(current).encode())
+            self.backend.set(self._idx_key(entity_id), json.dumps(current).encode())
 
 
 class SimRunReport(BaseModel):

@@ -9,6 +9,7 @@ change was made by the user is never overwritten.
 
 from __future__ import annotations
 
+import os
 from typing import Any, Literal
 
 from pydantic import BaseModel, Field, ValidationError
@@ -129,7 +130,9 @@ class IterationEngine:
             return StepResult(phase="simulate", events_appended=0, details={"skipped": "no entities"})
         env = simulator.environment_schema()(seed=self.sim_seed)
         # Incremental cache per scenario: re-running only re-simulates matchups that changed.
-        cache = SimCache(DiskCacheBackend(self.events.base / scenario_id / "sim_cache"))
+        # Disk (dev, portable per-scenario dir) or Redis (prod) via CACHE_BACKEND; keys are
+        # namespaced by scenario so a shared Redis stays isolated.
+        cache = SimCache(self._cache_backend(scenario_id), key_prefix=scenario_id)
         runner = IncrementalSimRunner(simulator, cache, self.events)
         report = runner.run(scenario_id, instances, env, self.n_runs, kind="full", branch=branch)
         winrate = report.metrics.get("winrate_distribution", {}).get("data", {}).get("per_entity", {})
@@ -205,6 +208,13 @@ class IterationEngine:
         )
 
     # -- helpers -----------------------------------------------------------
+
+    def _cache_backend(self, scenario_id: str):
+        if os.getenv("CACHE_BACKEND", "disk").lower() == "redis":
+            from core.cache_backend import RedisCacheBackend
+
+            return RedisCacheBackend()
+        return DiskCacheBackend(self.events.base / scenario_id / "sim_cache")
 
     def _last_actor_by_target(self, scenario_id, branch) -> dict[str, str]:
         actors: dict[str, str] = {}

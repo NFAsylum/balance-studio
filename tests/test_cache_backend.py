@@ -2,14 +2,25 @@
 
 import pytest
 
-from core.cache_backend import CacheBackend, DiskCacheBackend, InMemoryCacheBackend
+from core.cache_backend import (
+    CacheBackend,
+    DiskCacheBackend,
+    InMemoryCacheBackend,
+    RedisCacheBackend,
+)
 
 
-@pytest.fixture(params=["memory", "disk"])
+@pytest.fixture(params=["memory", "disk", "redis"])
 def backend(request, tmp_path) -> CacheBackend:
     if request.param == "memory":
         return InMemoryCacheBackend()
-    return DiskCacheBackend(directory=tmp_path / "dc")
+    if request.param == "disk":
+        return DiskCacheBackend(directory=tmp_path / "dc")
+    # Redis backend exercised against fakeredis — proves it satisfies the same contract
+    # without a live server (real REDIS_URL swaps in for prod).
+    import fakeredis
+
+    return RedisCacheBackend(client=fakeredis.FakeStrictRedis())
 
 
 def test_set_get_round_trip(backend):
