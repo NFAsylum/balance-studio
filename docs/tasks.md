@@ -341,7 +341,7 @@ Modelo probabilístico de completion.
 ### [x] B7.3 — Métricas team (3 h)
 `SkillCoverage`, `Redundancy`, `SinglePointOfFailure`.
 
-### [ ] B7.4 — `docs/writing-a-domain.md` — tutorial (6 h)
+### [x] B7.4 — `docs/writing-a-domain.md` — tutorial (6 h)
 Passo a passo pra criar novo domain.
 **DoD:**
 - Quickstart 10 min (hello_domain)
@@ -350,8 +350,8 @@ Passo a passo pra criar novo domain.
 - Reader externo esboça um domain trivial em <2h seguindo o doc
 
 ### Verificação final Sprint 7
-- [ ] 3 domains listados na UI, todos rodam
-- [ ] Tutorial pronto e revisado
+- [x] 3 domains listados na UI, todos rodam (registry: card_game + creature_rpg + team_composition; team roda pela mesma engine, métricas próprias)
+- [x] Tutorial pronto e revisado — `docs/writing-a-domain.md` reescrito pra arquitetura atual; quickstart `hello_domain` **validado** (scaffoldado do doc, registrou + rodou, depois removido)
 
 ---
 
