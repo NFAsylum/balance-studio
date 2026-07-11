@@ -79,7 +79,9 @@ class LocalDesigner(_LocalBase):
         schema: EntitySchema,
         constraints: list[Constraint],
         n: int,
+        stats: dict[str, int] | None = None,
     ) -> list[BaseModel]:
+        """Design ``n`` entities. If ``stats`` is given, records raw ``emitted``/``valid`` counts."""
         constraints = constraints or []
         model_cls = schema.build_model()
         engine = ConstraintEngine()
@@ -113,10 +115,15 @@ class LocalDesigner(_LocalBase):
                 logger.info("designer attempt %d: bad JSON", attempt + 1)
                 continue
 
-            for raw in _extract_list(payload, "entities"):
+            raw_entities = _extract_list(payload, "entities")
+            if stats is not None:
+                stats["emitted"] = stats.get("emitted", 0) + len(raw_entities)
+            for raw in raw_entities:
                 entity = self._validate(model_cls, engine, raw, constraints, errors)
                 if entity is not None:
                     collected.append(entity)
+                    if stats is not None:
+                        stats["valid"] = stats.get("valid", 0) + 1
 
         if len(collected) < n:
             logger.warning("LocalDesigner returned %d of %d requested", len(collected), n)

@@ -305,7 +305,7 @@ Implementados em `core/llm_local.py` (task do inbox 2026-07-11):
 - `scripts/smoke_local.py`: valida `/v1/models` + 1 chamada de cada hat com latências
 - **DoD verificado:** `poetry install` ok; smoke roda até o fim (Designer 3.3s/2 units, Judge 1.0s/score 0.30, Iterator 2.8s/2 mods); `pytest tests/test_llm_local.py` verde (7 mock); `pytest` inteiro verde (164)
 
-### [ ] B6.5 — Prompt tuning + validação real (LLM local) (6 h)
+### [x] B6.5 — Prompt tuning + validação real (LLM local) (6 h)
 Rodar **2 loops** completos por domain (card + creature) com o LLM local.
 **DoD:**
 - 2 loops card_game: brief → design → simulate → judge → iterate → converge (ou max 10 steps)
@@ -316,9 +316,9 @@ Rodar **2 loops** completos por domain (card + creature) com o LLM local.
 - Custo: **zero** (local, unlimited)
 
 ### Verificação final Sprint 6
-- [ ] Dois domínios convergem em <10 steps com LLM local
-- [ ] Success rate documentado (>65% card, >55% creature) em `docs/experiments.md`
-- [ ] Config switch fake/local testado em ambos
+- [x] Dois domínios convergem em <10 steps com LLM local (4 steps cada, converged=True)
+- [x] Success rate documentado em `docs/experiments.md` — **card 100% (>65%), creature 100% (>55%)**, 33/33 entidades válidas
+- [x] Config switch fake/local testado em ambos (factory + `experiment_b6` nos 2 domínios; fake é default nos testes)
 
 ---
 

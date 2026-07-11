@@ -113,6 +113,23 @@ def test_user_injection_and_authorship_guardrail(tmp_path):
     assert state.entities["Y"]["hp"] == 12
 
 
+class _BadPayloadIterator:
+    """Proposes an edit whose payload is schema-invalid (cost out of range)."""
+
+    def propose_changes(self, entities, sim_metrics, judge_metrics, objectives):
+        data = entities[0].model_dump()
+        data["cost"] = 99  # card cost range is 1-5
+        return [Modification(kind="edit", target=data["name"], payload=data, reasoning="bad")]
+
+
+def test_iterate_rejects_invalid_payloads(tmp_path):
+    log, _, engine = _engine(tmp_path, iterator=_BadPayloadIterator())
+    log.append("s1", Event(actor="llm-designer", kind="create_entity", target="Z", after=_valid_unit("Z")))
+    result = engine.step("s1", "iterate")
+    assert result.details["applied"] == 0
+    assert result.details["rejected_invalid"] == 1
+
+
 def test_atomic_rollback_on_error(tmp_path):
     log, _, engine = _engine(tmp_path, designer=_RaisingDesigner())
     with pytest.raises(RuntimeError):

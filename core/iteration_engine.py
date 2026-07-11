@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 
 from core.cache_backend import DiskCacheBackend
 from core.llm_hats import DesignerLlm, IteratorLlm, SubjectiveJudgeLlm
@@ -166,13 +166,19 @@ class IterationEngine:
         judge_metrics = self._latest_judge(scenario_id, branch)
         mods = self.iterator.propose_changes(instances, sim_metrics, judge_metrics, scenario.objectives)
 
+        model_cls = self.domains[scenario.domain].entity_schema().build_model()
         last_actor = self._last_actor_by_target(scenario_id, branch)
         events: list[Event] = []
         skipped: list[str] = []
+        rejected = 0
         for mod in mods:
             # Authorship guardrail: never overwrite an entity the user last touched.
             if mod.target and last_actor.get(mod.target) == "user":
                 skipped.append(mod.target)
+                continue
+            # Reject create/edit whose payload doesn't validate — never commit invalid state.
+            if mod.kind != "delete" and not _valid_payload(model_cls, mod.payload):
+                rejected += 1
                 continue
             target = mod.target or str(mod.payload.get("name", "new_entity"))
             events.append(
@@ -190,7 +196,12 @@ class IterationEngine:
         return StepResult(
             phase="iterate",
             events_appended=len(stored),
-            details={"proposed": len(mods), "applied": len(stored), "skipped_user_owned": skipped},
+            details={
+                "proposed": len(mods),
+                "applied": len(stored),
+                "skipped_user_owned": skipped,
+                "rejected_invalid": rejected,
+            },
         )
 
     # -- helpers -----------------------------------------------------------
@@ -214,3 +225,12 @@ class IterationEngine:
             if event.kind == "evaluate_subjective" and event.after:
                 return {event.after["criterion"]: event.after["score"]}
         return {}
+
+
+def _valid_payload(model_cls: type[BaseModel], payload: dict[str, Any]) -> bool:
+    """True if an iterator's modification payload validates against the entity schema."""
+    try:
+        model_cls(**payload)
+        return True
+    except (ValidationError, TypeError):
+        return False
