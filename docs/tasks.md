@@ -359,15 +359,14 @@ Passo a passo pra criar novo domain.
 
 ### [ ] B8.1 — Deploy Fly.io + Vercel + migração de infra (8 h)
 Momento planejado de trocar SQLite → Postgres e `diskcache` → Redis.
-**DoD:**
-- Provisionar Fly Postgres + Fly Redis (upstash) via `flyctl`
-- Implementar `RedisCacheBackend` — passa mesmo test suite do `DiskCacheBackend`
-- `DATABASE_URL` prod aponta pra Postgres; local segue SQLite
-- `alembic upgrade head` roda contra Postgres remoto (schema portável desde Sprint 2)
-- Smoke: criar scenario, iterar 3 vezes, cache hit em segunda iteração
-- Frontend no Vercel
-- Secrets via `fly secrets` / Vercel env vars
-- URL público funcional
+**Prep feito (não precisa de conta):**
+- [x] `RedisCacheBackend` implementado — passa o **mesmo contract** que Disk/InMemory (via `fakeredis`, sem servidor); `CACHE_BACKEND=disk|redis` selecionável na engine; `SimCache.key_prefix` isola cenários no Redis compartilhado
+- ⚠️ **`DATABASE_URL`/`alembic`/Postgres é MOOT:** o pivot deixou a persistência **file-based** (event log `events.jsonl` + snapshots). Não existe camada SQL no código — `grep -rn sqlalchemy core/ api/ domains/` vazio. Só a migração de **cache** (diskcache→Redis) se aplica. Decidir se remove os deps `sqlalchemy`/`alembic` do pyproject ou adiciona uma camada DB de fato (fora do MVP).
+**Bloqueado (precisa do humano):**
+- [ ] Provisionar Fly Redis + secrets via `flyctl` (contas)
+- [ ] Frontend no Vercel (conta) + env vars
+- [ ] URL público funcional
+- [ ] ⚠️ **LLM local em prod:** `llama-server` está na rede do dev (`192.168.3.92`) — inacessível da nuvem. Decidir: túnel/endpoint público, backend co-localizado, ou prod cai pro `LLM_BACKEND=fake`
 
 ### [x] B8.2 — Seed data polida por domain (3 h)
 
