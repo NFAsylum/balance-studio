@@ -1,0 +1,19 @@
+# Keep the backend image lean — exclude everything not needed at runtime.
+ui/
+node_modules/
+.venv/
+.git/
+.github/
+tests/
+docs/
+deploy/
+scenarios/
+.diskcache/
+*.db
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.env
+scripts/__pycache__/
