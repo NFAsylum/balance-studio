@@ -21,7 +21,8 @@ from api.registry import registry
 from core.branching import Branch, DiffReport
 from core.constraint_engine import Constraint
 from core.iteration_engine import IterationEngine, StepResult
-from core.llm_fakes import FakeDesigner, FakeIterator, FakeJudge
+from core.llm_factory import build_hats
+from core.llm_fakes import FakeDesigner
 from core.objectives import Objective
 from core.report_engine import Report, build_report, hash_json
 from core.scenario import Event, EventLog, Scenario
@@ -49,15 +50,16 @@ async def lifespan(app: FastAPI):
     services.event_log = EventLog(base_dir=base_dir)
     services.replay = Replay(services.event_log, SnapshotStore(base_dir=base_dir))
     services.branch = Branch(services.event_log, services.replay)
+    hats = build_hats()  # LLM_BACKEND=fake|local
     services.engine = IterationEngine(
         services.event_log,
         services.replay,
         registry.all(),
-        FakeDesigner(),
-        FakeJudge(),
-        FakeIterator(),
+        hats.designer,
+        hats.judge,
+        hats.iterator,
     )
-    logger.info("domains loaded: %s", registry.names())
+    logger.info("domains loaded: %s | LLM backend: %s", registry.names(), os.getenv("LLM_BACKEND", "fake"))
     yield
 
 

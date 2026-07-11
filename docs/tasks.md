@@ -292,50 +292,33 @@ UI de composição de objetivos com pesos.
 
 ---
 
-## Sprint 6 — Impl real Anthropic (Designer/Judge/Iterator) + prompt tuning (20 h) — **PRIMEIRA VEZ QUE PRECISA DE API KEY**
+## Sprint 6 — Impl LLM local (Designer/Judge/Iterator) + prompt tuning (20 h)
 
-### [ ] B6.1 — `AnthropicDesigner` (4 h)
-**DoD:**
-- Impl do `DesignerLlm` protocol usando Anthropic SDK
-- `tool_use` estruturado — schema derivado do `EntitySchema` via `to_llm_schema()`
-- Retry com feedback em erro de schema (max 3 retries)
-- Constraint violations pós-geração filtradas + logadas
-- 3 testes com mock Anthropic (não hit real): sucesso, retry após inválido, filter constraint violation
+**Pivot (2026-07-11):** substituído Anthropic por **LLM local** (Qwen2.5-Coder-7B via llama-server, OpenAI-compatible em `LOCAL_LLM_URL`). Sem API key paga, calls ilimitadas. Ver `docs/inbox-archive/`.
 
-### [ ] B6.2 — `AnthropicJudge` (4 h)
-**DoD:**
-- Impl do `SubjectiveJudgeLlm` protocol
-- Prompts em `core/prompts/judge_<criterion>.txt` — critérios: `variety`, `cohesion`, `thematic_consistency`
-- Retorna score 0-1 + rationale
-- 3 testes com mock
+### [x] B6.1–B6.4 — `LocalDesigner/LocalJudge/LocalIterator` + factory + smoke
+Implementados em `core/llm_local.py` (task do inbox 2026-07-11):
+- `LocalDesigner` (DesignerLlm): JSON via `response_format` + parsing robusto (fences/prosa), valida contra schema, retry 3x com feedback, filtra constraint violations
+- `LocalJudge` (SubjectiveJudgeLlm): prompts em `core/prompts/judge_<criterion>.txt`, retorna `JudgeResult` (score clamp 0-1 + rationale)
+- `LocalIterator` (IteratorLlm): JSON de modifications, filtra entities `user_owned`
+- `core/llm_factory.build_hats()`: `LLM_BACKEND=fake|local` (anthropic → NotImplementedError); ligado no startup da API
+- `scripts/smoke_local.py`: valida `/v1/models` + 1 chamada de cada hat com latências
+- **DoD verificado:** `poetry install` ok; smoke roda até o fim (Designer 3.3s/2 units, Judge 1.0s/score 0.30, Iterator 2.8s/2 mods); `pytest tests/test_llm_local.py` verde (7 mock); `pytest` inteiro verde (164)
 
-### [ ] B6.3 — `AnthropicIterator` (4 h)
+### [ ] B6.5 — Prompt tuning + validação real (LLM local) (6 h)
+Rodar **2 loops** completos por domain (card + creature) com o LLM local.
 **DoD:**
-- Impl do `IteratorLlm` protocol
-- Prompt inclui: entidades atuais + resultados de sim + judge scores + objetivos + histórico recente de mudanças
-- Retorna `list[Modification]`
-- Nunca propõe mudança em entidade que já foi editada por user (respeita autoria; deixa comentário em `metadata.reasoning`)
-- 3 testes com mock
-
-### [ ] B6.4 — Config switch fake/anthropic + secrets (2 h)
-**DoD:**
-- Env var `LLM_BACKEND=fake|anthropic` seleciona impl no startup
-- `ANTHROPIC_API_KEY` obrigatório se `LLM_BACKEND=anthropic` — startup falha claro se ausente
-- Docs em `README.md` explicando como configurar
-
-### [ ] B6.5 — Prompt tuning + validação real (6 h)
-Rodar 5 loops completos com Anthropic real em cada domain (card + creature).
-**DoD:**
-- 5 loops card_game: brief → design → simulate → judge → iterate → converge (ou max 10 steps)
-- 5 loops creature_rpg
-- Sucesso rate (fração de entidades geradas que passam constraints) >80% card, >70% creature
+- 2 loops card_game: brief → design → simulate → judge → iterate → converge (ou max 10 steps)
+- 2 loops creature_rpg
+- Sucesso rate (fração de entidades geradas que passam constraints): **>65% card_game**, **>55% creature_rpg** (targets realistas pra Qwen 7B; era >80%/>70% pensando em Sonnet)
+- Se abaixo: primeiro refinar prompt; depois considerar modelo maior (Qwen3.6-35B-A3B)
 - `docs/experiments.md` documenta iterações de prompt com métricas
-- Custo total registrado no experiment log (esperado: $2-5)
+- Custo: **zero** (local, unlimited)
 
 ### Verificação final Sprint 6
-- [ ] Dois domínios convergem em <10 steps com Anthropic real
-- [ ] Custo por loop documentado (~$0.30-0.80)
-- [ ] Config switch fake/anthropic testado em ambos
+- [ ] Dois domínios convergem em <10 steps com LLM local
+- [ ] Success rate documentado (>65% card, >55% creature) em `docs/experiments.md`
+- [ ] Config switch fake/local testado em ambos
 
 ---
 
