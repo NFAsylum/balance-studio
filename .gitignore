@@ -35,3 +35,6 @@ portfolio-brief-para-outra-claude.md
 
 # User scenario data (root only — must not match ui/src/app/scenarios/)
 /scenarios/
+
+# Active task inbox (transient; archived copies live in docs/inbox-archive/)
+/docs/inbox.md
