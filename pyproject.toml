@@ -3,6 +3,7 @@ name = "balance-studio"
 version = "0.1.0"
 description = "Generic LLM-powered balance testing framework with domain plugins"
 authors = ["marco <marcooinotna13@outlook.com>"]
+license = "MIT"
 readme = "README.md"
 packages = [{include = "core"}, {include = "domains"}, {include = "api"}]
 
