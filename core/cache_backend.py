@@ -1,0 +1,93 @@
+"""Cache backend abstraction — one interface, swappable storage.
+
+``diskcache`` (SQLite-backed file) is the dev backend; a Redis backend lands in Sprint 8
+behind the same protocol. An in-memory backend is provided for tests. Keeping the interface
+generic (bytes in/out, keyed by string) is what lets the sim cache be domain- and
+storage-agnostic.
+"""
+
+from __future__ import annotations
+
+import os
+from pathlib import Path
+from typing import Any, Protocol, runtime_checkable
+
+
+@runtime_checkable
+class CacheBackend(Protocol):
+    def get(self, key: str) -> bytes | None: ...
+    def set(self, key: str, value: bytes, ttl_seconds: int | None = None) -> None: ...
+    def delete(self, key: str) -> None: ...
+    def keys(self, prefix: str = "") -> list[str]: ...
+
+
+class InMemoryCacheBackend:
+    """Dict-backed backend for tests (TTL ignored)."""
+
+    def __init__(self) -> None:
+        self._store: dict[str, bytes] = {}
+
+    def get(self, key: str) -> bytes | None:
+        return self._store.get(key)
+
+    def set(self, key: str, value: bytes, ttl_seconds: int | None = None) -> None:
+        self._store[key] = value
+
+    def delete(self, key: str) -> None:
+        self._store.pop(key, None)
+
+    def keys(self, prefix: str = "") -> list[str]:
+        return [k for k in self._store if k.startswith(prefix)]
+
+
+class DiskCacheBackend:
+    """diskcache-backed backend (dev). File lives under ``CACHE_DIR``."""
+
+    def __init__(self, directory: str | Path = ".diskcache"):
+        import diskcache
+
+        self._cache = diskcache.Cache(str(directory))
+
+    def get(self, key: str) -> bytes | None:
+        return self._cache.get(key)
+
+    def set(self, key: str, value: bytes, ttl_seconds: int | None = None) -> None:
+        self._cache.set(key, value, expire=ttl_seconds)
+
+    def delete(self, key: str) -> None:
+        self._cache.delete(key)
+
+    def keys(self, prefix: str = "") -> list[str]:
+        return [k for k in self._cache.iterkeys() if isinstance(k, str) and k.startswith(prefix)]
+
+
+class RedisCacheBackend:
+    """Redis-backed backend (prod). Same contract as the others — swap by config in Sprint 8.
+
+    Pass an explicit ``client`` (e.g. fakeredis in tests) or a ``url`` (defaults to
+    ``REDIS_URL``). Values are stored as raw bytes; keys are plain strings.
+    """
+
+    def __init__(self, url: str | None = None, client: Any | None = None):
+        if client is not None:
+            self._r = client
+        else:
+            import redis
+
+            self._r = redis.Redis.from_url(
+                url or os.getenv("REDIS_URL", "redis://localhost:6379/0")
+            )
+
+    def get(self, key: str) -> bytes | None:
+        return self._r.get(key)
+
+    def set(self, key: str, value: bytes, ttl_seconds: int | None = None) -> None:
+        self._r.set(key, value, ex=ttl_seconds)
+
+    def delete(self, key: str) -> None:
+        self._r.delete(key)
+
+    def keys(self, prefix: str = "") -> list[str]:
+        return [
+            k.decode() if isinstance(k, bytes) else k for k in self._r.keys(f"{prefix}*")
+        ]

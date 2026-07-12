@@ -1,0 +1,660 @@
+[
+ {
+  "name": "Person-000",
+  "seniority": "junior",
+  "skills": [
+   "data",
+   "devops",
+   "javascript"
+  ],
+  "preferred_task_types": [
+   "task_05"
+  ]
+ },
+ {
+  "name": "Person-001",
+  "seniority": "mid",
+  "skills": [
+   "data",
+   "design",
+   "devops"
+  ],
+  "preferred_task_types": [
+   "task_11"
+  ]
+ },
+ {
+  "name": "Person-002",
+  "seniority": "senior",
+  "skills": [
+   "data",
+   "devops",
+   "javascript"
+  ],
+  "preferred_task_types": [
+   "task_09",
+   "task_12"
+  ]
+ },
+ {
+  "name": "Person-003",
+  "seniority": "lead",
+  "skills": [
+   "javascript",
+   "python",
+   "typescript"
+  ],
+  "preferred_task_types": [
+   "task_00",
+   "task_01"
+  ]
+ },
+ {
+  "name": "Person-004",
+  "seniority": "junior",
+  "skills": [
+   "javascript",
+   "ml",
+   "mobile"
+  ],
+  "preferred_task_types": [
+   "task_03",
+   "task_09"
+  ]
+ },
+ {
+  "name": "Person-005",
+  "seniority": "mid",
+  "skills": [
+   "data",
+   "javascript",
+   "python"
+  ],
+  "preferred_task_types": [
+   "task_03"
+  ]
+ },
+ {
+  "name": "Person-006",
+  "seniority": "senior",
+  "skills": [
+   "ml",
+   "pm",
+   "security"
+  ],
+  "preferred_task_types": [
+   "task_09",
+   "task_16"
+  ]
+ },
+ {
+  "name": "Person-007",
+  "seniority": "lead",
+  "skills": [
+   "devops",
+   "javascript",
+   "ml",
+   "mobile",
+   "pm"
+  ],
+  "preferred_task_types": [
+   "task_07"
+  ]
+ },
+ {
+  "name": "Person-008",
+  "seniority": "junior",
+  "skills": [
+   "data",
+   "devops",
+   "javascript"
+  ],
+  "preferred_task_types": [
+   "task_11"
+  ]
+ },
+ {
+  "name": "Person-009",
+  "seniority": "mid",
+  "skills": [
+   "data",
+   "design",
+   "devops",
+   "pm",
+   "qa"
+  ],
+  "preferred_task_types": [
+   "task_12",
+   "task_15"
+  ]
+ },
+ {
+  "name": "Person-010",
+  "seniority": "senior",
+  "skills": [
+   "devops",
+   "pm",
+   "security",
+   "sql"
+  ],
+  "preferred_task_types": [
+   "task_13"
+  ]
+ },
+ {
+  "name": "Person-011",
+  "seniority": "lead",
+  "skills": [
+   "data",
+   "devops",
+   "javascript",
+   "mobile"
+  ],
+  "preferred_task_types": [
+   "task_02"
+  ]
+ },
+ {
+  "name": "Person-012",
+  "seniority": "junior",
+  "skills": [
+   "mobile",
+   "qa"
+  ],
+  "preferred_task_types": [
+   "task_10",
+   "task_12",
+   "task_16"
+  ]
+ },
+ {
+  "name": "Person-013",
+  "seniority": "mid",
+  "skills": [
+   "data",
+   "design",
+   "javascript"
+  ],
+  "preferred_task_types": [
+   "task_03"
+  ]
+ },
+ {
+  "name": "Person-014",
+  "seniority": "senior",
+  "skills": [
+   "ml",
+   "python"
+  ],
+  "preferred_task_types": [
+   "task_04"
+  ]
+ },
+ {
+  "name": "Person-015",
+  "seniority": "lead",
+  "skills": [
+   "ml",
+   "mobile",
+   "qa",
+   "security"
+  ],
+  "preferred_task_types": [
+   "task_01",
+   "task_04",
+   "task_12"
+  ]
+ },
+ {
+  "name": "Person-016",
+  "seniority": "junior",
+  "skills": [
+   "devops",
+   "javascript",
+   "ml"
+  ],
+  "preferred_task_types": [
+   "task_05",
+   "task_08"
+  ]
+ },
+ {
+  "name": "Person-017",
+  "seniority": "mid",
+  "skills": [
+   "data",
+   "devops",
+   "javascript"
+  ],
+  "preferred_task_types": [
+   "task_09",
+   "task_16"
+  ]
+ },
+ {
+  "name": "Person-018",
+  "seniority": "senior",
+  "skills": [
+   "design",
+   "devops"
+  ],
+  "preferred_task_types": [
+   "task_03",
+   "task_08"
+  ]
+ },
+ {
+  "name": "Person-019",
+  "seniority": "lead",
+  "skills": [
+   "design",
+   "mobile"
+  ],
+  "preferred_task_types": [
+   "task_00",
+   "task_06",
+   "task_11"
+  ]
+ },
+ {
+  "name": "Person-020",
+  "seniority": "junior",
+  "skills": [
+   "design",
+   "devops",
+   "pm",
+   "typescript"
+  ],
+  "preferred_task_types": [
+   "task_05",
+   "task_10",
+   "task_15"
+  ]
+ },
+ {
+  "name": "Person-021",
+  "seniority": "mid",
+  "skills": [
+   "javascript",
+   "ml",
+   "qa"
+  ],
+  "preferred_task_types": [
+   "task_05",
+   "task_08"
+  ]
+ },
+ {
+  "name": "Person-022",
+  "seniority": "senior",
+  "skills": [
+   "devops",
+   "javascript",
+   "mobile",
+   "security"
+  ],
+  "preferred_task_types": [
+   "task_02",
+   "task_07"
+  ]
+ },
+ {
+  "name": "Person-023",
+  "seniority": "lead",
+  "skills": [
+   "design",
+   "devops",
+   "ml",
+   "pm"
+  ],
+  "preferred_task_types": [
+   "task_03",
+   "task_06",
+   "task_08"
+  ]
+ },
+ {
+  "name": "Person-024",
+  "seniority": "junior",
+  "skills": [
+   "devops",
+   "javascript",
+   "mobile",
+   "typescript"
+  ],
+  "preferred_task_types": [
+   "task_10"
+  ]
+ },
+ {
+  "name": "Person-025",
+  "seniority": "mid",
+  "skills": [
+   "data",
+   "devops",
+   "javascript",
+   "pm"
+  ],
+  "preferred_task_types": [
+   "task_05",
+   "task_10",
+   "task_15"
+  ]
+ },
+ {
+  "name": "Person-026",
+  "seniority": "senior",
+  "skills": [
+   "design",
+   "ml",
+   "python",
+   "sql",
+   "typescript"
+  ],
+  "preferred_task_types": [
+   "task_01"
+  ]
+ },
+ {
+  "name": "Person-027",
+  "seniority": "lead",
+  "skills": [
+   "devops",
+   "mobile",
+   "python",
+   "security"
+  ],
+  "preferred_task_types": [
+   "task_06"
+  ]
+ },
+ {
+  "name": "Person-028",
+  "seniority": "junior",
+  "skills": [
+   "data",
+   "devops",
+   "mobile",
+   "qa"
+  ],
+  "preferred_task_types": [
+   "task_02"
+  ]
+ },
+ {
+  "name": "Person-029",
+  "seniority": "mid",
+  "skills": [
+   "data",
+   "javascript",
+   "ml"
+  ],
+  "preferred_task_types": [
+   "task_03"
+  ]
+ },
+ {
+  "name": "Person-030",
+  "seniority": "senior",
+  "skills": [
+   "data",
+   "design",
+   "mobile"
+  ],
+  "preferred_task_types": [
+   "task_01"
+  ]
+ },
+ {
+  "name": "Person-031",
+  "seniority": "lead",
+  "skills": [
+   "devops",
+   "python"
+  ],
+  "preferred_task_types": [
+   "task_00"
+  ]
+ },
+ {
+  "name": "Person-032",
+  "seniority": "junior",
+  "skills": [
+   "design",
+   "pm",
+   "python",
+   "qa",
+   "security"
+  ],
+  "preferred_task_types": [
+   "task_01"
+  ]
+ },
+ {
+  "name": "Person-033",
+  "seniority": "mid",
+  "skills": [
+   "data",
+   "devops",
+   "javascript"
+  ],
+  "preferred_task_types": [
+   "task_09",
+   "task_16"
+  ]
+ },
+ {
+  "name": "Person-034",
+  "seniority": "senior",
+  "skills": [
+   "ml",
+   "python",
+   "sql"
+  ],
+  "preferred_task_types": [
+   "task_00",
+   "task_01",
+   "task_05"
+  ]
+ },
+ {
+  "name": "Person-035",
+  "seniority": "lead",
+  "skills": [
+   "data",
+   "javascript",
+   "qa",
+   "security"
+  ],
+  "preferred_task_types": [
+   "task_03",
+   "task_11",
+   "task_14"
+  ]
+ },
+ {
+  "name": "Person-036",
+  "seniority": "junior",
+  "skills": [
+   "javascript",
+   "ml",
+   "mobile"
+  ],
+  "preferred_task_types": [
+   "task_09",
+   "task_12",
+   "task_16"
+  ]
+ },
+ {
+  "name": "Person-037",
+  "seniority": "mid",
+  "skills": [
+   "design",
+   "javascript",
+   "python",
+   "qa",
+   "security"
+  ],
+  "preferred_task_types": [
+   "task_06",
+   "task_15",
+   "task_19"
+  ]
+ },
+ {
+  "name": "Person-038",
+  "seniority": "senior",
+  "skills": [
+   "pm",
+   "python",
+   "typescript"
+  ],
+  "preferred_task_types": [
+   "task_00",
+   "task_01",
+   "task_04"
+  ]
+ },
+ {
+  "name": "Person-039",
+  "seniority": "lead",
+  "skills": [
+   "design",
+   "mobile"
+  ],
+  "preferred_task_types": [
+   "task_04"
+  ]
+ },
+ {
+  "name": "Person-040",
+  "seniority": "junior",
+  "skills": [
+   "data",
+   "design",
+   "javascript"
+  ],
+  "preferred_task_types": [
+   "task_01"
+  ]
+ },
+ {
+  "name": "Person-041",
+  "seniority": "mid",
+  "skills": [
+   "data",
+   "devops",
+   "javascript"
+  ],
+  "preferred_task_types": [
+   "task_05",
+   "task_09"
+  ]
+ },
+ {
+  "name": "Person-042",
+  "seniority": "senior",
+  "skills": [
+   "data",
+   "javascript"
+  ],
+  "preferred_task_types": [
+   "task_02",
+   "task_04",
+   "task_08"
+  ]
+ },
+ {
+  "name": "Person-043",
+  "seniority": "lead",
+  "skills": [
+   "design",
+   "mobile",
+   "qa",
+   "security"
+  ],
+  "preferred_task_types": [
+   "task_03",
+   "task_11"
+  ]
+ },
+ {
+  "name": "Person-044",
+  "seniority": "junior",
+  "skills": [
+   "data",
+   "javascript",
+   "ml"
+  ],
+  "preferred_task_types": [
+   "task_03"
+  ]
+ },
+ {
+  "name": "Person-045",
+  "seniority": "mid",
+  "skills": [
+   "javascript",
+   "ml",
+   "typescript"
+  ],
+  "preferred_task_types": [
+   "task_05",
+   "task_08"
+  ]
+ },
+ {
+  "name": "Person-046",
+  "seniority": "senior",
+  "skills": [
+   "design",
+   "javascript",
+   "ml",
+   "mobile",
+   "security"
+  ],
+  "preferred_task_types": [
+   "task_02",
+   "task_07"
+  ]
+ },
+ {
+  "name": "Person-047",
+  "seniority": "lead",
+  "skills": [
+   "design",
+   "devops",
+   "ml",
+   "pm"
+  ],
+  "preferred_task_types": [
+   "task_14"
+  ]
+ },
+ {
+  "name": "Person-048",
+  "seniority": "junior",
+  "skills": [
+   "design",
+   "javascript"
+  ],
+  "preferred_task_types": [
+   "task_00",
+   "task_11"
+  ]
+ },
+ {
+  "name": "Person-049",
+  "seniority": "mid",
+  "skills": [
+   "pm",
+   "security",
+   "sql",
+   "typescript"
+  ],
+  "preferred_task_types": [
+   "task_11"
+  ]
+ }
+]

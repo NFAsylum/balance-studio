@@ -65,9 +65,11 @@ DSL declarativa para definir entidades. Recebe dict, produz classe Pydantic din�
 ```python
 class FieldSpec(BaseModel):
     name: str
-    kind: Literal["num", "cat", "bool", "tag_set"]
+    kind: Literal["num", "cat", "bool", "tag_set", "str"]
     range: tuple[float, float] | None = None      # for num
-    enum: list[str] | None = None                 # for cat
+    enum: list[str] | None = None                 # for cat and tag_set (closed set)
+    min_len: int | None = None                    # for str
+    max_len: int | None = None                    # for str
     description: str = ""
 
 class EntitySchema(BaseModel):
@@ -82,6 +84,13 @@ class EntitySchema(BaseModel):
         """Returns JSON schema for LLM tool_use."""
         ...
 ```
+
+**Semantics of `kind`:**
+- `num`: numeric (int or float). Bounded by `range`.
+- `cat`: closed enum. Value must be in `enum`. Use for `ability_kind`, `seniority`, `type` etc.
+- `bool`: true/false.
+- `tag_set`: set of strings from a closed `enum` (multiple allowed). Use for `skills`, `resistances`, `preferred_task_types`.
+- `str`: free-form string, invented by LLM or user. Optional `min_len`/`max_len`. Use for `name`, `description`. **Never use `cat` for open-ended text** — that's what `str` exists for.
 
 ### `core/constraint_engine.py`
 
@@ -105,28 +114,214 @@ class ConstraintEngine:
         ...
 ```
 
-### `core/llm_generator.py`
+### `core/llm_hats.py` — três protocols
 
-Gera candidatos via `tool_use`.
+O LLM entra em três papéis distintos. Cada um é um `Protocol` isolado. Cada um tem impl `Fake*` (dev) e `Anthropic*` (Sprint 6).
 
 ```python
-class LlmGenerator:
-    def __init__(self, llm_client: LlmClient, schema: EntitySchema):
+class DesignerLlm(Protocol):
+    """Materializa entidades a partir de brief em linguagem natural."""
+    def design(
+        self,
+        brief: str,
+        schema: EntitySchema,
+        constraints: list[Constraint],
+        n: int,
+    ) -> list[BaseModel]: ...
+
+class SubjectiveJudgeLlm(Protocol):
+    """Avalia qualitativamente (variedade, coesão, temática)."""
+    def judge(
+        self,
+        entities: list[BaseModel],
+        criterion: str,  # "variety" | "cohesion" | "thematic_consistency"
+    ) -> JudgeResult:  # {score: 0-1, rationale: str}
         ...
 
-    def generate(
+class IteratorLlm(Protocol):
+    """Propõe mudanças dado estado + métricas + objetivos."""
+    def propose_changes(
         self,
-        n: int,
-        constraints: list[Constraint],
-        seed_examples: list[BaseModel] | None = None,
-        user_intent: str = "",
-    ) -> list[BaseModel]:
+        entities: list[BaseModel],
+        sim_metrics: dict,
+        judge_metrics: dict,
+        objectives: list[Objective],
+    ) -> list[Modification]: ...
+
+class Modification(BaseModel):
+    kind: Literal["create", "edit", "delete"]
+    target: str | None       # entity_id (None for create)
+    payload: dict            # new entity (create/edit) or {} (delete)
+    reasoning: str
+```
+
+**Guardrail:** `IteratorLlm` nunca propõe mudança em entidade cuja última edição foi por `actor="user"`. Respeita autoria — quando o usuário editou algo, foi decisão dele. Iterator só toca em entidades que ele mesmo ou os outros hats de LLM criaram/editaram por último.
+
+### `core/scenario.py` — Scenario + Event log
+
+Estado do trabalho vive como sequência de eventos append-only, não como estado mutável.
+
+```python
+class Event(BaseModel):
+    seq: int                     # monotonic dentro do branch
+    parent_seq: int | None       # None só no primeiro evento do branch principal
+    branch_id: str               # "main" default, uuid pra branches
+    timestamp: datetime
+    actor: Literal["user", "llm-designer", "llm-judge", "llm-iterator"]
+    kind: Literal[
+        "create_entity", "edit_entity", "delete_entity",
+        "simulate", "evaluate_subjective", "set_objective", "note"
+    ]
+    target: str                  # entity_id ou "scenario"
+    before: dict | None
+    after: dict | None
+    metadata: dict               # user_note, llm_reasoning, sim_config_hash
+
+class Scenario(BaseModel):
+    id: str
+    domain: str
+    name: str
+    objectives: list[Objective]
+    head_event_seq: int
+    current_branch: str          # branch ativo default pra novos eventos
+
+class EventLog:
+    def append(self, scenario_id: str, event: Event) -> None: ...
+    def read(
+        self,
+        scenario_id: str,
+        branch_id: str | None = None,
+        up_to_seq: int | None = None,
+    ) -> list[Event]: ...
+    def head(self, scenario_id: str, branch_id: str) -> int: ...
+```
+
+Storage: `scenarios/<id>/events.jsonl` — uma linha por evento, JSON parse-safe. Append é o(1). Read é streaming.
+
+### `core/snapshot.py` — snapshots + replay
+
+Snapshot é state materializado num ponto. Auto-snapshot a cada 50 eventos. Comprimido zstd.
+
+```python
+class Snapshot(BaseModel):
+    scenario_id: str
+    at_seq: int
+    branch_id: str
+    entities: dict[str, dict]
+    env: dict
+    sim_results_index: dict  # config_hash -> file ref
+
+class SnapshotStore:
+    def save(self, snapshot: Snapshot) -> None:
+        """Escreve scenarios/<id>/snapshots/seq-<N>.json.zst"""
+        ...
+    def load(self, scenario_id: str, at_seq: int) -> Snapshot: ...
+    def list(self, scenario_id: str, branch_id: str) -> list[SnapshotInfo]: ...
+
+class Replay:
+    @staticmethod
+    def rebuild_state(scenario_id: str, target_seq: int) -> State:
         """
-        Prompts LLM with tool_use schema. Retries with error feedback if invalid.
-        Max 3 retries per batch. Filters out constraint violations post-generation.
+        1. SnapshotStore.list — acha snapshot mais próximo <= target_seq
+        2. EventLog.read entre snapshot.at_seq e target_seq
+        3. Aplica eventos em ordem
+        4. Retorna State
         """
         ...
 ```
+
+Portabilidade: pasta `scenarios/<id>/` inteira é o cenário. `tar czf backup.tar.gz scenarios/<id>` e leva.
+
+### `core/iteration_engine.py` — motor de iteração event-based
+
+Sem state machine rígida. Loop reativo. Usuário pode inserir evento entre qualquer chamada.
+
+```python
+class IterationEngine:
+    def step(
+        self,
+        scenario_id: str,
+        phase: Literal["design", "iterate", "simulate", "judge"],
+    ) -> StepResult:
+        """
+        Executa uma fase, grava eventos correspondentes.
+        Atomic — falha no meio não commita eventos parciais.
+        """
+        ...
+
+    def auto_loop(
+        self,
+        scenario_id: str,
+        max_steps: int = 10,
+        stop_on_convergence: bool = True,
+    ) -> LoopResult:
+        """
+        Roda phases em ordem: design (se scenario vazio) -> simulate -> judge -> iterate -> loop.
+        Antes de cada step: verifica EventLog.head() vs seq no início do último step.
+        Se cresceu (usuário injetou evento), incorpora antes de continuar.
+        """
+        ...
+```
+
+### `core/objectives.py` — multi-objetivo
+
+```python
+class Objective(BaseModel):
+    metric_name: str
+    direction: Literal["minimize", "maximize", "target"]
+    target_value: float | None = None
+    weight: float = 1.0
+
+class ObjectiveAggregator:
+    @staticmethod
+    def score(objectives: list[Objective], metric_results: dict) -> float: ...
+
+    @staticmethod
+    def pareto_check(
+        objectives: list[Objective],
+        candidates: list[Candidate],
+    ) -> list[Candidate]:
+        """Retorna só os pontos da frente de Pareto."""
+        ...
+```
+
+### `core/sim_cache.py` — cache incremental de simulação
+
+Freshness por config: `computed_at_seq` = `EventLog.head()` no momento em que cachou. Se `head_seq > computed_at_seq`, marca stale na UI.
+
+```python
+class SimCacheEntry(BaseModel):
+    config_hash: str
+    entities_involved: set[str]  # pra invalidação por entity_id
+    kind: Literal["quick", "full"]
+    computed_at_seq: int
+    run_result: RunResult
+
+class SimCache:
+    def get(self, config_hash: str) -> SimCacheEntry | None: ...
+    def put(self, entry: SimCacheEntry) -> None: ...
+    def invalidate_touching(self, entity_ids: set[str]) -> None: ...
+
+class IncrementalSimRunner:
+    def run(
+        self,
+        entities: list[Entity],
+        env: Environment,
+        n_runs: int,
+        kind: Literal["quick", "full"],
+    ) -> RunResult:
+        """
+        Full run se kind=full. Quick = N reduzido (100 vs 1000) pra UI live.
+        Verifica cache. Miss parcial: roda só as duplas que faltam.
+        """
+        ...
+```
+
+**Freshness na UI (ver Sprint 5):**
+- 🟢 full: cache hit com kind=full e computed_at_seq == head_seq
+- 🟡 quick: cache hit com kind=quick, ou parcial
+- 🔴 stale: computed_at_seq < head_seq (algo mudou)
+- ⏳ computing: run em andamento (SSE progress)
 
 ### `core/simulator_interface.py`
 
@@ -299,15 +494,30 @@ Componentes domain-specific (opcionais, registrados por domain):
 - Creature RPG: `<TierList />`
 - Team: `<SkillCoverageGrid />`
 
-## Cache (Redis)
+## Cache (`diskcache` no dev, Redis no prod)
+
+Abstração `core/cache_backend.py`:
+```python
+class CacheBackend(Protocol):
+    def get(self, key: str) -> bytes | None: ...
+    def set(self, key: str, value: bytes, ttl_seconds: int) -> None: ...
+
+class DiskCacheBackend:   # dev — SQLite-based, arquivo em CACHE_DIR
+    ...
+
+class RedisCacheBackend:  # prod — Sprint 7
+    ...
+```
 
 Chave: `sim:{domain}:{sha256(entities_json + env_json + n_runs)}`
 Valor: JSON do Report
 TTL: 24h por default, config por domain
 
-`SimulationService.simulate()` verifica cache antes de rodar. Miss ratio logado em métrica.
+`SimulationService.simulate()` verifica cache antes de rodar. Miss ratio logado em métrica. Contract testado com `tests/test_cache_backend.py` — mesmo teste roda contra Disk e Redis.
 
-## Persistência (Postgres)
+## Persistência (SQLite no dev, Postgres no prod)
+
+SQLAlchemy 2.0 + Alembic. **Tipos portáveis desde o início:** sem JSONB/ARRAY do Postgres — use `JSON` genérico. Migração SQLite → Postgres no Sprint 7 é troca de `DATABASE_URL`; migrations reaplicam sem edição.
 
 Tabelas:
 - `experiments(id, domain, entity_set_json, env_json, report_json, created_at, user_id)`

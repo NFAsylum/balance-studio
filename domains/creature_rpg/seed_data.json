@@ -1,0 +1,1594 @@
+[
+ {
+  "name": "Emberling",
+  "type": "fire",
+  "hp": 168,
+  "atk": 47,
+  "defense": 29,
+  "skills": [
+   "fire_strike",
+   "water_burst"
+  ],
+  "resistances": {
+   "shadow": 2.0,
+   "water": 0.5
+  }
+ },
+ {
+  "name": "Tideling",
+  "type": "water",
+  "hp": 98,
+  "atk": 123,
+  "defense": 32,
+  "skills": [
+   "water_strike",
+   "electric_burst"
+  ],
+  "resistances": {
+   "fire": 2.0,
+   "plant": 0.5
+  }
+ },
+ {
+  "name": "Thornling",
+  "type": "plant",
+  "hp": 269,
+  "atk": 20,
+  "defense": 48,
+  "skills": [
+   "plant_strike",
+   "ice_burst"
+  ],
+  "resistances": {
+   "water": 2.0,
+   "ice": 0.5
+  }
+ },
+ {
+  "name": "Frostling",
+  "type": "ice",
+  "hp": 94,
+  "atk": 102,
+  "defense": 97,
+  "skills": [
+   "shadow_strike",
+   "water_strike",
+   "ice_burst",
+   "rock_burst"
+  ],
+  "resistances": {
+   "plant": 2.0,
+   "electric": 0.5
+  }
+ },
+ {
+  "name": "Voltling",
+  "type": "electric",
+  "hp": 196,
+  "atk": 20,
+  "defense": 57,
+  "skills": [
+   "electric_strike",
+   "shadow_strike"
+  ],
+  "resistances": {
+   "ice": 2.0,
+   "rock": 0.5
+  }
+ },
+ {
+  "name": "Boulderling",
+  "type": "rock",
+  "hp": 259,
+  "atk": 65,
+  "defense": 95,
+  "skills": [
+   "rock_strike",
+   "water_strike",
+   "plant_strike"
+  ],
+  "resistances": {
+   "electric": 2.0,
+   "wind": 0.5
+  }
+ },
+ {
+  "name": "Galeling",
+  "type": "wind",
+  "hp": 202,
+  "atk": 122,
+  "defense": 116,
+  "skills": [
+   "wind_strike",
+   "plant_strike",
+   "rock_strike"
+  ],
+  "resistances": {
+   "rock": 2.0,
+   "shadow": 0.5
+  }
+ },
+ {
+  "name": "Umbraling",
+  "type": "shadow",
+  "hp": 57,
+  "atk": 17,
+  "defense": 107,
+  "skills": [
+   "shadow_burst",
+   "water_burst",
+   "electric_burst",
+   "wind_strike"
+  ],
+  "resistances": {
+   "wind": 2.0,
+   "fire": 0.5
+  }
+ },
+ {
+  "name": "Cinderling",
+  "type": "fire",
+  "hp": 160,
+  "atk": 56,
+  "defense": 57,
+  "skills": [
+   "fire_strike",
+   "ice_strike",
+   "ice_burst"
+  ],
+  "resistances": {
+   "shadow": 2.0,
+   "water": 0.5
+  }
+ },
+ {
+  "name": "Brineling",
+  "type": "water",
+  "hp": 210,
+  "atk": 29,
+  "defense": 85,
+  "skills": [
+   "water_strike",
+   "wind_burst",
+   "shadow_burst",
+   "plant_burst"
+  ],
+  "resistances": {
+   "fire": 2.0,
+   "plant": 0.5
+  }
+ },
+ {
+  "name": "Brambleling",
+  "type": "plant",
+  "hp": 276,
+  "atk": 122,
+  "defense": 91,
+  "skills": [
+   "plant_strike",
+   "wind_strike",
+   "electric_burst"
+  ],
+  "resistances": {
+   "water": 2.0,
+   "ice": 0.5
+  }
+ },
+ {
+  "name": "Glacierling",
+  "type": "ice",
+  "hp": 280,
+  "atk": 110,
+  "defense": 53,
+  "skills": [
+   "ice_strike",
+   "wind_burst"
+  ],
+  "resistances": {
+   "plant": 2.0,
+   "electric": 0.5
+  }
+ },
+ {
+  "name": "Sparkling",
+  "type": "electric",
+  "hp": 280,
+  "atk": 40,
+  "defense": 48,
+  "skills": [
+   "electric_strike",
+   "fire_strike",
+   "rock_burst",
+   "shadow_strike"
+  ],
+  "resistances": {
+   "ice": 2.0,
+   "rock": 0.5
+  }
+ },
+ {
+  "name": "Graniteling",
+  "type": "rock",
+  "hp": 154,
+  "atk": 85,
+  "defense": 40,
+  "skills": [
+   "rock_strike",
+   "fire_strike"
+  ],
+  "resistances": {
+   "electric": 2.0,
+   "wind": 0.5
+  }
+ },
+ {
+  "name": "Zephyrling",
+  "type": "wind",
+  "hp": 165,
+  "atk": 98,
+  "defense": 23,
+  "skills": [
+   "wind_burst",
+   "water_burst",
+   "rock_strike",
+   "water_strike"
+  ],
+  "resistances": {
+   "rock": 2.0,
+   "shadow": 0.5
+  }
+ },
+ {
+  "name": "Nightling",
+  "type": "shadow",
+  "hp": 158,
+  "atk": 78,
+  "defense": 93,
+  "skills": [
+   "shadow_strike",
+   "wind_strike",
+   "electric_strike"
+  ],
+  "resistances": {
+   "wind": 2.0,
+   "fire": 0.5
+  }
+ },
+ {
+  "name": "Magmaling",
+  "type": "fire",
+  "hp": 289,
+  "atk": 138,
+  "defense": 7,
+  "skills": [
+   "fire_strike",
+   "water_burst"
+  ],
+  "resistances": {
+   "shadow": 2.0,
+   "water": 0.5
+  }
+ },
+ {
+  "name": "Coralling",
+  "type": "water",
+  "hp": 105,
+  "atk": 93,
+  "defense": 48,
+  "skills": [
+   "fire_burst",
+   "water_burst"
+  ],
+  "resistances": {
+   "fire": 2.0,
+   "plant": 0.5
+  }
+ },
+ {
+  "name": "Mossling",
+  "type": "plant",
+  "hp": 248,
+  "atk": 76,
+  "defense": 42,
+  "skills": [
+   "plant_strike",
+   "shadow_strike"
+  ],
+  "resistances": {
+   "water": 2.0,
+   "ice": 0.5
+  }
+ },
+ {
+  "name": "Rimeling",
+  "type": "ice",
+  "hp": 38,
+  "atk": 12,
+  "defense": 92,
+  "skills": [
+   "ice_strike",
+   "wind_burst",
+   "water_strike",
+   "plant_strike"
+  ],
+  "resistances": {
+   "plant": 2.0,
+   "electric": 0.5
+  }
+ },
+ {
+  "name": "Arcling",
+  "type": "electric",
+  "hp": 169,
+  "atk": 48,
+  "defense": 24,
+  "skills": [
+   "electric_strike",
+   "fire_burst",
+   "ice_burst",
+   "ice_strike"
+  ],
+  "resistances": {
+   "ice": 2.0,
+   "rock": 0.5
+  }
+ },
+ {
+  "name": "Slateling",
+  "type": "rock",
+  "hp": 40,
+  "atk": 116,
+  "defense": 17,
+  "skills": [
+   "rock_strike",
+   "electric_burst",
+   "shadow_strike",
+   "electric_strike"
+  ],
+  "resistances": {
+   "electric": 2.0,
+   "wind": 0.5
+  }
+ },
+ {
+  "name": "Gustling",
+  "type": "wind",
+  "hp": 99,
+  "atk": 73,
+  "defense": 62,
+  "skills": [
+   "wind_strike",
+   "ice_strike",
+   "fire_strike"
+  ],
+  "resistances": {
+   "rock": 2.0,
+   "shadow": 0.5
+  }
+ },
+ {
+  "name": "Duskling",
+  "type": "shadow",
+  "hp": 64,
+  "atk": 142,
+  "defense": 47,
+  "skills": [
+   "shadow_strike",
+   "water_burst",
+   "plant_burst"
+  ],
+  "resistances": {
+   "wind": 2.0,
+   "fire": 0.5
+  }
+ },
+ {
+  "name": "Pyreling",
+  "type": "fire",
+  "hp": 145,
+  "atk": 15,
+  "defense": 57,
+  "skills": [
+   "fire_strike",
+   "water_burst",
+   "shadow_strike",
+   "rock_strike"
+  ],
+  "resistances": {
+   "shadow": 2.0,
+   "water": 0.5
+  }
+ },
+ {
+  "name": "Mistling",
+  "type": "water",
+  "hp": 184,
+  "atk": 91,
+  "defense": 19,
+  "skills": [
+   "water_strike",
+   "electric_strike",
+   "wind_burst"
+  ],
+  "resistances": {
+   "fire": 2.0,
+   "plant": 0.5
+  }
+ },
+ {
+  "name": "Petalling",
+  "type": "plant",
+  "hp": 224,
+  "atk": 34,
+  "defense": 74,
+  "skills": [
+   "rock_strike",
+   "fire_burst",
+   "plant_burst"
+  ],
+  "resistances": {
+   "water": 2.0,
+   "ice": 0.5
+  }
+ },
+ {
+  "name": "Sleetling",
+  "type": "ice",
+  "hp": 133,
+  "atk": 12,
+  "defense": 51,
+  "skills": [
+   "ice_strike",
+   "water_burst",
+   "wind_strike",
+   "water_strike"
+  ],
+  "resistances": {
+   "plant": 2.0,
+   "electric": 0.5
+  }
+ },
+ {
+  "name": "Surgeling",
+  "type": "electric",
+  "hp": 76,
+  "atk": 29,
+  "defense": 99,
+  "skills": [
+   "electric_strike",
+   "shadow_strike"
+  ],
+  "resistances": {
+   "ice": 2.0,
+   "rock": 0.5
+  }
+ },
+ {
+  "name": "Cragling",
+  "type": "rock",
+  "hp": 84,
+  "atk": 79,
+  "defense": 113,
+  "skills": [
+   "rock_strike",
+   "wind_burst",
+   "ice_burst"
+  ],
+  "resistances": {
+   "electric": 2.0,
+   "wind": 0.5
+  }
+ },
+ {
+  "name": "Cycloling",
+  "type": "wind",
+  "hp": 181,
+  "atk": 15,
+  "defense": 89,
+  "skills": [
+   "water_strike",
+   "wind_burst",
+   "electric_burst"
+  ],
+  "resistances": {
+   "rock": 2.0,
+   "shadow": 0.5
+  }
+ },
+ {
+  "name": "Voidling",
+  "type": "shadow",
+  "hp": 186,
+  "atk": 37,
+  "defense": 81,
+  "skills": [
+   "wind_burst",
+   "water_burst",
+   "shadow_burst",
+   "electric_burst"
+  ],
+  "resistances": {
+   "wind": 2.0,
+   "fire": 0.5
+  }
+ },
+ {
+  "name": "Ashling",
+  "type": "fire",
+  "hp": 83,
+  "atk": 70,
+  "defense": 7,
+  "skills": [
+   "fire_strike",
+   "shadow_strike",
+   "plant_strike"
+  ],
+  "resistances": {
+   "shadow": 2.0,
+   "water": 0.5
+  }
+ },
+ {
+  "name": "Waveling",
+  "type": "water",
+  "hp": 272,
+  "atk": 141,
+  "defense": 65,
+  "skills": [
+   "water_strike",
+   "wind_strike"
+  ],
+  "resistances": {
+   "fire": 2.0,
+   "plant": 0.5
+  }
+ },
+ {
+  "name": "Vineling",
+  "type": "plant",
+  "hp": 89,
+  "atk": 36,
+  "defense": 100,
+  "skills": [
+   "plant_strike",
+   "rock_strike",
+   "shadow_strike"
+  ],
+  "resistances": {
+   "water": 2.0,
+   "ice": 0.5
+  }
+ },
+ {
+  "name": "Chillling",
+  "type": "ice",
+  "hp": 284,
+  "atk": 122,
+  "defense": 114,
+  "skills": [
+   "ice_strike",
+   "rock_burst",
+   "plant_strike",
+   "plant_burst"
+  ],
+  "resistances": {
+   "plant": 2.0,
+   "electric": 0.5
+  }
+ },
+ {
+  "name": "Boltling",
+  "type": "electric",
+  "hp": 180,
+  "atk": 64,
+  "defense": 101,
+  "skills": [
+   "electric_strike",
+   "fire_burst"
+  ],
+  "resistances": {
+   "ice": 2.0,
+   "rock": 0.5
+  }
+ },
+ {
+  "name": "Basaltling",
+  "type": "rock",
+  "hp": 232,
+  "atk": 76,
+  "defense": 74,
+  "skills": [
+   "rock_strike",
+   "plant_burst"
+  ],
+  "resistances": {
+   "electric": 2.0,
+   "wind": 0.5
+  }
+ },
+ {
+  "name": "Breezeling",
+  "type": "wind",
+  "hp": 52,
+  "atk": 55,
+  "defense": 53,
+  "skills": [
+   "wind_strike",
+   "electric_strike",
+   "ice_strike",
+   "fire_strike"
+  ],
+  "resistances": {
+   "rock": 2.0,
+   "shadow": 0.5
+  }
+ },
+ {
+  "name": "Shadeling",
+  "type": "shadow",
+  "hp": 50,
+  "atk": 10,
+  "defense": 100,
+  "skills": [
+   "shadow_strike",
+   "rock_burst",
+   "water_strike",
+   "plant_strike"
+  ],
+  "resistances": {
+   "wind": 2.0,
+   "fire": 0.5
+  }
+ },
+ {
+  "name": "Scorchling",
+  "type": "fire",
+  "hp": 122,
+  "atk": 143,
+  "defense": 79,
+  "skills": [
+   "fire_strike",
+   "ice_strike",
+   "ice_burst"
+  ],
+  "resistances": {
+   "shadow": 2.0,
+   "water": 0.5
+  }
+ },
+ {
+  "name": "Aqualing",
+  "type": "water",
+  "hp": 261,
+  "atk": 48,
+  "defense": 53,
+  "skills": [
+   "water_strike",
+   "electric_strike",
+   "fire_strike"
+  ],
+  "resistances": {
+   "fire": 2.0,
+   "plant": 0.5
+  }
+ },
+ {
+  "name": "Bloomling",
+  "type": "plant",
+  "hp": 288,
+  "atk": 147,
+  "defense": 6,
+  "skills": [
+   "plant_strike",
+   "fire_burst"
+  ],
+  "resistances": {
+   "water": 2.0,
+   "ice": 0.5
+  }
+ },
+ {
+  "name": "Hailling",
+  "type": "ice",
+  "hp": 281,
+  "atk": 94,
+  "defense": 107,
+  "skills": [
+   "rock_strike",
+   "electric_strike",
+   "fire_strike",
+   "ice_strike"
+  ],
+  "resistances": {
+   "plant": 2.0,
+   "electric": 0.5
+  }
+ },
+ {
+  "name": "Staticling",
+  "type": "electric",
+  "hp": 118,
+  "atk": 63,
+  "defense": 17,
+  "skills": [
+   "electric_strike",
+   "wind_strike",
+   "shadow_strike",
+   "shadow_burst"
+  ],
+  "resistances": {
+   "ice": 2.0,
+   "rock": 0.5
+  }
+ },
+ {
+  "name": "Flintling",
+  "type": "rock",
+  "hp": 120,
+  "atk": 51,
+  "defense": 79,
+  "skills": [
+   "rock_strike",
+   "ice_burst",
+   "fire_burst"
+  ],
+  "resistances": {
+   "electric": 2.0,
+   "wind": 0.5
+  }
+ },
+ {
+  "name": "Squallling",
+  "type": "wind",
+  "hp": 144,
+  "atk": 148,
+  "defense": 56,
+  "skills": [
+   "wind_strike",
+   "ice_burst",
+   "fire_burst"
+  ],
+  "resistances": {
+   "rock": 2.0,
+   "shadow": 0.5
+  }
+ },
+ {
+  "name": "Gloomling",
+  "type": "shadow",
+  "hp": 180,
+  "atk": 131,
+  "defense": 42,
+  "skills": [
+   "shadow_strike",
+   "rock_burst"
+  ],
+  "resistances": {
+   "wind": 2.0,
+   "fire": 0.5
+  }
+ },
+ {
+  "name": "Emberwing",
+  "type": "fire",
+  "hp": 222,
+  "atk": 29,
+  "defense": 22,
+  "skills": [
+   "fire_burst",
+   "fire_strike",
+   "plant_burst"
+  ],
+  "resistances": {
+   "shadow": 2.0,
+   "water": 0.5
+  }
+ },
+ {
+  "name": "Tidewing",
+  "type": "water",
+  "hp": 43,
+  "atk": 57,
+  "defense": 54,
+  "skills": [
+   "water_strike",
+   "plant_burst",
+   "wind_strike",
+   "electric_burst"
+  ],
+  "resistances": {
+   "fire": 2.0,
+   "plant": 0.5
+  }
+ },
+ {
+  "name": "Thornwing",
+  "type": "plant",
+  "hp": 135,
+  "atk": 94,
+  "defense": 36,
+  "skills": [
+   "plant_strike",
+   "electric_burst"
+  ],
+  "resistances": {
+   "water": 2.0,
+   "ice": 0.5
+  }
+ },
+ {
+  "name": "Frostwing",
+  "type": "ice",
+  "hp": 218,
+  "atk": 28,
+  "defense": 84,
+  "skills": [
+   "ice_strike",
+   "fire_burst",
+   "plant_strike"
+  ],
+  "resistances": {
+   "plant": 2.0,
+   "electric": 0.5
+  }
+ },
+ {
+  "name": "Voltwing",
+  "type": "electric",
+  "hp": 172,
+  "atk": 19,
+  "defense": 6,
+  "skills": [
+   "electric_strike",
+   "shadow_burst"
+  ],
+  "resistances": {
+   "ice": 2.0,
+   "rock": 0.5
+  }
+ },
+ {
+  "name": "Boulderwing",
+  "type": "rock",
+  "hp": 210,
+  "atk": 55,
+  "defense": 34,
+  "skills": [
+   "rock_strike",
+   "fire_burst"
+  ],
+  "resistances": {
+   "electric": 2.0,
+   "wind": 0.5
+  }
+ },
+ {
+  "name": "Galewing",
+  "type": "wind",
+  "hp": 94,
+  "atk": 102,
+  "defense": 72,
+  "skills": [
+   "wind_strike",
+   "electric_strike"
+  ],
+  "resistances": {
+   "rock": 2.0,
+   "shadow": 0.5
+  }
+ },
+ {
+  "name": "Umbrawing",
+  "type": "shadow",
+  "hp": 257,
+  "atk": 121,
+  "defense": 6,
+  "skills": [
+   "shadow_strike",
+   "water_strike"
+  ],
+  "resistances": {
+   "wind": 2.0,
+   "fire": 0.5
+  }
+ },
+ {
+  "name": "Cinderwing",
+  "type": "fire",
+  "hp": 272,
+  "atk": 30,
+  "defense": 8,
+  "skills": [
+   "fire_strike",
+   "water_strike"
+  ],
+  "resistances": {
+   "shadow": 2.0,
+   "water": 0.5
+  }
+ },
+ {
+  "name": "Brinewing",
+  "type": "water",
+  "hp": 113,
+  "atk": 93,
+  "defense": 98,
+  "skills": [
+   "plant_strike",
+   "water_burst",
+   "water_strike"
+  ],
+  "resistances": {
+   "fire": 2.0,
+   "plant": 0.5
+  }
+ },
+ {
+  "name": "Bramblewing",
+  "type": "plant",
+  "hp": 47,
+  "atk": 42,
+  "defense": 44,
+  "skills": [
+   "plant_strike",
+   "fire_strike"
+  ],
+  "resistances": {
+   "water": 2.0,
+   "ice": 0.5
+  }
+ },
+ {
+  "name": "Glacierwing",
+  "type": "ice",
+  "hp": 234,
+  "atk": 95,
+  "defense": 62,
+  "skills": [
+   "ice_strike",
+   "water_strike"
+  ],
+  "resistances": {
+   "plant": 2.0,
+   "electric": 0.5
+  }
+ },
+ {
+  "name": "Sparkwing",
+  "type": "electric",
+  "hp": 174,
+  "atk": 83,
+  "defense": 76,
+  "skills": [
+   "electric_strike",
+   "wind_burst",
+   "ice_strike",
+   "fire_strike"
+  ],
+  "resistances": {
+   "ice": 2.0,
+   "rock": 0.5
+  }
+ },
+ {
+  "name": "Granitewing",
+  "type": "rock",
+  "hp": 230,
+  "atk": 25,
+  "defense": 104,
+  "skills": [
+   "rock_strike",
+   "ice_burst",
+   "ice_strike"
+  ],
+  "resistances": {
+   "electric": 2.0,
+   "wind": 0.5
+  }
+ },
+ {
+  "name": "Zephyrwing",
+  "type": "wind",
+  "hp": 54,
+  "atk": 36,
+  "defense": 19,
+  "skills": [
+   "wind_strike",
+   "shadow_strike"
+  ],
+  "resistances": {
+   "rock": 2.0,
+   "shadow": 0.5
+  }
+ },
+ {
+  "name": "Nightwing",
+  "type": "shadow",
+  "hp": 105,
+  "atk": 10,
+  "defense": 17,
+  "skills": [
+   "shadow_strike",
+   "water_strike"
+  ],
+  "resistances": {
+   "wind": 2.0,
+   "fire": 0.5
+  }
+ },
+ {
+  "name": "Magmawing",
+  "type": "fire",
+  "hp": 59,
+  "atk": 51,
+  "defense": 73,
+  "skills": [
+   "fire_strike",
+   "shadow_strike",
+   "shadow_burst"
+  ],
+  "resistances": {
+   "shadow": 2.0,
+   "water": 0.5
+  }
+ },
+ {
+  "name": "Coralwing",
+  "type": "water",
+  "hp": 243,
+  "atk": 66,
+  "defense": 60,
+  "skills": [
+   "shadow_burst",
+   "rock_strike",
+   "fire_burst",
+   "water_burst"
+  ],
+  "resistances": {
+   "fire": 2.0,
+   "plant": 0.5
+  }
+ },
+ {
+  "name": "Mosswing",
+  "type": "plant",
+  "hp": 168,
+  "atk": 10,
+  "defense": 41,
+  "skills": [
+   "plant_strike",
+   "rock_burst",
+   "electric_burst"
+  ],
+  "resistances": {
+   "water": 2.0,
+   "ice": 0.5
+  }
+ },
+ {
+  "name": "Rimewing",
+  "type": "ice",
+  "hp": 300,
+  "atk": 14,
+  "defense": 53,
+  "skills": [
+   "ice_strike",
+   "fire_strike"
+  ],
+  "resistances": {
+   "plant": 2.0,
+   "electric": 0.5
+  }
+ },
+ {
+  "name": "Arcwing",
+  "type": "electric",
+  "hp": 191,
+  "atk": 113,
+  "defense": 81,
+  "skills": [
+   "electric_strike",
+   "water_burst"
+  ],
+  "resistances": {
+   "ice": 2.0,
+   "rock": 0.5
+  }
+ },
+ {
+  "name": "Slatewing",
+  "type": "rock",
+  "hp": 28,
+  "atk": 16,
+  "defense": 55,
+  "skills": [
+   "rock_strike",
+   "wind_strike"
+  ],
+  "resistances": {
+   "electric": 2.0,
+   "wind": 0.5
+  }
+ },
+ {
+  "name": "Gustwing",
+  "type": "wind",
+  "hp": 130,
+  "atk": 141,
+  "defense": 25,
+  "skills": [
+   "wind_strike",
+   "fire_burst",
+   "electric_burst"
+  ],
+  "resistances": {
+   "rock": 2.0,
+   "shadow": 0.5
+  }
+ },
+ {
+  "name": "Duskwing",
+  "type": "shadow",
+  "hp": 219,
+  "atk": 71,
+  "defense": 39,
+  "skills": [
+   "shadow_strike",
+   "rock_burst",
+   "water_strike"
+  ],
+  "resistances": {
+   "wind": 2.0,
+   "fire": 0.5
+  }
+ },
+ {
+  "name": "Pyrewing",
+  "type": "fire",
+  "hp": 30,
+  "atk": 27,
+  "defense": 10,
+  "skills": [
+   "fire_strike",
+   "shadow_burst",
+   "plant_burst"
+  ],
+  "resistances": {
+   "shadow": 2.0,
+   "water": 0.5
+  }
+ },
+ {
+  "name": "Mistwing",
+  "type": "water",
+  "hp": 256,
+  "atk": 85,
+  "defense": 62,
+  "skills": [
+   "plant_strike",
+   "water_burst",
+   "plant_burst"
+  ],
+  "resistances": {
+   "fire": 2.0,
+   "plant": 0.5
+  }
+ },
+ {
+  "name": "Petalwing",
+  "type": "plant",
+  "hp": 163,
+  "atk": 21,
+  "defense": 14,
+  "skills": [
+   "plant_strike",
+   "fire_burst",
+   "ice_strike"
+  ],
+  "resistances": {
+   "water": 2.0,
+   "ice": 0.5
+  }
+ },
+ {
+  "name": "Sleetwing",
+  "type": "ice",
+  "hp": 287,
+  "atk": 146,
+  "defense": 109,
+  "skills": [
+   "ice_strike",
+   "water_strike"
+  ],
+  "resistances": {
+   "plant": 2.0,
+   "electric": 0.5
+  }
+ },
+ {
+  "name": "Surgewing",
+  "type": "electric",
+  "hp": 145,
+  "atk": 36,
+  "defense": 69,
+  "skills": [
+   "electric_strike",
+   "water_burst",
+   "electric_burst"
+  ],
+  "resistances": {
+   "ice": 2.0,
+   "rock": 0.5
+  }
+ },
+ {
+  "name": "Cragwing",
+  "type": "rock",
+  "hp": 238,
+  "atk": 111,
+  "defense": 110,
+  "skills": [
+   "rock_strike",
+   "electric_burst",
+   "ice_burst",
+   "wind_burst"
+  ],
+  "resistances": {
+   "electric": 2.0,
+   "wind": 0.5
+  }
+ },
+ {
+  "name": "Cyclowing",
+  "type": "wind",
+  "hp": 153,
+  "atk": 32,
+  "defense": 68,
+  "skills": [
+   "wind_strike",
+   "fire_burst"
+  ],
+  "resistances": {
+   "rock": 2.0,
+   "shadow": 0.5
+  }
+ },
+ {
+  "name": "Voidwing",
+  "type": "shadow",
+  "hp": 203,
+  "atk": 135,
+  "defense": 11,
+  "skills": [
+   "shadow_strike",
+   "wind_strike"
+  ],
+  "resistances": {
+   "wind": 2.0,
+   "fire": 0.5
+  }
+ },
+ {
+  "name": "Ashwing",
+  "type": "fire",
+  "hp": 190,
+  "atk": 95,
+  "defense": 16,
+  "skills": [
+   "fire_strike",
+   "plant_strike"
+  ],
+  "resistances": {
+   "shadow": 2.0,
+   "water": 0.5
+  }
+ },
+ {
+  "name": "Wavewing",
+  "type": "water",
+  "hp": 101,
+  "atk": 81,
+  "defense": 57,
+  "skills": [
+   "water_burst",
+   "plant_burst",
+   "ice_burst",
+   "wind_burst"
+  ],
+  "resistances": {
+   "fire": 2.0,
+   "plant": 0.5
+  }
+ },
+ {
+  "name": "Vinewing",
+  "type": "plant",
+  "hp": 103,
+  "atk": 35,
+  "defense": 46,
+  "skills": [
+   "plant_strike",
+   "wind_burst",
+   "electric_burst"
+  ],
+  "resistances": {
+   "water": 2.0,
+   "ice": 0.5
+  }
+ },
+ {
+  "name": "Chillwing",
+  "type": "ice",
+  "hp": 257,
+  "atk": 55,
+  "defense": 18,
+  "skills": [
+   "ice_strike",
+   "shadow_burst"
+  ],
+  "resistances": {
+   "plant": 2.0,
+   "electric": 0.5
+  }
+ },
+ {
+  "name": "Boltwing",
+  "type": "electric",
+  "hp": 213,
+  "atk": 27,
+  "defense": 70,
+  "skills": [
+   "electric_strike",
+   "wind_burst",
+   "shadow_burst",
+   "rock_strike"
+  ],
+  "resistances": {
+   "ice": 2.0,
+   "rock": 0.5
+  }
+ },
+ {
+  "name": "Basaltwing",
+  "type": "rock",
+  "hp": 182,
+  "atk": 26,
+  "defense": 61,
+  "skills": [
+   "rock_strike",
+   "ice_burst",
+   "wind_burst"
+  ],
+  "resistances": {
+   "electric": 2.0,
+   "wind": 0.5
+  }
+ },
+ {
+  "name": "Breezewing",
+  "type": "wind",
+  "hp": 185,
+  "atk": 55,
+  "defense": 58,
+  "skills": [
+   "wind_strike",
+   "fire_strike"
+  ],
+  "resistances": {
+   "rock": 2.0,
+   "shadow": 0.5
+  }
+ },
+ {
+  "name": "Shadewing",
+  "type": "shadow",
+  "hp": 106,
+  "atk": 108,
+  "defense": 63,
+  "skills": [
+   "fire_strike",
+   "shadow_strike",
+   "water_burst",
+   "plant_burst"
+  ],
+  "resistances": {
+   "wind": 2.0,
+   "fire": 0.5
+  }
+ },
+ {
+  "name": "Scorchwing",
+  "type": "fire",
+  "hp": 84,
+  "atk": 31,
+  "defense": 30,
+  "skills": [
+   "fire_strike",
+   "electric_strike",
+   "water_strike"
+  ],
+  "resistances": {
+   "shadow": 2.0,
+   "water": 0.5
+  }
+ },
+ {
+  "name": "Aquawing",
+  "type": "water",
+  "hp": 116,
+  "atk": 35,
+  "defense": 8,
+  "skills": [
+   "water_strike",
+   "electric_strike",
+   "fire_strike",
+   "ice_strike"
+  ],
+  "resistances": {
+   "fire": 2.0,
+   "plant": 0.5
+  }
+ },
+ {
+  "name": "Bloomwing",
+  "type": "plant",
+  "hp": 235,
+  "atk": 118,
+  "defense": 56,
+  "skills": [
+   "fire_burst",
+   "plant_burst"
+  ],
+  "resistances": {
+   "water": 2.0,
+   "ice": 0.5
+  }
+ },
+ {
+  "name": "Hailwing",
+  "type": "ice",
+  "hp": 116,
+  "atk": 10,
+  "defense": 5,
+  "skills": [
+   "electric_strike",
+   "fire_strike",
+   "ice_strike",
+   "water_burst"
+  ],
+  "resistances": {
+   "plant": 2.0,
+   "electric": 0.5
+  }
+ },
+ {
+  "name": "Staticwing",
+  "type": "electric",
+  "hp": 39,
+  "atk": 118,
+  "defense": 103,
+  "skills": [
+   "electric_strike",
+   "ice_burst",
+   "shadow_burst",
+   "rock_strike"
+  ],
+  "resistances": {
+   "ice": 2.0,
+   "rock": 0.5
+  }
+ },
+ {
+  "name": "Flintwing",
+  "type": "rock",
+  "hp": 232,
+  "atk": 60,
+  "defense": 47,
+  "skills": [
+   "rock_strike",
+   "water_strike",
+   "plant_strike"
+  ],
+  "resistances": {
+   "electric": 2.0,
+   "wind": 0.5
+  }
+ },
+ {
+  "name": "Squallwing",
+  "type": "wind",
+  "hp": 28,
+  "atk": 61,
+  "defense": 25,
+  "skills": [
+   "wind_strike",
+   "plant_burst"
+  ],
+  "resistances": {
+   "rock": 2.0,
+   "shadow": 0.5
+  }
+ },
+ {
+  "name": "Gloomwing",
+  "type": "shadow",
+  "hp": 183,
+  "atk": 137,
+  "defense": 26,
+  "skills": [
+   "shadow_strike",
+   "rock_burst",
+   "water_strike"
+  ],
+  "resistances": {
+   "wind": 2.0,
+   "fire": 0.5
+  }
+ },
+ {
+  "name": "Embermaw",
+  "type": "fire",
+  "hp": 48,
+  "atk": 91,
+  "defense": 95,
+  "skills": [
+   "plant_strike",
+   "fire_burst",
+   "rock_burst"
+  ],
+  "resistances": {
+   "shadow": 2.0,
+   "water": 0.5
+  }
+ },
+ {
+  "name": "Tidemaw",
+  "type": "water",
+  "hp": 195,
+  "atk": 69,
+  "defense": 42,
+  "skills": [
+   "water_burst",
+   "plant_burst",
+   "wind_strike",
+   "plant_strike"
+  ],
+  "resistances": {
+   "fire": 2.0,
+   "plant": 0.5
+  }
+ },
+ {
+  "name": "Thornmaw",
+  "type": "plant",
+  "hp": 227,
+  "atk": 62,
+  "defense": 56,
+  "skills": [
+   "plant_strike",
+   "wind_burst",
+   "electric_burst",
+   "water_strike"
+  ],
+  "resistances": {
+   "water": 2.0,
+   "ice": 0.5
+  }
+ },
+ {
+  "name": "Frostmaw",
+  "type": "ice",
+  "hp": 176,
+  "atk": 56,
+  "defense": 59,
+  "skills": [
+   "ice_strike",
+   "wind_strike",
+   "electric_burst"
+  ],
+  "resistances": {
+   "plant": 2.0,
+   "electric": 0.5
+  }
+ }
+]

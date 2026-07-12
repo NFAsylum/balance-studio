@@ -1,0 +1,82 @@
+{
+ "fire": {
+  "fire": 1.0,
+  "water": 2.0,
+  "plant": 1.0,
+  "ice": 1.0,
+  "electric": 1.0,
+  "rock": 1.0,
+  "wind": 1.0,
+  "shadow": 0.5
+ },
+ "water": {
+  "fire": 0.5,
+  "water": 1.0,
+  "plant": 2.0,
+  "ice": 1.0,
+  "electric": 1.0,
+  "rock": 1.0,
+  "wind": 1.0,
+  "shadow": 1.0
+ },
+ "plant": {
+  "fire": 1.0,
+  "water": 0.5,
+  "plant": 1.0,
+  "ice": 2.0,
+  "electric": 1.0,
+  "rock": 1.0,
+  "wind": 1.0,
+  "shadow": 1.0
+ },
+ "ice": {
+  "fire": 1.0,
+  "water": 1.0,
+  "plant": 0.5,
+  "ice": 1.0,
+  "electric": 2.0,
+  "rock": 1.0,
+  "wind": 1.0,
+  "shadow": 1.0
+ },
+ "electric": {
+  "fire": 1.0,
+  "water": 1.0,
+  "plant": 1.0,
+  "ice": 0.5,
+  "electric": 1.0,
+  "rock": 2.0,
+  "wind": 1.0,
+  "shadow": 1.0
+ },
+ "rock": {
+  "fire": 1.0,
+  "water": 1.0,
+  "plant": 1.0,
+  "ice": 1.0,
+  "electric": 0.5,
+  "rock": 1.0,
+  "wind": 2.0,
+  "shadow": 1.0
+ },
+ "wind": {
+  "fire": 1.0,
+  "water": 1.0,
+  "plant": 1.0,
+  "ice": 1.0,
+  "electric": 1.0,
+  "rock": 0.5,
+  "wind": 1.0,
+  "shadow": 2.0
+ },
+ "shadow": {
+  "fire": 2.0,
+  "water": 1.0,
+  "plant": 1.0,
+  "ice": 1.0,
+  "electric": 1.0,
+  "rock": 1.0,
+  "wind": 0.5,
+  "shadow": 1.0
+ }
+}

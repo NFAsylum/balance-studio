@@ -11,6 +11,10 @@ htmlcov/
 .ruff_cache/
 .DS_Store
 
+# Local dev data (SQLite + diskcache)
+*.db
+.diskcache/
+
 # Frontend
 node_modules/
 .next/
@@ -28,3 +32,6 @@ CLAUDE.csharp-legacy.md
 portfolio-brief-para-outra-claude.md
 /package.json
 /package-lock.json
+
+# User scenario data (root only — must not match ui/src/app/scenarios/)
+/scenarios/

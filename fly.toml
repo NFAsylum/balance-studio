@@ -1,0 +1,35 @@
+# Fly.io config for the Balance Studio backend.
+# Provision + deploy: `fly launch --no-deploy` (or `fly apps create`), then `fly deploy`.
+# Set secrets (not committed) with `fly secrets set REDIS_URL=... LOCAL_LLM_URL=...`.
+
+app = "balance-studio-api"
+primary_region = "gru"        # São Paulo; change to your closest region
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  SCENARIOS_DIR = "/data/scenarios"
+  CACHE_DIR = "/data/cache"
+  # LLM_BACKEND: "fake" (no infra) or "local" (needs LOCAL_LLM_URL reachable from Fly).
+  LLM_BACKEND = "fake"
+  # CACHE_BACKEND: "redis" needs REDIS_URL secret; "disk" uses the mounted volume.
+  CACHE_BACKEND = "redis"
+  LOG_LEVEL = "INFO"
+
+# Persistent volume for the file-based event log + snapshots (create with:
+# `fly volumes create balance_data --size 1 --region gru`).
+[[mounts]]
+  source = "balance_data"
+  destination = "/data"
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
