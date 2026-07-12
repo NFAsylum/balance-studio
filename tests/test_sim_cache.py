@@ -66,6 +66,21 @@ def test_edit_makes_cache_stale(tmp_path):
     assert report.matchups_computed == 1 and report.matchups_reused == 0
 
 
+def test_run_records_given_actor(tmp_path):
+    # audit #04: the simulate event must be attributed to the actor that triggered it.
+    log, _, runner = _runner(tmp_path)
+    runner.run("s1", _units(["A", "B"]), MatchEnv(seed=1), n_runs=20, actor="llm-iterator")
+    sim = [e for e in log.read("s1") if e.kind == "simulate"][-1]
+    assert sim.actor == "llm-iterator"
+
+
+def test_run_defaults_actor_to_user(tmp_path):
+    log, _, runner = _runner(tmp_path)
+    runner.run("s1", _units(["A", "B"]), MatchEnv(seed=1), n_runs=20)
+    sim = [e for e in log.read("s1") if e.kind == "simulate"][-1]
+    assert sim.actor == "user"
+
+
 def test_freshness_tag():
     entry = SimCacheEntry(
         config_hash="h",

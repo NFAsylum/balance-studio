@@ -9,15 +9,19 @@ from __future__ import annotations
 
 import logging
 import os
+import time
 import uuid
+from collections import deque
 from contextlib import asynccontextmanager
 from typing import Any, Literal
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, ValidationError
 
 from api.registry import registry
+from core.paths import InvalidId
 from core.branching import Branch, DiffReport
 from core.constraint_engine import Constraint
 from core.iteration_engine import IterationEngine, StepResult
@@ -65,13 +69,53 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Balance Studio", lifespan=lifespan)
 
-# Dev CORS: the Next.js UI (localhost:3000) calls this API directly.
+# CORS restricted to configured origins (comma-separated ALLOWED_ORIGINS; localhost in dev).
+_ALLOWED_ORIGINS = [o.strip() for o in os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",") if o.strip()]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=_ALLOWED_ORIGINS,
+    allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "X-API-Key"],
+    allow_credentials=True,
 )
+
+# Minimal write protection: an API key (if configured) plus a per-IP rate limit on mutations.
+_API_KEY = os.getenv("BALANCE_API_KEY")
+_WRITE_METHODS = {"POST", "PATCH", "DELETE"}
+_RATE_LIMIT_PER_MIN = int(os.getenv("WRITE_RATE_LIMIT_PER_MIN", "60"))
+_rate_state: dict[str, deque[float]] = {}
+
+if not _API_KEY:
+    logger.warning("⚠ running without API key auth (dev mode) — set BALANCE_API_KEY to require X-API-Key on writes")
+
+
+@app.exception_handler(InvalidId)
+async def _invalid_id_handler(request: Request, exc: InvalidId) -> JSONResponse:
+    """A traversal-unsafe scenario/branch id never reaches disk — it 422s here."""
+    return JSONResponse(status_code=422, content={"detail": str(exc)})
+
+
+def _rate_limited(client: str) -> bool:
+    now = time.monotonic()
+    window = _rate_state.setdefault(client, deque())
+    while window and now - window[0] > 60.0:
+        window.popleft()
+    if len(window) >= _RATE_LIMIT_PER_MIN:
+        return True
+    window.append(now)
+    return False
+
+
+@app.middleware("http")
+async def _guard_writes(request: Request, call_next):
+    """Enforce API key + rate limit on state-changing requests (reads stay open)."""
+    if request.method in _WRITE_METHODS:
+        if _API_KEY and request.headers.get("X-API-Key") != _API_KEY:
+            return JSONResponse(status_code=401, content={"detail": "invalid or missing API key"})
+        client = request.headers.get("fly-client-ip") or (request.client.host if request.client else "unknown")
+        if _rate_limited(client):
+            return JSONResponse(status_code=429, content={"detail": "rate limit exceeded (writes)"})
+    return await call_next(request)
 
 
 class SimulateRequest(BaseModel):
@@ -176,8 +220,8 @@ def generate(name: str, request: GenerateRequest) -> dict[str, Any]:
 
 class CreateScenarioRequest(BaseModel):
     domain: str
-    name: str = "Untitled scenario"
-    brief: str = ""
+    name: str = Field(default="Untitled scenario", max_length=200)
+    brief: str = Field(default="", max_length=500)  # free text -> Designer prompt; cap to limit injection
     n_entities: int = Field(default=8, ge=1, le=200)
 
 
@@ -278,6 +322,14 @@ def edit_entity(scenario_id: str, entity_id: str, request: EntityRequest) -> dic
     if entity_id not in state.entities:
         raise HTTPException(status_code=404, detail=f"entity '{entity_id}' not found")
     data = _validate_entity(scenario.domain, request.entity)
+    # The URL path is the identity: an edit must not silently rename (would desync the state
+    # key from the entity's own `name`). Rename via delete + create instead.
+    if data.get("name") and str(data["name"]) != entity_id:
+        raise HTTPException(
+            status_code=422,
+            detail=f"entity name '{data['name']}' does not match path '{entity_id}'; "
+            "rename via delete + create",
+        )
     event = Event(
         branch_id=branch,
         actor="user",

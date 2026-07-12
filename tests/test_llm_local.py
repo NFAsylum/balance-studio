@@ -5,6 +5,8 @@ import types
 
 import pytest
 
+from core.llm_anthropic import AnthropicDesigner, AnthropicIterator, AnthropicJudge
+from core.llm_client import AnthropicJsonChat
 from core.llm_factory import Hats, build_hats
 from core.llm_local import LocalDesigner, LocalIterator, LocalJudge, _get_client
 from domains.card_game.schema import get_schema
@@ -96,6 +98,44 @@ def test_missing_local_url_raises(monkeypatch):
         _get_client()
 
 
-def test_anthropic_backend_not_implemented():
-    with pytest.raises(NotImplementedError):
-        build_hats("anthropic")
+def _fake_anthropic_client(tool_input):
+    """Stand-in Anthropic client whose messages.create returns one tool_use block."""
+
+    class _Messages:
+        def __init__(self):
+            self.calls = []
+
+        def create(self, **kwargs):
+            self.calls.append(kwargs)
+            block = types.SimpleNamespace(type="tool_use", name="emit_json", input=tool_input)
+            return types.SimpleNamespace(content=[block])
+
+    messages = _Messages()
+    client = types.SimpleNamespace(messages=messages)
+    client._messages = messages
+    return client
+
+
+def test_factory_returns_anthropic_hats():
+    # Lazy client — no ANTHROPIC_API_KEY / network touched at construction time.
+    hats = build_hats("anthropic")
+    assert isinstance(hats, Hats)
+    assert isinstance(hats.designer, AnthropicDesigner)
+    assert isinstance(hats.judge, AnthropicJudge)
+    assert isinstance(hats.iterator, AnthropicIterator)
+
+
+def test_anthropic_transport_returns_tool_input_dict():
+    client = _fake_anthropic_client({"score": 0.7, "rationale": "ok"})
+    chat = AnthropicJsonChat(client=client, model="claude-sonnet-4-6")
+    out = chat.chat_json("sys", "user", temperature=0.3)
+    assert out == {"score": 0.7, "rationale": "ok"}
+    assert client._messages.calls[0]["tool_choice"]["name"] == "emit_json"
+
+
+def test_anthropic_designer_reuses_local_hat_logic():
+    # Same hat code as local, different transport — designs valid entities from a tool reply.
+    client = _fake_anthropic_client({"entities": [_unit("Ace"), _unit("Bolt")]})
+    designer = AnthropicDesigner(client=client)
+    out = designer.design("aggro", get_schema(), [], 2)
+    assert {u.model_dump()["name"] for u in out} == {"Ace", "Bolt"}

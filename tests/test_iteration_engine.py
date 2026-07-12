@@ -39,6 +39,14 @@ class _StubIterator:
         return mods
 
 
+class _PartialIterator:
+    """Returns a delta edit (only the changed field), like the real LocalIterator."""
+
+    def propose_changes(self, entities, sim_metrics, judge_metrics, objectives):
+        first = entities[0].model_dump()
+        return [Modification(kind="edit", target=first["name"], payload={"damage": 4}, reasoning="nerf")]
+
+
 class _RaisingDesigner:
     def design(self, *args, **kwargs):
         raise RuntimeError("boom")
@@ -111,6 +119,17 @@ def test_user_injection_and_authorship_guardrail(tmp_path):
     # the engine sees the user's version (hp=12), proving the injection was incorporated
     state = replay.rebuild_state("s1", log.head("s1", "main"))
     assert state.entities["Y"]["hp"] == 12
+
+
+def test_iterate_applies_partial_payload(tmp_path):
+    # audit #08: a delta edit ({"damage": 4}) must merge onto the entity, not be rejected.
+    log, replay, engine = _engine(tmp_path, iterator=_PartialIterator())
+    log.append("s1", Event(actor="llm-designer", kind="create_entity", target="Y", after=_valid_unit("Y")))
+    result = engine.step("s1", "iterate")
+    assert result.details["applied"] == 1 and result.details["rejected_invalid"] == 0
+    state = replay.rebuild_state("s1", log.head("s1", "main"))
+    assert state.entities["Y"]["damage"] == 4  # delta applied
+    assert state.entities["Y"]["hp"] == 5  # untouched fields preserved by the merge
 
 
 class _BadPayloadIterator:

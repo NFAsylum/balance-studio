@@ -14,6 +14,7 @@ from pydantic import BaseModel, Field
 
 from core.cache_backend import CacheBackend
 from core.metrics.aggregators import aggregate_metrics
+from core.paths import validate_id
 from core.report_engine import hash_json
 from core.scenario import Event, EventLog
 from core.simulator_interface import Environment, RunResult, SimulatorInterface
@@ -39,6 +40,8 @@ class SimCache:
     """
 
     def __init__(self, backend: CacheBackend, key_prefix: str = ""):
+        if key_prefix:
+            validate_id(key_prefix, "scenario_id")  # key_prefix is the scenario id; block ':' injection
         self.backend = backend
         self._prefix = f"{key_prefix}:" if key_prefix else ""
 
@@ -113,6 +116,7 @@ class IncrementalSimRunner:
         n_runs: int,
         kind: Kind = "full",
         branch: str = "main",
+        actor: str = "user",
     ) -> SimRunReport:
         # Freshness tracks entity changes only — simulate/judge/note events don't stale a cache.
         content_seq = self._content_seq(scenario_id, branch)
@@ -150,7 +154,7 @@ class IncrementalSimRunner:
             [
                 Event(
                     branch_id=branch,
-                    actor="user",
+                    actor=actor,
                     kind="simulate",
                     target="scenario",
                     after={"n_runs": len(all_runs), "kind": kind, "metrics": metrics},

@@ -119,3 +119,24 @@ def test_invalid_entity_422(client):
 def test_diff_unknown_branch_404(client):
     sid = _new_scenario(client)
     assert client.get(f"/scenarios/{sid}/branches/main/diff/ghost").status_code == 404
+
+
+def test_edit_entity_rename_rejected(client):
+    # audit #02: an edit must not silently change identity (name != path).
+    sid = _new_scenario(client)
+    client.post(f"/scenarios/{sid}/entities", json={"entity": _unit("Ace")})
+    bad = client.patch(f"/scenarios/{sid}/entities/Ace", json={"entity": _unit("Bob", cost=1)})
+    assert bad.status_code == 422 and "does not match path" in bad.text
+    # same-name edit still works
+    ok = client.patch(f"/scenarios/{sid}/entities/Ace", json={"entity": _unit("Ace", cost=1)})
+    assert ok.status_code == 200
+
+
+def test_invalid_scenario_id_422(client):
+    # audit #01: a traversal-unsafe id never reaches disk — it 422s at the InvalidId handler.
+    assert client.post("/scenarios/bad.id/iterate", json={"phase": "simulate"}).status_code == 422
+
+
+def test_brief_too_long_422(client):
+    # audit #10: brief is capped to limit prompt-injection surface.
+    assert client.post("/scenarios", json={"domain": "card_game", "brief": "x" * 501}).status_code == 422
