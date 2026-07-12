@@ -176,9 +176,15 @@ class LocalIterator(_LocalBase):
     ) -> list[Modification]:
         user_owned = user_owned or set()
         system = (
-            "You tune game entities toward the given objectives. Propose minimal changes. "
-            'Return ONLY JSON: {"modifications": [{"kind": "create|edit|delete", "target": '
-            '<entity id or null>, "payload": {<entity fields>}, "reasoning": "<why>"}]}. '
+            "You are a game balancer. The metrics include a win rate per entity. Your goal is "
+            "to REDUCE THE GAP between the strongest and weakest: WEAKEN entities with a high "
+            "win rate (lower their offensive stats — e.g. damage/atk — or raise their cost) and "
+            "STRENGTHEN entities with a low win rate. Propose AT MOST 3 edits per pass — target "
+            "the most extreme outliers (the single strongest and single weakest first). Fewer, "
+            "sharper changes beat rewriting everything. Make small, targeted stat edits — do NOT "
+            "make entities identical (keep them distinct). Honour the stated objectives. "
+            'Return ONLY JSON: {"modifications": [{"kind": "edit", "target": "<entity name>", '
+            '"payload": {<only the changed fields>}, "reasoning": "<why>"}]}. '
             "Never modify an entity listed as user-owned."
         )
         user = (
@@ -210,7 +216,9 @@ class LocalIterator(_LocalBase):
 def _parse_json(content: str) -> Any:
     """Parse model output into JSON, tolerating markdown fences and surrounding prose.
 
-    Small models often wrap JSON in ```json fences or add commentary despite response_format.
+    Small models often wrap JSON in ```json fences, add commentary, or emit a second object
+    after the first — so we scan for the first brace and use ``raw_decode``, which stops at the
+    end of the first valid JSON value and ignores trailing data.
     """
     text = content.strip()
     if not text:
@@ -221,10 +229,15 @@ def _parse_json(content: str) -> Any:
     try:
         return json.loads(text)
     except json.JSONDecodeError:
-        match = re.search(r"[\{\[].*[\}\]]", text, re.DOTALL)  # first JSON-looking block
-        if match:
-            return json.loads(match.group(0))
-        raise
+        decoder = json.JSONDecoder()
+        for i, ch in enumerate(text):
+            if ch in "{[":
+                try:
+                    obj, _ = decoder.raw_decode(text[i:])
+                    return obj
+                except json.JSONDecodeError:
+                    continue
+        return {}
 
 
 def _extract_list(payload: dict[str, Any], key: str) -> list[Any]:
