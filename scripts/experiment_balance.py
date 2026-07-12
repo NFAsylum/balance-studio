@@ -18,7 +18,7 @@ from typing import Any
 
 from api.registry import discover_domains
 from core.balance_metrics import pct_delta, variety_score
-from core.iteration_engine import _valid_payload
+from core.iteration_engine import is_valid_payload
 from core.llm_factory import build_hats
 from core.objectives import Objective
 from core.metrics.distribution import WinRateDistribution
@@ -99,7 +99,7 @@ def _apply(entities: dict[str, dict], mods, model_cls) -> int:
             continue
         base = dict(entities.get(mod.target, {})) if mod.target else {}
         merged = {**base, **(mod.payload or {})}
-        if not _valid_payload(model_cls, merged):
+        if not is_valid_payload(model_cls, merged):
             continue
         key = str(merged.get("name") or mod.target or "")
         if not key:

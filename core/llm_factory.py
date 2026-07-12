@@ -2,7 +2,10 @@
 
 ``LLM_BACKEND=fake``  -> deterministic Fakes (dev/tests, no network)
 ``LLM_BACKEND=local`` -> local OpenAI-compatible server (llama-server)
-``LLM_BACKEND=anthropic`` -> not implemented (superseded by the local backend)
+``LLM_BACKEND=anthropic`` -> real Anthropic API (production; needs ANTHROPIC_API_KEY)
+
+``local`` and ``anthropic`` run the *same* hats over different transports (see
+``core.llm_client``) — the backend only swaps the client.
 """
 
 from __future__ import annotations
@@ -31,7 +34,7 @@ def build_hats(backend: str | None = None) -> Hats:
 
         return Hats(LocalDesigner(), LocalJudge(), LocalIterator())
     if backend == "anthropic":
-        raise NotImplementedError(
-            "the 'anthropic' backend is not implemented — use LLM_BACKEND=fake or local"
-        )
+        from core.llm_anthropic import AnthropicDesigner, AnthropicIterator, AnthropicJudge
+
+        return Hats(AnthropicDesigner(), AnthropicJudge(), AnthropicIterator())
     raise ValueError(f"unknown LLM_BACKEND: {backend!r} (expected fake|local|anthropic)")

@@ -16,6 +16,7 @@ from pydantic import BaseModel, Field, ValidationError
 
 from core.cache_backend import DiskCacheBackend
 from core.llm_hats import DesignerLlm, IteratorLlm, SubjectiveJudgeLlm
+from core.paths import safe_under, validate_id
 from core.scenario import Event, EventLog
 from core.sim_cache import IncrementalSimRunner, SimCache
 from core.simulator_interface import SimulatorInterface
@@ -125,7 +126,7 @@ class IterationEngine:
         stored = self.events.append_many(scenario_id, events)
         return StepResult(phase="design", events_appended=len(stored), details={"n_designed": len(designed)})
 
-    def _simulate(self, scenario_id, branch, simulator, instances) -> StepResult:
+    def _simulate(self, scenario_id, branch, simulator, instances, actor: str = "user") -> StepResult:
         if not instances:
             return StepResult(phase="simulate", events_appended=0, details={"skipped": "no entities"})
         env = simulator.environment_schema()(seed=self.sim_seed)
@@ -134,7 +135,7 @@ class IterationEngine:
         # namespaced by scenario so a shared Redis stays isolated.
         cache = SimCache(self._cache_backend(scenario_id), key_prefix=scenario_id)
         runner = IncrementalSimRunner(simulator, cache, self.events)
-        report = runner.run(scenario_id, instances, env, self.n_runs, kind="full", branch=branch)
+        report = runner.run(scenario_id, instances, env, self.n_runs, kind="full", branch=branch, actor=actor)
         winrate = report.metrics.get("winrate_distribution", {}).get("data", {}).get("per_entity", {})
         return StepResult(
             phase="simulate",
@@ -179,11 +180,18 @@ class IterationEngine:
             if mod.target and last_actor.get(mod.target) == "user":
                 skipped.append(mod.target)
                 continue
-            # Reject create/edit whose payload doesn't validate — never commit invalid state.
-            if mod.kind != "delete" and not _valid_payload(model_cls, mod.payload):
-                rejected += 1
-                continue
-            target = mod.target or str(mod.payload.get("name", "new_entity"))
+            if mod.kind == "delete":
+                payload = None
+            else:
+                # The iterator is asked for "only the changed fields", so an edit is a delta.
+                # Merge it onto the current entity before validating — a partial payload like
+                # {"damage": 4} is a valid update, not a schema-incomplete entity to reject.
+                base = entities_data.get(mod.target, {}) if mod.kind == "edit" and mod.target else {}
+                payload = {**base, **(mod.payload or {})}
+                if not is_valid_payload(model_cls, payload):
+                    rejected += 1
+                    continue
+            target = mod.target or str((mod.payload or {}).get("name", "new_entity"))
             events.append(
                 Event(
                     branch_id=branch,
@@ -191,7 +199,7 @@ class IterationEngine:
                     kind=_MOD_TO_KIND[mod.kind],
                     target=target,
                     before=entities_data.get(target) if mod.target else None,
-                    after=None if mod.kind == "delete" else mod.payload,
+                    after=payload,
                     metadata={"reasoning": mod.reasoning},
                 )
             )
@@ -214,7 +222,7 @@ class IterationEngine:
             from core.cache_backend import RedisCacheBackend
 
             return RedisCacheBackend()
-        return DiskCacheBackend(self.events.base / scenario_id / "sim_cache")
+        return DiskCacheBackend(safe_under(self.events.base, validate_id(scenario_id, "scenario_id"), "sim_cache"))
 
     def _last_actor_by_target(self, scenario_id, branch) -> dict[str, str]:
         actors: dict[str, str] = {}
@@ -237,8 +245,8 @@ class IterationEngine:
         return {}
 
 
-def _valid_payload(model_cls: type[BaseModel], payload: dict[str, Any]) -> bool:
-    """True if an iterator's modification payload validates against the entity schema."""
+def is_valid_payload(model_cls: type[BaseModel], payload: dict[str, Any]) -> bool:
+    """True if a (fully-merged) modification payload validates against the entity schema."""
     try:
         model_cls(**payload)
         return True

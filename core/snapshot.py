@@ -15,6 +15,7 @@ from typing import Any
 import zstandard
 from pydantic import BaseModel, Field
 
+from core.paths import safe_under, validate_id
 from core.scenario import MAIN_BRANCH, Event, EventLog
 
 _ENTITY_EVENTS = {"create_entity", "edit_entity", "delete_entity"}
@@ -52,10 +53,12 @@ class SnapshotStore:
         self.base = Path(base_dir)
 
     def _dir(self, scenario_id: str) -> Path:
-        return self.base / scenario_id / "snapshots"
+        validate_id(scenario_id, "scenario_id")
+        return safe_under(self.base, scenario_id, "snapshots")
 
     def _path(self, scenario_id: str, branch_id: str, at_seq: int) -> Path:
-        return self._dir(scenario_id) / f"{branch_id}-seq-{at_seq}.json.zst"
+        validate_id(branch_id, "branch_id")
+        return safe_under(self._dir(scenario_id), f"{branch_id}-seq-{at_seq}.json.zst")
 
     def save(self, snapshot: Snapshot) -> Path:
         self._dir(snapshot.scenario_id).mkdir(parents=True, exist_ok=True)

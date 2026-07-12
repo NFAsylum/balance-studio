@@ -18,6 +18,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, Field
 
 from core.objectives import Objective
+from core.paths import safe_under, validate_id
 
 Actor = Literal["user", "llm-designer", "llm-judge", "llm-iterator"]
 EventKind = Literal[
@@ -68,11 +69,16 @@ class EventLog:
 
     def __init__(self, base_dir: str | Path = "scenarios"):
         self.base = Path(base_dir)
+        # Parse cache: the log is append-only, so file size is a sound invalidation key — a
+        # grown file means new events. This turns repeated read()/head() calls (previously each
+        # a full re-parse -> O(N^2) across a session) into one parse per size change.
+        self._parse_cache: dict[str, tuple[int, list[Event]]] = {}
 
     # -- paths -------------------------------------------------------------
 
     def _dir(self, scenario_id: str) -> Path:
-        return self.base / scenario_id
+        validate_id(scenario_id, "scenario_id")
+        return safe_under(self.base, scenario_id)
 
     def _events_path(self, scenario_id: str) -> Path:
         return self._dir(scenario_id) / "events.jsonl"
@@ -124,6 +130,7 @@ class EventLog:
         parent_branch: str | None = None,
         fork_seq: int = 0,
     ) -> None:
+        validate_id(branch_id, "branch_id")
         scenario, branches = self._read_manifest(scenario_id)
         if branch_id not in branches:
             branches[branch_id] = {
@@ -146,6 +153,7 @@ class EventLog:
         Copies re-tag ``branch_id`` only (seq/parent_seq/timestamp/content preserved), so each
         branch is self-contained and independent — an event on one never affects the other.
         """
+        validate_id(new_branch, "branch_id")
         if new_branch in self.branch_ids(scenario_id):
             raise ValueError(f"branch '{new_branch}' already exists in scenario '{scenario_id}'")
         prefix = self.read(scenario_id, branch_id=parent_branch, up_to_seq=parent_seq)
@@ -225,26 +233,31 @@ class EventLog:
         up_to_seq: int | None = None,
     ) -> list[Event]:
         """Return events, optionally filtered by branch and capped at ``up_to_seq`` (inclusive)."""
-        events: list[Event] = []
-        path = self._events_path(scenario_id)
-        if not path.exists():
-            return events
-        with path.open(encoding="utf-8") as fh:
-            for line in fh:
-                line = line.strip()
-                if not line:
-                    continue
-                event = Event.model_validate_json(line)
-                if branch_id is not None and event.branch_id != branch_id:
-                    continue
-                if up_to_seq is not None and event.seq > up_to_seq:
-                    continue
-                events.append(event)
+        events = [
+            e
+            for e in self._read_all(scenario_id)
+            if (branch_id is None or e.branch_id == branch_id)
+            and (up_to_seq is None or e.seq <= up_to_seq)
+        ]
         if branch_id is not None:
             events.sort(key=lambda e: e.seq)
         return events
 
+    def _read_all(self, scenario_id: str) -> list[Event]:
+        """Every event for a scenario, parsed once and cached until the log file grows."""
+        path = self._events_path(scenario_id)
+        try:
+            size = path.stat().st_size
+        except FileNotFoundError:
+            return []
+        cached = self._parse_cache.get(scenario_id)
+        if cached is not None and cached[0] == size:
+            return cached[1]
+        with path.open(encoding="utf-8") as fh:
+            events = [Event.model_validate_json(line) for line in fh if line.strip()]
+        self._parse_cache[scenario_id] = (size, events)
+        return events
+
     def head(self, scenario_id: str, branch_id: str) -> int:
         """Return the highest seq in ``branch_id`` (0 if the branch has no events yet)."""
-        seqs = [e.seq for e in self.read(scenario_id, branch_id=branch_id)]
-        return max(seqs, default=0)
+        return max((e.seq for e in self._read_all(scenario_id) if e.branch_id == branch_id), default=0)

@@ -531,3 +531,17 @@ Tabelas:
 - Sem async no MVP a menos que benchmark mostre benefício
 - Docstrings em inglês, uma linha, WHY quando não óbvio
 - Frontend: TypeScript strict, Zod pra runtime validation dos payloads
+
+## Segurança & seleção de backend (deploy)
+
+Ver `docs/security-review.md` para o detalhe. Resumo operacional:
+
+- **Auth de escrita:** `BALANCE_API_KEY` — se setada, `POST/PATCH/DELETE` exigem header
+  `X-API-Key`. Sem ela, o servidor sobe em modo dev (escritas abertas) e loga um warning.
+- **CORS:** `ALLOWED_ORIGINS` (vírgula separa múltiplas origens); default `http://localhost:3000`.
+- **Rate limit:** `WRITE_RATE_LIMIT_PER_MIN` (default 60) por IP nas escritas.
+- **Path validation:** `scenario_id`/`branch_id` passam por `core.paths.validate_id`
+  (whitelist) — ids inseguros retornam 422 antes de tocar o disco.
+- **Backend LLM:** `LLM_BACKEND=fake|local|anthropic`. `local` e `anthropic` compartilham os
+  mesmos hats (`core/llm_local.py`), trocando só o transporte (`core/llm_client.py`).
+  Produção usa `anthropic` (o llama-server local não é acessível de um servidor remoto).
