@@ -141,3 +141,7 @@ Redis by config. Deploy target: Fly.io (back) + Vercel (front).
 
 Sprints 1–7 complete (core, 3 domains, event log + branching, multi-objective, incremental
 cache, full UI, real local LLM). Sprint 8 (deploy + demo video + write-up) in progress.
+
+## License
+
+[MIT](LICENSE) © 2026 Marco
