@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import shutil
+import tempfile
 import time
 from pathlib import Path
 
@@ -20,7 +21,7 @@ from core.snapshot import Replay, SnapshotStore
 
 from api.registry import discover_domains
 
-_BASE = Path("/tmp/claude-1000/-workspace/7e6a8d11-9409-4f9a-b36d-8c76ac447255/scratchpad/exp_b6")
+_BASE = Path(tempfile.gettempdir()) / "exp_b6"
 
 DOMAINS = {
     "card_game": {

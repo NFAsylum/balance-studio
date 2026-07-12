@@ -12,8 +12,10 @@ Run: LLM_BACKEND=local poetry run python -m scripts.experiment_balance
 from __future__ import annotations
 
 import json
+import os
 import random
 import statistics
+import tempfile
 from typing import Any
 
 from api.registry import discover_domains
@@ -152,12 +154,10 @@ def _agg(values: list[float]) -> tuple[float, float]:
     return (round(statistics.fmean(values), 3), round(statistics.pstdev(values), 3) if len(values) > 1 else 0.0)
 
 
-_OUT = "/tmp/exp_balance_result.json"
+_OUT = os.path.join(tempfile.gettempdir(), "exp_balance_result.json")
 
 
 def main() -> None:
-    import os
-
     hats = build_hats()
     domains = discover_domains()
     print(f"backend={os.getenv('LLM_BACKEND', 'fake')} trials={TRIALS} iterations={ITERATIONS}\n", flush=True)
