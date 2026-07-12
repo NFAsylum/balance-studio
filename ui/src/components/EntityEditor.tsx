@@ -33,9 +33,9 @@ function Field({ field, value, onChange }: { field: FieldSpec; value: unknown; o
     <label className="flex flex-col gap-1 text-sm" data-testid={`field-${field.name}`}>
       <span className="font-medium">
         {field.name}
-        {field.required === false && <span className="ml-1 text-xs text-neutral-400">(optional)</span>}
+        {field.required === false && <span className="ml-1 text-xs text-muted-foreground">(optional)</span>}
       </span>
-      {field.description && <span className="text-xs text-neutral-500">{field.description}</span>}
+      {field.description && <span className="text-xs text-muted-foreground">{field.description}</span>}
       <FieldControl field={field} value={value} onChange={onChange} />
       {error && (
         <span role="alert" className="text-xs text-red-600">
@@ -53,7 +53,7 @@ function FieldControl({ field, value, onChange }: { field: FieldSpec; value: unk
     case "cat":
       return (
         <select
-          className="h-9 rounded-md border border-neutral-300 bg-white px-3 text-sm"
+          className="h-9 rounded-md border border-input bg-background px-3 text-sm"
           value={String(value ?? "")}
           onChange={(e) => onChange(e.target.value)}
         >
@@ -113,14 +113,14 @@ function StrField({ field, value, onChange }: { field: FieldSpec; value: string;
   return (
     <div className="flex flex-col gap-1">
       <textarea
-        className="min-h-[38px] rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm"
+        className="min-h-[38px] rounded-md border border-input bg-background px-3 py-1.5 text-sm"
         value={value}
         maxLength={field.max_len ?? undefined}
         onChange={(e) => onChange(e.target.value)}
         aria-label={field.name}
       />
       {field.max_len != null && (
-        <span className="text-right text-xs text-neutral-400">
+        <span className="text-right text-xs text-muted-foreground">
           {value.length}/{field.max_len}
         </span>
       )}
@@ -139,7 +139,7 @@ function TagSetField({ value, onChange }: { value: string[]; onChange: (v: strin
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap gap-1">
         {value.map((tag) => (
-          <span key={tag} className="inline-flex items-center gap-1 rounded bg-neutral-100 px-2 py-0.5 text-xs">
+          <span key={tag} className="inline-flex items-center gap-1 rounded bg-muted px-2 py-0.5 text-xs">
             {tag}
             <button type="button" aria-label={`remove ${tag}`} onClick={() => onChange(value.filter((t) => t !== tag))}>
               <X className="h-3 w-3" />
@@ -182,7 +182,7 @@ function MapField({ value, onChange }: { value: Record<string, number>; onChange
             delete next[k];
             onChange(next);
           }}>
-            <X className="h-4 w-4 text-neutral-400" />
+            <X className="h-4 w-4 text-muted-foreground" />
           </button>
         </div>
       ))}
@@ -190,7 +190,7 @@ function MapField({ value, onChange }: { value: Record<string, number>; onChange
         <Input value={key} placeholder="key" aria-label="map key" className={cn("w-24")} onChange={(e) => setKey(e.target.value)} />
         <button
           type="button"
-          className="text-xs text-neutral-600 underline"
+          className="text-xs text-muted-foreground underline"
           onClick={() => {
             if (key.trim()) {
               onChange({ ...value, [key.trim()]: 1 });

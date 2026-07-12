@@ -3,6 +3,7 @@ import * as React from "react";
 import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { useT } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 
 export default function HomePage() {
   const qc = useQueryClient();
+  const { t } = useT();
   const domains = useQuery({ queryKey: ["domains"], queryFn: api.listDomains });
   const scenarios = useQuery({ queryKey: ["scenarios"], queryFn: api.listScenarios });
 
@@ -29,25 +31,25 @@ export default function HomePage() {
     <div className="flex flex-col gap-8">
       <section className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Scenarios</h1>
-          <p className="text-sm text-neutral-500">
-            {domains.data ? `${domains.data.domains.length} domains disponíveis` : "carregando domains…"}
+          <h1 className="text-2xl font-semibold">{t("scenarios")}</h1>
+          <p className="text-sm text-muted-foreground">
+            {domains.data ? t("domainsAvailable", { n: domains.data.domains.length }) : t("loadingDomains")}
           </p>
         </div>
         <Dialog>
           <DialogTrigger asChild>
-            <Button>New scenario</Button>
+            <Button>{t("newScenario")}</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Create scenario</DialogTitle>
+              <DialogTitle>{t("createScenario")}</DialogTitle>
             </DialogHeader>
             <div className="flex flex-col gap-4">
               <label className="flex flex-col gap-1 text-sm">
-                Domain
+                {t("domain")}
                 <Select value={domain} onValueChange={setDomain}>
                   <SelectTrigger>
-                    <SelectValue placeholder="pick a domain" />
+                    <SelectValue placeholder={t("pickDomain")} />
                   </SelectTrigger>
                   <SelectContent>
                     {domains.data?.domains.map((d) => (
@@ -59,20 +61,20 @@ export default function HomePage() {
                 </Select>
               </label>
               <label className="flex flex-col gap-1 text-sm">
-                Name
+                {t("name")}
                 <Input value={name} onChange={(e) => setName(e.target.value)} />
               </label>
               <label className="flex flex-col gap-1 text-sm">
-                Brief
-                <Input value={brief} onChange={(e) => setBrief(e.target.value)} placeholder="aggro cheap units" />
+                {t("brief")}
+                <Input value={brief} onChange={(e) => setBrief(e.target.value)} placeholder={t("briefPlaceholder")} />
               </label>
               <label className="flex flex-col gap-2 text-sm">
-                Entities: {n}
+                {t("entitiesField")}: {n}
                 <Slider value={[n]} min={1} max={30} step={1} onValueChange={(v) => setN(v[0])} />
               </label>
               <DialogClose asChild>
                 <Button disabled={!domain || create.isPending} onClick={() => create.mutate()}>
-                  {create.isPending ? "creating…" : "Create"}
+                  {create.isPending ? t("creating") : t("create")}
                 </Button>
               </DialogClose>
             </div>
@@ -82,7 +84,7 @@ export default function HomePage() {
 
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {scenarios.data?.scenarios.length === 0 && (
-          <p className="text-sm text-neutral-500">Nenhum scenario ainda — crie o primeiro.</p>
+          <p className="text-sm text-muted-foreground">{t("noScenarios")}</p>
         )}
         {scenarios.data?.scenarios.map((s) => (
           <Link key={s.id} href={`/scenarios/${s.id}`}>
@@ -90,11 +92,11 @@ export default function HomePage() {
               <CardHeader>
                 <CardTitle>{s.name}</CardTitle>
                 <CardDescription>
-                  {s.domain} · {s.head_event_seq} events · branch {s.current_branch}
+                  {s.domain} · {s.head_event_seq} {t("events")} · {t("branch")} {s.current_branch}
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="line-clamp-2 text-sm text-neutral-600">{s.brief || "sem brief"}</p>
+                <p className="line-clamp-2 text-sm text-muted-foreground">{s.brief || t("noBrief")}</p>
               </CardContent>
             </Card>
           </Link>

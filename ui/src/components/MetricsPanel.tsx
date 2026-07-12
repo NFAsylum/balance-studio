@@ -56,7 +56,7 @@ export function MetricCard({ result, freshness }: { result: MetricResult; freshn
         <FreshnessBadge state={freshness} />
       </CardHeader>
       <CardContent>
-        <p className="text-sm text-neutral-700">{summarize(result)}</p>
+        <p className="text-sm text-foreground/80">{summarize(result)}</p>
       </CardContent>
     </Card>
   );

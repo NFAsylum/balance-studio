@@ -57,6 +57,15 @@ export const api = {
     }>(`/scenarios/${id}${atSeq != null ? `?at_seq=${atSeq}` : ""}`),
   createScenario: (body: { domain: string; name: string; brief: string; n_entities: number }) =>
     request<Scenario>("/scenarios", { method: "POST", body: JSON.stringify(body) }),
+  editEntity: (id: string, entityId: string, entity: Record<string, unknown>) =>
+    request<EntityEvent>(`/scenarios/${id}/entities/${encodeURIComponent(entityId)}`, {
+      method: "PATCH",
+      body: JSON.stringify({ entity }),
+    }),
+  addEntity: (id: string, entity: Record<string, unknown>) =>
+    request<EntityEvent>(`/scenarios/${id}/entities`, { method: "POST", body: JSON.stringify({ entity }) }),
+  deleteEntity: (id: string, entityId: string) =>
+    request<EntityEvent>(`/scenarios/${id}/entities/${encodeURIComponent(entityId)}`, { method: "DELETE" }),
   iterate: (id: string, phase: "design" | "simulate" | "judge" | "iterate") =>
     request<{ phase: string; events_appended: number; details: Record<string, unknown> }>(
       `/scenarios/${id}/iterate`,
