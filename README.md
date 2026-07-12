@@ -144,4 +144,4 @@ cache, full UI, real local LLM). Sprint 8 (deploy + demo video + write-up) in pr
 
 ## License
 
-[MIT](LICENSE) © 2026 Marco
+[MIT](LICENSE) © 2026 Marco Antonio Oliveira
