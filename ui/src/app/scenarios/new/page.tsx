@@ -7,7 +7,7 @@ import { api, type Preset } from "@/lib/api";
 import type { EntitySchema, FieldSpec } from "@/lib/schema";
 import { applyOverrides, diffFields } from "@/lib/schema-overrides";
 import { sampleEntity } from "@/lib/sample-entity";
-import { DEFAULT_VIEW, getViewById } from "@/domain-views/registry";
+import { DEFAULT_VIEW, getViewById, getViewsForDomain, isCustomView } from "@/domain-views/registry";
 import { SafeView } from "@/domain-views/SafeView";
 import { FieldBuilder, fieldsValid } from "@/components/editor/FieldBuilder";
 import { Button } from "@/components/ui/button";
@@ -158,9 +158,33 @@ export default function NewScenarioPage() {
         {/* right: live preview */}
         <div className="flex flex-col gap-3">
           <Card>
-            <CardHeader className="flex-row items-center justify-between">
+            <CardHeader className="flex flex-col gap-2">
               <CardTitle className="text-sm">Live preview</CardTitle>
-              <span className="text-xs text-muted-foreground">{view.name}</span>
+              {domain && (
+                <select
+                  aria-label="layout style"
+                  className="h-8 rounded-md border border-input bg-background px-2 text-sm"
+                  value={variant ?? "default"}
+                  onChange={(e) => setVariant(e.target.value === "default" ? null : e.target.value)}
+                >
+                  {(() => {
+                    const views = getViewsForDomain(domain);
+                    const domainViews = views.filter((v) => !isCustomView(v) && v.id !== "default");
+                    const customViews = views.filter(isCustomView);
+                    return (
+                      <>
+                        {domainViews.map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}
+                        {customViews.length > 0 && (
+                          <optgroup label="Custom variants">
+                            {customViews.map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}
+                          </optgroup>
+                        )}
+                        <option value="default">Default (list)</option>
+                      </>
+                    );
+                  })()}
+                </select>
+              )}
             </CardHeader>
             <CardContent className="flex justify-center">
               {domain ? (
