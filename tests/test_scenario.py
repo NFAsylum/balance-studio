@@ -71,3 +71,40 @@ def test_append_to_unregistered_branch_fails(tmp_path):
     log = _log(tmp_path)
     with pytest.raises(ValueError, match="not registered"):
         log.append("s1", _event(branch_id="ghost"))
+
+
+# -- schema_overrides (T1.2) ----------------------------------------------
+
+from api.registry import discover_domains  # noqa: E402
+
+
+def test_scenario_defaults_to_empty_overrides():
+    s = Scenario(id="s1", domain="card_game", name="T")
+    assert s.schema_overrides == {} and s.preset_id is None and s.visual_variant is None
+
+
+def test_schema_overrides_persist_and_reload(tmp_path):
+    ov = {"fields": [{"name": "hp", "range": [1, 8000]}]}
+    log = EventLog(base_dir=tmp_path)
+    log.init_scenario(Scenario(id="s1", domain="card_game", name="T", schema_overrides=ov, preset_id="yugioh"))
+    reloaded = log.scenario("s1")
+    assert reloaded.schema_overrides == ov and reloaded.preset_id == "yugioh"
+
+
+def test_overrides_survive_appended_events(tmp_path):
+    ov = {"fields": [{"name": "hp", "range": [1, 8000]}]}
+    log = EventLog(base_dir=tmp_path)
+    log.init_scenario(Scenario(id="s1", domain="card_game", name="T", schema_overrides=ov))
+    log.append("s1", _event(note="x"))
+    log.append("s1", _event(note="y"))
+    assert log.scenario("s1").schema_overrides["fields"][0]["range"] == [1, 8000]
+
+
+def test_effective_schema_applies_overrides():
+    reg = discover_domains()
+    over = Scenario(id="s1", domain="card_game", name="T",
+                    schema_overrides={"fields": [{"name": "hp", "range": [1, 8000]}]}).effective_schema(reg)
+    assert next(f for f in over.fields if f.name == "hp").range == (1, 8000)
+    # a plain scenario yields the unmodified plugin schema
+    base = Scenario(id="s2", domain="card_game", name="T").effective_schema(reg)
+    assert next(f for f in base.fields if f.name == "hp").range != (1, 8000)

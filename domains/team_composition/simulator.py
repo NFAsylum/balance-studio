@@ -41,6 +41,9 @@ class WorkloadEnv(Environment):
     tasks: list[str] = []  # task type names; empty -> the full catalogue
     deadline_days: int = 10
     hours_per_day: int = 8
+    # Declarative seniority -> speed multiplier. Empty = use the plugin default (SENIORITY_SPEED),
+    # so base behaviour is unchanged. A preset declares its own ladder (e.g. intern..principal).
+    seniority_speed: dict[str, float] = {}
 
 
 @dataclass
@@ -80,6 +83,7 @@ class TeamCompositionSimulator(SimulatorInterface):
         people = [_to_dict(p) for p in entities]
         workload = self._workload(env)
         capacity = env.deadline_days * env.hours_per_day
+        speed = env.seniority_speed or SENIORITY_SPEED  # preset ladder, else the plugin default
 
         workers = [
             _Worker(
@@ -99,11 +103,11 @@ class TeamCompositionSimulator(SimulatorInterface):
         blocked = 0
         for idx in order:
             task = workload[idx]
-            worker = self._assign(task, workers)
+            worker = self._assign(task, workers, speed)
             if worker is None:
                 blocked += 1
                 continue
-            effort = task.estimated_hours / SENIORITY_SPEED[worker.seniority]
+            effort = task.estimated_hours / speed.get(worker.seniority, 1.0)
             worker.remaining -= effort
             worker.used += effort
             completed_times.append(worker.used)
@@ -130,13 +134,13 @@ class TeamCompositionSimulator(SimulatorInterface):
         return list(TASK_TYPES)
 
     @staticmethod
-    def _assign(task: TaskType, workers: list[_Worker]) -> _Worker | None:
+    def _assign(task: TaskType, workers: list[_Worker], speed: dict[str, float]) -> _Worker | None:
         """Pick a capable worker with enough capacity — preferring those who prefer the task."""
         required = set(task.required_skills)
         capable = [w for w in workers if required.issubset(w.skills)]
         if not capable:
             return None
-        affordable = [w for w in capable if w.remaining >= task.estimated_hours / SENIORITY_SPEED[w.seniority]]
+        affordable = [w for w in capable if w.remaining >= task.estimated_hours / speed.get(w.seniority, 1.0)]
         if not affordable:
             return None
         # prefer someone who prefers this task type; then the most spare capacity; then name.

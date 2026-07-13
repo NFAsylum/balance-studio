@@ -34,6 +34,7 @@ class FieldSpec(BaseModel):
     max_len: int | None = None  # str only
     required: bool = True  # optional fields default to None and are omitted from tool_use 'required'
     description: str = ""
+    origin: Literal["plugin", "user"] = "plugin"  # who defined it: the domain plugin or a user override
 
     @model_validator(mode="after")
     def _validate_kind_params(self) -> FieldSpec:
@@ -101,6 +102,44 @@ class EntitySchema(BaseModel):
     def from_dict(cls, data: dict[str, Any]) -> EntitySchema:
         """Parse a plain dict (e.g. loaded from JSON) into an EntitySchema."""
         return cls.model_validate(data)
+
+    def with_overrides(self, overrides: dict[str, Any]) -> EntitySchema:
+        """Return a new schema with user field overrides applied on top of the plugin's fields.
+
+        ``overrides`` shape: ``{"fields": [ <op>, ... ]}`` where each ``<op>`` is a partial
+        field dict carrying a ``name``:
+
+        - **edit** an existing field — ``{"name": "hp", "range": [1, 8000]}`` merges the given
+          keys onto the field (any field-level prop: range/enum/min_len/max_len/kind/…).
+        - **add** a new field — a ``name`` not present becomes a new field (must be a full,
+          valid spec, e.g. ``{"name": "effect", "kind": "str"}``).
+        - **remove** a field — ``{"name": "hp", "remove": true}``.
+
+        Touched or added fields get ``origin="user"``. An override that leaves a field in an
+        invalid state (e.g. an ``enum`` on a ``num``) raises ``ValueError`` via FieldSpec
+        validation. An empty override returns an equivalent schema (backward compatible).
+        """
+        by_name = {f.name: f for f in self.fields}
+        order = [f.name for f in self.fields]
+
+        for op in overrides.get("fields", []):
+            name = op.get("name")
+            if not name:
+                raise ValueError("each field override must carry a 'name'")
+            if op.get("remove"):
+                by_name.pop(name, None)
+                if name in order:
+                    order.remove(name)
+                continue
+            patch = {k: v for k, v in op.items() if k != "remove"}
+            if name in by_name:  # edit: merge onto the existing field
+                merged = {**by_name[name].model_dump(), **patch, "origin": "user"}
+                by_name[name] = FieldSpec.model_validate(merged)
+            else:  # add: a brand-new field
+                by_name[name] = FieldSpec.model_validate({**patch, "origin": "user"})
+                order.append(name)
+
+        return EntitySchema(name=self.name, fields=[by_name[n] for n in order])
 
     def build_model(self) -> type[BaseModel]:
         """Return a dynamically generated Pydantic model that validates entities.

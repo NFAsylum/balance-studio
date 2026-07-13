@@ -215,3 +215,77 @@ def test_to_llm_schema_matches_built_model_acceptance():
     Model = schema.build_model()
     payload = {"cost": 2, "element": "water", "legendary": False, "tags": ["control"]}
     assert Model(**payload).cost == 2
+
+
+# -- with_overrides (T1.1) ------------------------------------------------
+
+
+def _base_schema() -> EntitySchema:
+    return EntitySchema.from_dict(
+        {
+            "name": "Card",
+            "fields": [
+                {"name": "name", "kind": "str"},
+                {"name": "hp", "kind": "num", "range": [1, 20]},
+                {"name": "type", "kind": "cat", "enum": ["fire", "water"]},
+            ],
+        }
+    )
+
+
+def test_override_widens_range():
+    schema = _base_schema().with_overrides({"fields": [{"name": "hp", "range": [1, 8000]}]})
+    hp = next(f for f in schema.fields if f.name == "hp")
+    assert hp.range == (1, 8000)
+    assert schema.build_model()(name="A", hp=8000, type="fire").hp == 8000
+
+
+def test_override_replaces_enum():
+    schema = _base_schema().with_overrides(
+        {"fields": [{"name": "type", "enum": ["fire", "water", "earth", "air"]}]}
+    )
+    Model = schema.build_model()
+    assert Model(name="A", hp=5, type="earth").type == "earth"
+
+
+def test_override_adds_field():
+    schema = _base_schema().with_overrides(
+        {"fields": [{"name": "effect", "kind": "str", "description": "rules text"}]}
+    )
+    assert [f.name for f in schema.fields] == ["name", "hp", "type", "effect"]  # appended, order kept
+    assert schema.build_model()(name="A", hp=5, type="fire", effect="draw a card").effect == "draw a card"
+
+
+def test_override_removes_field():
+    schema = _base_schema().with_overrides({"fields": [{"name": "hp", "remove": True}]})
+    assert "hp" not in [f.name for f in schema.fields]
+    # the built model no longer accepts hp
+    with pytest.raises(ValidationError):
+        schema.build_model()(name="A", type="fire", hp=5)
+
+
+def test_override_stacks_on_prior_range_override():
+    once = _base_schema().with_overrides({"fields": [{"name": "hp", "range": [1, 100]}]})
+    twice = once.with_overrides({"fields": [{"name": "hp", "range": [1, 8000]}]})
+    assert next(f for f in twice.fields if f.name == "hp").range == (1, 8000)
+
+
+def test_override_conflicting_with_kind_raises():
+    # an enum on a num field is invalid — FieldSpec validation must reject it
+    with pytest.raises((ValueError, ValidationError)):
+        _base_schema().with_overrides({"fields": [{"name": "hp", "enum": ["a", "b"]}]})
+
+
+def test_empty_override_is_identity():
+    schema = _base_schema().with_overrides({})
+    assert [f.model_dump() for f in schema.fields] == [f.model_dump() for f in _base_schema().fields]
+
+
+def test_override_tags_origin_user_only_on_touched_fields():
+    schema = _base_schema().with_overrides(
+        {"fields": [{"name": "hp", "range": [1, 30]}, {"name": "cost", "kind": "num", "range": [0, 10]}]}
+    )
+    origins = {f.name: f.origin for f in schema.fields}
+    assert origins["hp"] == "user"  # edited
+    assert origins["cost"] == "user"  # added
+    assert origins["name"] == "plugin" and origins["type"] == "plugin"  # untouched

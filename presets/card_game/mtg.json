@@ -1,0 +1,17 @@
+{
+  "id": "mtg",
+  "name": "Magic: The Gathering",
+  "domain": "card_game",
+  "description": "Creatures with mana value 0-10 and power/toughness 1-15, with MTG-flavoured ability names mapped onto the engine primitives.",
+  "schema_overrides": {"fields": [
+    {"name": "cost", "range": [0, 10], "description": "Mana value (converted mana cost)"},
+    {"name": "damage", "range": [1, 15], "description": "Power"},
+    {"name": "hp", "range": [1, 15], "description": "Toughness"},
+    {"name": "ability_kind", "enum": ["burn", "lifegain", "counter", "cantrip"], "description": "Keyword ability"},
+    {"name": "ability_value", "range": [0, 10]}
+  ]},
+  "sim_config": {"ability_map": {"burn": "deal_damage", "lifegain": "heal", "counter": "shield", "cantrip": "draw"}},
+  "default_constraints": [{"kind": "range", "params": {"field": "cost", "min": 0, "max": 10}}],
+  "default_objectives": [{"metric_name": "winrate_std", "direction": "minimize", "weight": 1.0}],
+  "default_visual_variant": "card_game.default"
+}

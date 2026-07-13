@@ -50,6 +50,10 @@ class MatchEnv(Environment):
     hero_hp: int = 30
     mana_cap: int = 10
     mana_per_turn: int = 1
+    # Declarative ability renaming: maps a schema ability_kind value onto an engine primitive
+    # (deal_damage/heal/shield/draw). Empty = identity, so the base kinds work unchanged. A
+    # preset uses this to expose themed names (e.g. MTG "burn" -> "deal_damage").
+    ability_map: dict[str, str] = {}
 
 
 class Deck(BaseModel):
@@ -279,7 +283,10 @@ def _trigger_ability(
     unit: _UnitState, active: _PlayerState, opponent: _PlayerState, match: _Match
 ) -> None:
     """Apply a unit's on-play ability. Kept module-level so tests can exercise each kind."""
-    kind, value = unit.ability_kind, unit.ability_value
+    # Resolve a themed/renamed ability to its engine primitive (identity if unmapped/no env).
+    ability_map = match.env.ability_map if match is not None else {}
+    kind = ability_map.get(unit.ability_kind, unit.ability_kind)
+    value = unit.ability_value
     if kind == "deal_damage":
         if opponent.board:
             target = opponent.board[0]

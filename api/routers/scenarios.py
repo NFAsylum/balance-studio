@@ -5,15 +5,19 @@ from __future__ import annotations
 import uuid
 from typing import Any, Literal
 
-from fastapi import APIRouter
-from pydantic import BaseModel, Field
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel, Field, ValidationError
 
 from api.dependencies import load_scenario, require_domain, services
+from api.registry import registry
 from core.iteration_engine import StepResult
 from core.objectives import Objective
+from core.presets import PresetStore
 from core.scenario import Scenario
 
 router = APIRouter(tags=["scenarios"])
+
+_presets = PresetStore()
 
 
 class CreateScenarioRequest(BaseModel):
@@ -21,6 +25,15 @@ class CreateScenarioRequest(BaseModel):
     name: str = Field(default="Untitled scenario", max_length=200)
     brief: str = Field(default="", max_length=500)  # free text -> Designer prompt; cap to limit injection
     n_entities: int = Field(default=8, ge=1, le=200)
+    preset_id: str | None = None  # start from a preset (schema + constraints + objectives + variant)
+    schema_overrides: dict[str, Any] = Field(default_factory=dict)  # extra edits on top of the preset
+    visual_variant: str | None = None  # override the preset's default view
+
+
+def _merge_overrides(base: dict[str, Any], extra: dict[str, Any]) -> dict[str, Any]:
+    """Concatenate field ops (base first) so later ops — the user's — win field-by-field."""
+    fields = list(base.get("fields", [])) + list(extra.get("fields", []))
+    return {"fields": fields} if fields else {}
 
 
 class IterateRequest(BaseModel):
@@ -38,13 +51,40 @@ def list_scenarios() -> dict[str, list[dict[str, Any]]]:
 
 @router.post("/scenarios")
 def create_scenario(request: CreateScenarioRequest) -> Scenario:
-    require_domain(request.domain)  # 404 if the domain isn't registered
+    simulator = require_domain(request.domain)  # 404 if the domain isn't registered
+
+    preset = None
+    if request.preset_id:
+        preset = _presets.get(request.preset_id)
+        if preset is None:
+            raise HTTPException(status_code=422, detail=f"unknown preset '{request.preset_id}'")
+        if preset.domain != request.domain:
+            raise HTTPException(
+                status_code=422,
+                detail=f"preset '{request.preset_id}' is for domain '{preset.domain}', not '{request.domain}'",
+            )
+
+    overrides = _merge_overrides(preset.schema_overrides if preset else {}, request.schema_overrides)
+    # Fail early (422) if the combined overrides don't apply to the real plugin schema.
+    try:
+        simulator.entity_schema().with_overrides(overrides)
+    except (ValueError, ValidationError) as exc:
+        raise HTTPException(status_code=422, detail=f"invalid schema_overrides: {exc}") from exc
+
+    objectives = [Objective(**o) for o in preset.default_objectives] if preset else []
+
     scenario = Scenario(
         id=uuid.uuid4().hex[:12],
         domain=request.domain,
         name=request.name,
         brief=request.brief,
         n_entities=request.n_entities,
+        preset_id=request.preset_id,
+        schema_overrides=overrides,
+        constraints=preset.default_constraints if preset else [],
+        sim_config=preset.sim_config if preset else {},
+        visual_variant=request.visual_variant or (preset.default_visual_variant if preset else None),
+        objectives=objectives,
     )
     services.event_log.init_scenario(scenario)
     return scenario
@@ -61,6 +101,7 @@ def get_scenario(scenario_id: str, at_seq: int | None = None) -> dict[str, Any]:
     return {
         "scenario": scenario.model_dump(),
         "entities": state.entities,
+        "schema": scenario.effective_schema(registry).model_dump(),  # plugin schema + overrides
         "head_seq": head,
         "at_seq": target,
     }

@@ -545,3 +545,36 @@ Ver `docs/security-review.md` para o detalhe. Resumo operacional:
 - **Backend LLM:** `LLM_BACKEND=fake|local|anthropic`. `local` e `anthropic` compartilham os
   mesmos hats (`core/llm_local.py`), trocando só o transporte (`core/llm_client.py`).
   Produção usa `anthropic` (o llama-server local não é acessível de um servidor remoto).
+
+## Presets & custom schemas (Scenario Editor backend)
+
+A scenario is no longer locked to its plugin's schema. The plugin provides a **base schema +
+simulator**; the scenario layers **user overrides** on top:
+
+- `EntitySchema.with_overrides({"fields": [...]})` — edit/add/remove fields by name; touched
+  fields are tagged `origin="user"`. Feeds `build_model()` and `to_llm_schema()` unchanged.
+- `Scenario.schema_overrides` (persisted in the manifest) + `Scenario.effective_schema(registry)`
+  = the plugin schema with overrides applied — what the scenario actually validates against.
+- **Presets** (`presets/<domain>/<id>.json`, served by `GET /presets?domain=` and
+  `GET /presets/{id}`) bundle `schema_overrides` + `default_constraints` + `default_objectives`
+  + `default_visual_variant`. `POST /scenarios` accepts `preset_id`, extra `schema_overrides`
+  (merged on top, user wins), and `visual_variant`. `GET /scenarios/{id}` returns the effective
+  `schema`.
+
+### Declarative enums per preset (FASE 1.5)
+
+Presets rescale numeric ranges freely, and — since FASE 1.5 — they can also **replace the
+categorical enums** the simulators used to hardcode, *without breaking determinism*. The
+enum→behaviour mapping moved from Python into env data, carried by `Scenario.sim_config`
+(populated from `Preset.sim_config`) and passed into the domain `Environment`:
+
+- **card_game** — `MatchEnv.ability_map` maps a schema `ability_kind` value onto an engine
+  primitive (`deal_damage`/`heal`/`shield`/`draw`). A preset renames/curates (MTG: `burn →
+  deal_damage`, `counter → shield`, …). New *effects* still require engine primitives.
+- **creature_rpg** — `GauntletEnv.type_matchup` supplies a full type-effectiveness matrix, so a
+  preset can ship its own type roster (e.g. a Pokémon 18-type chart).
+- **team_composition** — `WorkloadEnv.seniority_speed` declares an arbitrary seniority ladder →
+  speed multiplier (intern..principal).
+
+Empty config = the plugin default, so existing scenarios and every determinism test are
+unchanged. The simulators stay pure (`run(entities, env)`), reading the mapping from `env`.
