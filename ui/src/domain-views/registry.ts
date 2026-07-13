@@ -13,13 +13,15 @@ import MonsterHunterStyle, { meta as monsterHunterMeta } from "./creature_rpg/Mo
 import PokedexStyle, { meta as pokedexMeta } from "./creature_rpg/PokedexStyle";
 import BadgeStyle, { meta as badgeMeta } from "./team_composition/BadgeStyle";
 import RosterStyle, { meta as rosterMeta } from "./team_composition/RosterStyle";
+import { customViews } from "./custom";
 import type { EntityView, EntityViewProps, ViewMeta } from "./types";
 
 function view(meta: ViewMeta, component: ComponentType<EntityViewProps>): EntityView {
   return { ...meta, component, defaultMapping: meta.defaultMapping ?? {} };
 }
 
-/** Shipped views. Add a new domain view: import it, then add one `view(meta, Component)` line. */
+/** Shipped views. Add a new domain view: import it, then add one `view(meta, Component)` line.
+ * User-supplied views are listed in ./custom and appended here. */
 const REGISTRY: EntityView[] = [
   view(defaultMeta, DefaultListView),
   view(hearthstoneMeta, HearthstoneStyle),
@@ -28,7 +30,13 @@ const REGISTRY: EntityView[] = [
   view(monsterHunterMeta, MonsterHunterStyle),
   view(badgeMeta, BadgeStyle),
   view(rosterMeta, RosterStyle),
+  ...customViews,
 ];
+
+/** A user-supplied view (grouped separately in the editor's "Custom variants" section). */
+export function isCustomView(v: EntityView): boolean {
+  return v.id.startsWith("custom.");
+}
 
 export const DEFAULT_VIEW: EntityView = REGISTRY.find((v) => v.id === "default")!;
 
