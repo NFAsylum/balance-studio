@@ -34,6 +34,7 @@ class Preset(BaseModel):
     default_constraints: list[dict[str, Any]] = []
     default_objectives: list[dict[str, Any]] = []
     default_visual_variant: str | None = None
+    sim_config: dict[str, Any] = {}  # declarative env config: ability_map / type_matchup / seniority_speed
 
     def apply_to(self, base_schema: EntitySchema) -> EntitySchema:
         """Return the effective schema this preset produces (raises if overrides are invalid)."""

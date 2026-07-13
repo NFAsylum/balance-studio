@@ -62,6 +62,7 @@ class Scenario(BaseModel):
     preset_id: str | None = None  # which preset this scenario was created from (if any)
     schema_overrides: dict[str, Any] = Field(default_factory=dict)  # user edits on top of the plugin schema
     constraints: list[dict[str, Any]] = Field(default_factory=list)  # design-time constraints (from preset/editor)
+    sim_config: dict[str, Any] = Field(default_factory=dict)  # declarative env config (ability_map / type_matchup / seniority_speed)
     visual_variant: str | None = None  # which UI view renders the entities (Level 2.5)
 
     def effective_schema(self, registry: Any) -> EntitySchema:

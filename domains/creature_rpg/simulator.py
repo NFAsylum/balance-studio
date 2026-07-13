@@ -40,6 +40,10 @@ class GauntletEnv(Environment):
     n_battles: int = 10  # gauntlet: opponents faced per creature
     turn_limit: int = 50
     subset_size: int | None = None  # tournament: cap the field
+    # Declarative type-effectiveness table (attacker_type -> defender_type -> multiplier).
+    # Empty = use the plugin's default matchups.json, so base behaviour is unchanged. A preset
+    # supplies its own type roster + matrix here (e.g. a Pokemon 18-type chart).
+    type_matchup: dict[str, dict[str, float]] = {}
 
 
 @dataclass
@@ -118,11 +122,15 @@ class CreatureRpgSimulator(SimulatorInterface):
             "at least one of its own type), and avoid one type dominating the matchup ring."
         )
 
+    def _resolve_matchups(self, env: Environment) -> dict[str, dict[str, float]]:
+        """The preset's type chart if it declared one, else the plugin default."""
+        return getattr(env, "type_matchup", None) or self.matchup_table
+
     def run(self, entities: list[Any], env: Environment) -> RunResult:
         if len(entities) != 2:
             raise ValueError(f"a creature battle needs exactly 2 creatures, got {len(entities)}")
         turn_limit = env.turn_limit if isinstance(env, GauntletEnv) else 50
-        return self._battle(_to_dict(entities[0]), _to_dict(entities[1]), turn_limit, env.seed)
+        return self._battle(_to_dict(entities[0]), _to_dict(entities[1]), turn_limit, env.seed, self._resolve_matchups(env))
 
     def matchups(self, entities: list[BaseModel]) -> list[list[BaseModel]]:
         return [[entities[i], entities[j]] for i, j in itertools.combinations(range(len(entities)), 2)]
@@ -140,11 +148,12 @@ class CreatureRpgSimulator(SimulatorInterface):
         rng = random.Random(env.seed)
         data = [_to_dict(c) for c in creatures]
         runs: list[RunResult] = []
+        table = self._resolve_matchups(env)
         for creature in data:
             others = [o for o in data if o["name"] != creature["name"]]
             opponents = rng.sample(others, min(env.n_battles, len(others)))
             for opponent in opponents:
-                runs.append(self._battle(creature, opponent, env.turn_limit, env.seed))
+                runs.append(self._battle(creature, opponent, env.turn_limit, env.seed, table))
         return runs
 
     def tournament(self, creatures: list[Any], env: GauntletEnv | Environment) -> list[RunResult]:
@@ -154,14 +163,19 @@ class CreatureRpgSimulator(SimulatorInterface):
         if subset is not None:
             data = data[:subset]
         turn_limit = getattr(env, "turn_limit", 50)
+        table = self._resolve_matchups(env)
         return [
-            self._battle(data[i], data[j], turn_limit, env.seed)
+            self._battle(data[i], data[j], turn_limit, env.seed, table)
             for i, j in itertools.combinations(range(len(data)), 2)
         ]
 
     # -- battle engine -----------------------------------------------------
 
-    def _battle(self, a: dict[str, Any], b: dict[str, Any], turn_limit: int, seed: int) -> RunResult:
+    def _battle(
+        self, a: dict[str, Any], b: dict[str, Any], turn_limit: int, seed: int,
+        matchups: dict[str, dict[str, float]] | None = None,
+    ) -> RunResult:
+        matchups = matchups if matchups is not None else self.matchup_table
         state_a, state_b = _state(a), _state(b)
         turns = 0
         winner: str | None = None
@@ -180,7 +194,7 @@ class CreatureRpgSimulator(SimulatorInterface):
             for attacker, defender, skill in actions:
                 if skill is None:
                     continue
-                defender.hp -= _damage(attacker, defender, skill, self.matchup_table)
+                defender.hp -= _damage(attacker, defender, skill, matchups)
                 attacker.cooldowns[skill.name] = skill.cooldown
                 if defender.hp <= 0:
                     winner = attacker.name

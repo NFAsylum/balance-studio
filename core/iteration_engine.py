@@ -77,7 +77,7 @@ class IterationEngine:
         if phase == "design":
             return self._design(scenario_id, branch, scenario, state.entities)
         if phase == "simulate":
-            return self._simulate(scenario_id, branch, simulator, instances)
+            return self._simulate(scenario_id, branch, simulator, instances, sim_config=scenario.sim_config)
         if phase == "judge":
             return self._judge(scenario_id, branch, instances)
         if phase == "iterate":
@@ -126,10 +126,10 @@ class IterationEngine:
         stored = self.events.append_many(scenario_id, events)
         return StepResult(phase="design", events_appended=len(stored), details={"n_designed": len(designed)})
 
-    def _simulate(self, scenario_id, branch, simulator, instances, actor: str = "user") -> StepResult:
+    def _simulate(self, scenario_id, branch, simulator, instances, actor: str = "user", sim_config: dict | None = None) -> StepResult:
         if not instances:
             return StepResult(phase="simulate", events_appended=0, details={"skipped": "no entities"})
-        env = simulator.environment_schema()(seed=self.sim_seed)
+        env = simulator.environment_schema()(seed=self.sim_seed, **(sim_config or {}))
         # Incremental cache per scenario: re-running only re-simulates matchups that changed.
         # Disk (dev, portable per-scenario dir) or Redis (prod) via CACHE_BACKEND; keys are
         # namespaced by scenario so a shared Redis stays isolated.

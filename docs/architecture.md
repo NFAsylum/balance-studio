@@ -561,8 +561,20 @@ simulator**; the scenario layers **user overrides** on top:
   (merged on top, user wins), and `visual_variant`. `GET /scenarios/{id}` returns the effective
   `schema`.
 
-**Constraint (by design):** presets rescale numeric ranges and add flavour fields freely — this
-is what makes YuGiOh (HP→5000, level 1-12) differ from Hearthstone (mana 0-10, hp 1-30) — but
-they do **not** replace the categorical enums the simulators hardcode (creature `type` matchup,
-card `ability_kind` effects, person `seniority` speed), which would break deterministic
-simulation. Replacing those would require simulator changes (larger scope).
+### Declarative enums per preset (FASE 1.5)
+
+Presets rescale numeric ranges freely, and — since FASE 1.5 — they can also **replace the
+categorical enums** the simulators used to hardcode, *without breaking determinism*. The
+enum→behaviour mapping moved from Python into env data, carried by `Scenario.sim_config`
+(populated from `Preset.sim_config`) and passed into the domain `Environment`:
+
+- **card_game** — `MatchEnv.ability_map` maps a schema `ability_kind` value onto an engine
+  primitive (`deal_damage`/`heal`/`shield`/`draw`). A preset renames/curates (MTG: `burn →
+  deal_damage`, `counter → shield`, …). New *effects* still require engine primitives.
+- **creature_rpg** — `GauntletEnv.type_matchup` supplies a full type-effectiveness matrix, so a
+  preset can ship its own type roster (e.g. a Pokémon 18-type chart).
+- **team_composition** — `WorkloadEnv.seniority_speed` declares an arbitrary seniority ladder →
+  speed multiplier (intern..principal).
+
+Empty config = the plugin default, so existing scenarios and every determinism test are
+unchanged. The simulators stay pure (`run(entities, env)`), reading the mapping from `env`.

@@ -82,6 +82,7 @@ def create_scenario(request: CreateScenarioRequest) -> Scenario:
         preset_id=request.preset_id,
         schema_overrides=overrides,
         constraints=preset.default_constraints if preset else [],
+        sim_config=preset.sim_config if preset else {},
         visual_variant=request.visual_variant or (preset.default_visual_variant if preset else None),
         objectives=objectives,
     )
