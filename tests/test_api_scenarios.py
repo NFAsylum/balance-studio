@@ -183,3 +183,17 @@ def test_create_without_preset_is_backward_compatible(client):
     # effective schema == plugin default (hp still 1..20)
     hp = next(f for f in body["schema"]["fields"] if f["name"] == "hp")
     assert hp["range"] == [1, 20]
+
+
+def test_create_with_explicit_constraints(client):
+    cons = [{"kind": "range", "params": {"field": "cost", "min": 0, "max": 3}}]
+    r = client.post("/scenarios", json={"domain": "card_game", "name": "C", "constraints": cons})
+    assert r.status_code == 200
+    assert r.json()["constraints"] == cons
+
+
+def test_generate_against_effective_schema(client):
+    # generate designs against the plugin schema + overrides (widened hp range here)
+    body = {"n": 3, "schema_overrides": {"fields": [{"name": "hp", "range": [1, 5000]}]}}
+    r = client.post("/domains/card_game/generate", json=body)
+    assert r.status_code == 200 and len(r.json()["entities"]) == 3

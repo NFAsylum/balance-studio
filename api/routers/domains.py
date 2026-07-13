@@ -27,6 +27,7 @@ class GenerateRequest(BaseModel):
     n: int = Field(ge=1, le=100)
     constraints: list[dict[str, Any]] = Field(default_factory=list)
     user_intent: str = ""
+    schema_overrides: dict[str, Any] = Field(default_factory=dict)  # design against the effective schema
 
 
 @router.get("/domains")
@@ -90,10 +91,11 @@ def generate(name: str, request: GenerateRequest) -> dict[str, Any]:
     """Design candidate entities via the deterministic Designer hat (Fake — no API key needed)."""
     simulator = require_domain(name)
     constraints = [Constraint(**c) for c in request.constraints]
+    schema = simulator.entity_schema().with_overrides(request.schema_overrides)  # effective schema
     designer = FakeDesigner()
     entities = designer.design(
         brief=request.user_intent,
-        schema=simulator.entity_schema(),
+        schema=schema,
         constraints=constraints,
         n=request.n,
     )

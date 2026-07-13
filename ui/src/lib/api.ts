@@ -8,6 +8,9 @@ export const API_BASE =
 /** A field-override op list, applied on top of a plugin schema (see EntitySchema.with_overrides). */
 export type SchemaOverrides = { fields?: Array<Record<string, unknown>> };
 
+export type ConstraintKind = "range" | "sum_of_fields" | "forbidden_combo" | "required_tag" | "unique_across_set";
+export type Constraint = { kind: ConstraintKind; params: Record<string, unknown> };
+
 export type Preset = {
   id: string;
   name: string;
@@ -80,11 +83,17 @@ export const api = {
     n_entities: number;
     preset_id?: string | null;
     schema_overrides?: SchemaOverrides;
+    constraints?: Constraint[];
     visual_variant?: string | null;
   }) => request<Scenario>("/scenarios", { method: "POST", body: JSON.stringify(body) }),
   listPresets: (domain?: string) =>
     request<{ presets: Preset[] }>(`/presets${domain ? `?domain=${encodeURIComponent(domain)}` : ""}`),
   getPreset: (id: string) => request<Preset>(`/presets/${encodeURIComponent(id)}`),
+  generate: (domain: string, body: { n: number; constraints?: Constraint[]; user_intent?: string; schema_overrides?: SchemaOverrides }) =>
+    request<{ entities: Array<Record<string, unknown>>; requested: number }>(`/domains/${domain}/generate`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
   editEntity: (id: string, entityId: string, entity: Record<string, unknown>) =>
     request<EntityEvent>(`/scenarios/${id}/entities/${encodeURIComponent(entityId)}`, {
       method: "PATCH",
