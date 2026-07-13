@@ -155,3 +155,17 @@ def test_atomic_rollback_on_error(tmp_path):
         engine.step("s1", "design")
     # nothing was committed — the phase raised before append_many
     assert log.head("s1", "main") == 0
+
+
+def test_design_respects_schema_overrides(tmp_path):
+    # audit/FASE 4: design must use the effective schema (plugin + overrides), not the base.
+    log = EventLog(base_dir=tmp_path)
+    replay = Replay(log, SnapshotStore(base_dir=tmp_path))
+    engine = IterationEngine(log, replay, {"card_game": CardGameSimulator()}, FakeDesigner(), FakeJudge(), FakeIterator(), n_runs=30)
+    log.init_scenario(Scenario(
+        id="s1", domain="card_game", name="T", n_entities=3,
+        schema_overrides={"fields": [{"name": "flavor", "kind": "str", "required": False}]},
+    ))
+    engine.step("s1", "design")
+    state = replay.rebuild_state("s1", log.head("s1", "main"))
+    assert state.entities and all("flavor" in e for e in state.entities.values())

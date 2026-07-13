@@ -129,3 +129,28 @@ domínios de combate (+1.0%/+5.1% → −2.2%/−10.6%), confirmando que o failu
 LLM_BACKEND=local LOCAL_LLM_URL=http://192.168.3.92:8080/v1 \
   poetry run python -m scripts.experiment_balance
 ```
+
+---
+
+## FASE 4 — Designer/Iterator prompt tuning (2026-07-13)
+
+Prompts were optimizing for *validity* (pass the schema); now they optimize for **content
+quality**. Changes (in `core/llm_local.py`):
+
+- **Designer** — the system prompt now demands **thematic names** (never "Card-1"), **filling
+  every field** (tag-sets/text non-empty), and flavourful descriptions. The LLM-facing schema
+  marks **all fields required** so the model doesn't omit them, and a **completeness pass**
+  rejects entities that leave a required text/tag-set field blank and re-prompts with feedback
+  (`_incomplete_fields`), up to the retry limit.
+- **Design uses the effective schema + constraints** — previously the design phase ran against
+  the *base* plugin schema with no constraints, silently ignoring the scenario's overrides. Now
+  `IterationEngine._design` uses `schema.with_overrides(scenario.schema_overrides)` and the
+  scenario's constraints, so preset ranges / added-or-removed fields / rules actually take effect.
+- **Iterator reasoning** — each `reasoning` is now a structured narrative sentence: (a) which
+  entity is the outlier and why, (b) which stat changes, (c) by how much and why, (d) which
+  objective it addresses. The timeline already surfaces `metadata.reasoning`.
+
+**Verified:** completeness retry + effective-schema design + prompt content are covered by unit
+tests (`test_designer_retries_when_required_tag_set_is_empty`, `test_design_respects_schema_overrides`,
+prompt-content assertions). The qualitative "thematic names" check needs a run against the local
+7B and is **pending a real generation** (no fabricated before/after numbers here).
