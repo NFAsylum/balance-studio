@@ -9,6 +9,10 @@ import type { ComponentType } from "react";
 import DefaultListView, { meta as defaultMeta } from "./DefaultListView";
 import HearthstoneStyle, { meta as hearthstoneMeta } from "./card_game/HearthstoneStyle";
 import YuGiOhStyle, { meta as yugiohMeta } from "./card_game/YuGiOhStyle";
+import MonsterHunterStyle, { meta as monsterHunterMeta } from "./creature_rpg/MonsterHunterStyle";
+import PokedexStyle, { meta as pokedexMeta } from "./creature_rpg/PokedexStyle";
+import BadgeStyle, { meta as badgeMeta } from "./team_composition/BadgeStyle";
+import RosterStyle, { meta as rosterMeta } from "./team_composition/RosterStyle";
 import type { EntityView, EntityViewProps, ViewMeta } from "./types";
 
 function view(meta: ViewMeta, component: ComponentType<EntityViewProps>): EntityView {
@@ -20,7 +24,10 @@ const REGISTRY: EntityView[] = [
   view(defaultMeta, DefaultListView),
   view(hearthstoneMeta, HearthstoneStyle),
   view(yugiohMeta, YuGiOhStyle),
-  // creature_rpg / team_composition variants (T2.4–T2.5) register here.
+  view(pokedexMeta, PokedexStyle),
+  view(monsterHunterMeta, MonsterHunterStyle),
+  view(badgeMeta, BadgeStyle),
+  view(rosterMeta, RosterStyle),
 ];
 
 export const DEFAULT_VIEW: EntityView = REGISTRY.find((v) => v.id === "default")!;
