@@ -18,13 +18,13 @@ describe("Hero", () => {
   test("shows both CTAs when card_game is available", () => {
     renderHero(true);
     expect(screen.getByTestId("hero")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /hearthstone example/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /sample card game/i })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /start from scratch/i })).toBeInTheDocument();
   });
 
   test("hides the example CTA when card_game is absent", () => {
     renderHero(false);
-    expect(screen.queryByRole("button", { name: /hearthstone example/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /sample card game/i })).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: /start from scratch/i })).toBeInTheDocument();
   });
 });

@@ -17,11 +17,11 @@ export function Hero({ hasCardGame }: { hasCardGame: boolean }) {
     mutationFn: async () => {
       const scenario = await api.createScenario({
         domain: "card_game",
-        name: "Hearthstone example",
+        name: "Card game example",
         brief: "a varied starter deck with distinct roles",
         n_entities: 10,
-        preset_id: "hearthstone",
-        visual_variant: "card_game.hearthstone",
+        preset_id: "modern-mana-tcg",
+        visual_variant: "card_game.modern-mana",
       });
       await api.iterate(scenario.id, "design"); // instant with the deterministic dev designer
       return scenario;
@@ -46,7 +46,7 @@ export function Hero({ hasCardGame }: { hasCardGame: boolean }) {
       <div className="flex flex-wrap justify-center gap-3">
         {hasCardGame && (
           <Button disabled={tryExample.isPending} onClick={() => tryExample.mutate()}>
-            {tryExample.isPending ? "building example…" : "Try a Hearthstone example"}
+            {tryExample.isPending ? "building example…" : "Try a sample card game"}
           </Button>
         )}
         <Button asChild variant="outline">
