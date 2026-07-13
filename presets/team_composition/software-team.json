@@ -1,12 +1,69 @@
 {
-  "id": "software-team",
-  "name": "Software Team",
-  "domain": "team_composition",
-  "description": "An engineering org (junior->lead) with a years-of-experience axis.",
-  "schema_overrides": {"fields": [
-    {"name": "years_experience", "kind": "num", "range": [0, 40], "required": false, "description": "Years in the industry"}
-  ]},
-  "default_constraints": [],
-  "default_objectives": [{"metric_name": "skill_coverage", "direction": "maximize", "weight": 1.0}],
-  "default_visual_variant": "team_composition.badge"
+ "id": "software-team",
+ "name": "Software Team",
+ "domain": "team_composition",
+ "description": "An engineering org (junior->lead) with a years-of-experience axis.",
+ "schema_overrides": {
+  "fields": [
+   {
+    "name": "years_experience",
+    "kind": "num",
+    "range": [
+     0,
+     40
+    ],
+    "required": false,
+    "description": "Years in the industry"
+   }
+  ]
+ },
+ "default_constraints": [],
+ "default_objectives": [
+  {
+   "metric_name": "skill_coverage",
+   "direction": "maximize",
+   "weight": 1.0
+  }
+ ],
+ "default_visual_variant": "team_composition.badge",
+ "examples": [
+  {
+   "name": "Priya Nair",
+   "seniority": "senior",
+   "skills": [
+    "backend",
+    "databases",
+    "cloud"
+   ],
+   "preferred_task_types": [
+    "task_01"
+   ],
+   "years_experience": 9
+  },
+  {
+   "name": "Tom Becker",
+   "seniority": "junior",
+   "skills": [
+    "frontend",
+    "testing"
+   ],
+   "preferred_task_types": [
+    "task_02"
+   ],
+   "years_experience": 2
+  },
+  {
+   "name": "Lena Ortiz",
+   "seniority": "lead",
+   "skills": [
+    "architecture",
+    "backend",
+    "mentoring"
+   ],
+   "preferred_task_types": [
+    "task_00"
+   ],
+   "years_experience": 14
+  }
+ ]
 }

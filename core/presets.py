@@ -35,6 +35,7 @@ class Preset(BaseModel):
     default_objectives: list[dict[str, Any]] = []
     default_visual_variant: str | None = None
     sim_config: dict[str, Any] = {}  # declarative env config: ability_map / type_matchup / seniority_speed
+    examples: list[dict[str, Any]] = []  # illustrative entities (real cards/creatures) for reference/few-shot
 
     def apply_to(self, base_schema: EntitySchema) -> EntitySchema:
         """Return the effective schema this preset produces (raises if overrides are invalid)."""

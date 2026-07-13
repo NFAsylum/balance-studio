@@ -1,15 +1,88 @@
 {
-  "id": "hearthstone",
-  "name": "Hearthstone",
-  "domain": "card_game",
-  "description": "Blizzard's Hearthstone: minions on a 0-10 mana curve, health up to 30, attack up to ~16.",
-  "schema_overrides": {"fields": [
-    {"name": "cost", "range": [0, 10], "description": "Mana cost (0-10 crystals)"},
-    {"name": "hp", "range": [1, 30], "description": "Health"},
-    {"name": "damage", "range": [1, 16], "description": "Attack"},
-    {"name": "ability_value", "range": [0, 12]}
-  ]},
-  "default_constraints": [{"kind": "range", "params": {"field": "cost", "min": 0, "max": 10}}],
-  "default_objectives": [{"metric_name": "winrate_std", "direction": "minimize", "weight": 1.0}],
-  "default_visual_variant": "card_game.hearthstone"
+ "id": "hearthstone",
+ "name": "Hearthstone",
+ "domain": "card_game",
+ "description": "Blizzard's Hearthstone: minions on a 0-10 mana curve, health up to 30, attack up to ~16.",
+ "schema_overrides": {
+  "fields": [
+   {
+    "name": "cost",
+    "range": [
+     0,
+     10
+    ],
+    "description": "Mana cost (0-10 crystals)"
+   },
+   {
+    "name": "hp",
+    "range": [
+     1,
+     30
+    ],
+    "description": "Health"
+   },
+   {
+    "name": "damage",
+    "range": [
+     1,
+     16
+    ],
+    "description": "Attack"
+   },
+   {
+    "name": "ability_value",
+    "range": [
+     0,
+     12
+    ]
+   }
+  ]
+ },
+ "default_constraints": [
+  {
+   "kind": "range",
+   "params": {
+    "field": "cost",
+    "min": 0,
+    "max": 10
+   }
+  }
+ ],
+ "default_objectives": [
+  {
+   "metric_name": "winrate_std",
+   "direction": "minimize",
+   "weight": 1.0
+  }
+ ],
+ "default_visual_variant": "card_game.hearthstone",
+ "examples": [
+  {
+   "name": "Fire Elemental",
+   "cost": 6,
+   "hp": 5,
+   "damage": 6,
+   "ability_kind": "deal_damage",
+   "ability_value": 3,
+   "description": "Battlecry: deal 3 damage."
+  },
+  {
+   "name": "Earthen Ring Farseer",
+   "cost": 3,
+   "hp": 3,
+   "damage": 3,
+   "ability_kind": "heal",
+   "ability_value": 3,
+   "description": "Battlecry: restore 3 Health."
+  },
+  {
+   "name": "Novice Engineer",
+   "cost": 2,
+   "hp": 1,
+   "damage": 1,
+   "ability_kind": "draw",
+   "ability_value": 1,
+   "description": "Battlecry: draw a card."
+  }
+ ]
 }

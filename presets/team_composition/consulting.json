@@ -1,12 +1,64 @@
 {
-  "id": "consulting",
-  "name": "Consulting Firm",
-  "domain": "team_composition",
-  "description": "A client-facing consultancy: staffing with a client-facing flag.",
-  "schema_overrides": {"fields": [
-    {"name": "client_facing", "kind": "bool", "required": false, "description": "Comfortable in client-facing roles"}
-  ]},
-  "default_constraints": [],
-  "default_objectives": [{"metric_name": "skill_coverage", "direction": "maximize", "weight": 1.0}],
-  "default_visual_variant": "team_composition.badge"
+ "id": "consulting",
+ "name": "Consulting Firm",
+ "domain": "team_composition",
+ "description": "A client-facing consultancy: staffing with a client-facing flag.",
+ "schema_overrides": {
+  "fields": [
+   {
+    "name": "client_facing",
+    "kind": "bool",
+    "required": false,
+    "description": "Comfortable in client-facing roles"
+   }
+  ]
+ },
+ "default_constraints": [],
+ "default_objectives": [
+  {
+   "metric_name": "skill_coverage",
+   "direction": "maximize",
+   "weight": 1.0
+  }
+ ],
+ "default_visual_variant": "team_composition.badge",
+ "examples": [
+  {
+   "name": "Marcus Reed",
+   "seniority": "senior",
+   "skills": [
+    "strategy",
+    "finance"
+   ],
+   "preferred_task_types": [
+    "task_03"
+   ],
+   "client_facing": true
+  },
+  {
+   "name": "Aisha Khan",
+   "seniority": "mid",
+   "skills": [
+    "analytics",
+    "modeling"
+   ],
+   "preferred_task_types": [
+    "task_04"
+   ],
+   "client_facing": false
+  },
+  {
+   "name": "Diego Alves",
+   "seniority": "lead",
+   "skills": [
+    "strategy",
+    "delivery",
+    "sales"
+   ],
+   "preferred_task_types": [
+    "task_00"
+   ],
+   "client_facing": true
+  }
+ ]
 }
