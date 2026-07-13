@@ -7,7 +7,7 @@ import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 
 /** First-run onboarding — a non-empty landing with two clear CTAs, so the app never opens on a
- * blank screen. "Try a Hearthstone example" spins up a real, pre-styled scenario in seconds. */
+ * blank screen. "Try a sample card game" spins up a real, pre-styled scenario in seconds. */
 
 export function Hero({ hasCardGame }: { hasCardGame: boolean }) {
   const router = useRouter();
