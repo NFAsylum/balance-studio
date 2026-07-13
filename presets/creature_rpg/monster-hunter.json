@@ -1,0 +1,14 @@
+{
+  "id": "monster-hunter",
+  "name": "Monster Hunter",
+  "domain": "creature_rpg",
+  "description": "Large monsters: high HP, heavy attack, tanky defense.",
+  "schema_overrides": {"fields": [
+    {"name": "hp", "range": [100, 300], "description": "Health"},
+    {"name": "atk", "range": [20, 150], "description": "Attack"},
+    {"name": "defense", "range": [10, 120], "description": "Defense"}
+  ]},
+  "default_constraints": [],
+  "default_objectives": [{"metric_name": "winrate_std", "direction": "minimize", "weight": 1.0}],
+  "default_visual_variant": "creature_rpg.monster-hunter"
+}

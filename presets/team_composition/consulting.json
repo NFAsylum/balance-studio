@@ -1,0 +1,12 @@
+{
+  "id": "consulting",
+  "name": "Consulting Firm",
+  "domain": "team_composition",
+  "description": "A client-facing consultancy: staffing with a client-facing flag.",
+  "schema_overrides": {"fields": [
+    {"name": "client_facing", "kind": "bool", "required": false, "description": "Comfortable in client-facing roles"}
+  ]},
+  "default_constraints": [],
+  "default_objectives": [{"metric_name": "skill_coverage", "direction": "maximize", "weight": 1.0}],
+  "default_visual_variant": "team_composition.badge"
+}

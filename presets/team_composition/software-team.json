@@ -1,0 +1,12 @@
+{
+  "id": "software-team",
+  "name": "Software Team",
+  "domain": "team_composition",
+  "description": "An engineering org (junior->lead) with a years-of-experience axis.",
+  "schema_overrides": {"fields": [
+    {"name": "years_experience", "kind": "num", "range": [0, 40], "required": false, "description": "Years in the industry"}
+  ]},
+  "default_constraints": [],
+  "default_objectives": [{"metric_name": "skill_coverage", "direction": "maximize", "weight": 1.0}],
+  "default_visual_variant": "team_composition.badge"
+}

@@ -1,0 +1,12 @@
+{
+  "id": "sports-team",
+  "name": "Sports Team",
+  "domain": "team_composition",
+  "description": "A squad with field positions alongside seniority and skills.",
+  "schema_overrides": {"fields": [
+    {"name": "position", "kind": "cat", "enum": ["goalkeeper", "defense", "midfield", "attack"], "required": false, "description": "Field position"}
+  ]},
+  "default_constraints": [],
+  "default_objectives": [{"metric_name": "skill_coverage", "direction": "maximize", "weight": 1.0}],
+  "default_visual_variant": "team_composition.badge"
+}

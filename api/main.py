@@ -11,7 +11,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from api import dependencies as deps
-from api.routers import branches, domains, entities, health, scenarios
+from api.routers import branches, domains, entities, health, presets, scenarios
 from core.paths import InvalidId
 
 app = FastAPI(title="Balance Studio", lifespan=deps.lifespan)
@@ -26,5 +26,5 @@ app.add_middleware(
 app.middleware("http")(deps.guard_writes)
 app.add_exception_handler(InvalidId, deps.invalid_id_handler)
 
-for module in (health, domains, scenarios, entities, branches):
+for module in (health, domains, presets, scenarios, entities, branches):
     app.include_router(module.router)

@@ -1,0 +1,14 @@
+{
+  "id": "pokemon-gen1",
+  "name": "Pokemon (Gen 1)",
+  "domain": "creature_rpg",
+  "description": "Kanto-scale base stats: HP up to ~250, Attack/Defense on the ~5-190 base-stat range. (Type uses the engine's elemental matchup, not the 15 Pokemon types — see note.)",
+  "schema_overrides": {"fields": [
+    {"name": "hp", "range": [10, 255], "description": "HP base stat"},
+    {"name": "atk", "range": [5, 190], "description": "Attack base stat"},
+    {"name": "defense", "range": [5, 230], "description": "Defense base stat"}
+  ]},
+  "default_constraints": [],
+  "default_objectives": [{"metric_name": "winrate_std", "direction": "minimize", "weight": 1.0}],
+  "default_visual_variant": "creature_rpg.pokedex"
+}
