@@ -27,6 +27,7 @@ class CreateScenarioRequest(BaseModel):
     n_entities: int = Field(default=8, ge=1, le=200)
     preset_id: str | None = None  # start from a preset (schema + constraints + objectives + variant)
     schema_overrides: dict[str, Any] = Field(default_factory=dict)  # extra edits on top of the preset
+    constraints: list[dict[str, Any]] | None = None  # design-time constraints (None = keep preset's)
     visual_variant: str | None = None  # override the preset's default view
 
 
@@ -81,7 +82,7 @@ def create_scenario(request: CreateScenarioRequest) -> Scenario:
         n_entities=request.n_entities,
         preset_id=request.preset_id,
         schema_overrides=overrides,
-        constraints=preset.default_constraints if preset else [],
+        constraints=request.constraints if request.constraints is not None else (preset.default_constraints if preset else []),
         sim_config=preset.sim_config if preset else {},
         visual_variant=request.visual_variant or (preset.default_visual_variant if preset else None),
         objectives=objectives,
