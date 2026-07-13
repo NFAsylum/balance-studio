@@ -27,7 +27,7 @@
      "steel",
      "fairy"
     ],
-    "description": "Pokemon type"
+    "description": "Elemental type"
    },
    {
     "name": "resistances",
