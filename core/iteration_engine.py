@@ -15,6 +15,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, Field, ValidationError
 
 from core.cache_backend import DiskCacheBackend
+from core.constraint_engine import Constraint
 from core.llm_hats import DesignerLlm, IteratorLlm, SubjectiveJudgeLlm
 from core.paths import safe_under, validate_id
 from core.scenario import Event, EventLog
@@ -118,7 +119,11 @@ class IterationEngine:
     def _design(self, scenario_id, branch, scenario, existing) -> StepResult:
         if existing:
             return StepResult(phase="design", events_appended=0, details={"skipped": "not empty"})
-        designed = self.designer.design(scenario.brief, self.domains[scenario.domain].entity_schema(), [], scenario.n_entities)
+        # Design against the scenario's *effective* schema (plugin + user overrides) and its
+        # constraints — so preset ranges, added/removed fields, and rules actually take effect.
+        schema = self.domains[scenario.domain].entity_schema().with_overrides(scenario.schema_overrides)
+        constraints = [Constraint(**c) for c in scenario.constraints]
+        designed = self.designer.design(scenario.brief, schema, constraints, scenario.n_entities)
         events = [
             Event(branch_id=branch, actor="llm-designer", kind="create_entity", target=d["name"], after=d)
             for d in (e.model_dump() for e in designed)

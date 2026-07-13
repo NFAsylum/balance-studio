@@ -139,3 +139,35 @@ def test_anthropic_designer_reuses_local_hat_logic():
     designer = AnthropicDesigner(client=client)
     out = designer.design("aggro", get_schema(), [], 2)
     assert {u.model_dump()["name"] for u in out} == {"Ace", "Bolt"}
+
+
+from domains.creature_rpg.schema import get_schema as _creature_schema  # noqa: E402
+
+
+def _creature(name, skills):
+    return {"name": name, "type": "fire", "hp": 100, "atk": 50, "defense": 20, "skills": skills, "resistances": {}}
+
+
+def test_designer_retries_when_required_tag_set_is_empty():
+    client = _fake_client(
+        {"entities": [_creature("Blaze", [])]},         # skills empty -> incomplete, retry
+        {"entities": [_creature("Blaze", ["ember"])]},  # complete
+    )
+    out = LocalDesigner(client=client).design("fiery roster", _creature_schema(), [], 1)
+    assert len(out) == 1 and out[0].model_dump()["skills"] == ["ember"]
+    assert len(client._completions.calls) == 2
+
+
+def test_designer_prompt_pushes_thematic_and_complete():
+    client = _fake_client({"entities": [_creature("Blaze", ["ember"])]})
+    LocalDesigner(client=client).design("fiery", _creature_schema(), [], 1)
+    system = client._completions.calls[0]["messages"][0]["content"]
+    assert "THEMATIC" in system and "FILL EVERY FIELD" in system
+
+
+def test_iterator_prompt_asks_for_structured_reasoning():
+    entities = [_models()(**_unit("A"))]
+    client = _fake_client({"modifications": []})
+    LocalIterator(client=client).propose_changes(entities, {}, {}, [])
+    system = client._completions.calls[0]["messages"][0]["content"]
+    assert "(a) which entity" in system
