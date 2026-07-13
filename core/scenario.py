@@ -61,6 +61,7 @@ class Scenario(BaseModel):
     current_branch: str = MAIN_BRANCH
     preset_id: str | None = None  # which preset this scenario was created from (if any)
     schema_overrides: dict[str, Any] = Field(default_factory=dict)  # user edits on top of the plugin schema
+    constraints: list[dict[str, Any]] = Field(default_factory=list)  # design-time constraints (from preset/editor)
     visual_variant: str | None = None  # which UI view renders the entities (Level 2.5)
 
     def effective_schema(self, registry: Any) -> EntitySchema:

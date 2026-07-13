@@ -140,3 +140,46 @@ def test_invalid_scenario_id_422(client):
 def test_brief_too_long_422(client):
     # audit #10: brief is capped to limit prompt-injection surface.
     assert client.post("/scenarios", json={"domain": "card_game", "brief": "x" * 501}).status_code == 422
+
+
+# -- preset-based creation (T1.4) -----------------------------------------
+
+
+def test_create_with_preset_returns_effective_schema(client):
+    resp = client.post("/scenarios", json={"domain": "card_game", "name": "Duel", "preset_id": "yugioh"})
+    assert resp.status_code == 200, resp.text
+    sid = resp.json()["id"]
+    assert resp.json()["preset_id"] == "yugioh"
+    assert resp.json()["visual_variant"] == "card_game.yugioh"
+    assert resp.json()["objectives"]  # preset default objectives carried over
+
+    body = client.get(f"/scenarios/{sid}").json()
+    hp = next(f for f in body["schema"]["fields"] if f["name"] == "hp")
+    assert hp["range"] == [1, 5000]  # yugioh rescaled DEF/HP
+
+
+def test_create_with_extra_overrides_on_top_of_preset(client):
+    over = {"fields": [{"name": "cost", "range": [0, 20]}]}
+    resp = client.post("/scenarios", json={"domain": "card_game", "preset_id": "hearthstone", "schema_overrides": over})
+    assert resp.status_code == 200
+    body = client.get(f"/scenarios/{resp.json()['id']}").json()
+    cost = next(f for f in body["schema"]["fields"] if f["name"] == "cost")
+    assert cost["range"] == [0, 20]  # user override wins over the preset's [0, 10]
+
+
+def test_create_with_unknown_preset_422(client):
+    assert client.post("/scenarios", json={"domain": "card_game", "preset_id": "ghost"}).status_code == 422
+
+
+def test_create_with_preset_domain_mismatch_422(client):
+    r = client.post("/scenarios", json={"domain": "card_game", "preset_id": "pokemon-gen1"})
+    assert r.status_code == 422 and "domain" in r.text
+
+
+def test_create_without_preset_is_backward_compatible(client):
+    r = client.post("/scenarios", json={"domain": "card_game", "name": "Plain"})
+    assert r.status_code == 200 and r.json()["preset_id"] is None
+    body = client.get(f"/scenarios/{r.json()['id']}").json()
+    # effective schema == plugin default (hp still 1..20)
+    hp = next(f for f in body["schema"]["fields"] if f["name"] == "hp")
+    assert hp["range"] == [1, 20]

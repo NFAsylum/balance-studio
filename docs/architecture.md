@@ -545,3 +545,24 @@ Ver `docs/security-review.md` para o detalhe. Resumo operacional:
 - **Backend LLM:** `LLM_BACKEND=fake|local|anthropic`. `local` e `anthropic` compartilham os
   mesmos hats (`core/llm_local.py`), trocando só o transporte (`core/llm_client.py`).
   Produção usa `anthropic` (o llama-server local não é acessível de um servidor remoto).
+
+## Presets & custom schemas (Scenario Editor backend)
+
+A scenario is no longer locked to its plugin's schema. The plugin provides a **base schema +
+simulator**; the scenario layers **user overrides** on top:
+
+- `EntitySchema.with_overrides({"fields": [...]})` — edit/add/remove fields by name; touched
+  fields are tagged `origin="user"`. Feeds `build_model()` and `to_llm_schema()` unchanged.
+- `Scenario.schema_overrides` (persisted in the manifest) + `Scenario.effective_schema(registry)`
+  = the plugin schema with overrides applied — what the scenario actually validates against.
+- **Presets** (`presets/<domain>/<id>.json`, served by `GET /presets?domain=` and
+  `GET /presets/{id}`) bundle `schema_overrides` + `default_constraints` + `default_objectives`
+  + `default_visual_variant`. `POST /scenarios` accepts `preset_id`, extra `schema_overrides`
+  (merged on top, user wins), and `visual_variant`. `GET /scenarios/{id}` returns the effective
+  `schema`.
+
+**Constraint (by design):** presets rescale numeric ranges and add flavour fields freely — this
+is what makes YuGiOh (HP→5000, level 1-12) differ from Hearthstone (mana 0-10, hp 1-30) — but
+they do **not** replace the categorical enums the simulators hardcode (creature `type` matchup,
+card `ability_kind` effects, person `seniority` speed), which would break deterministic
+simulation. Replacing those would require simulator changes (larger scope).
