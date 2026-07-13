@@ -46,6 +46,13 @@ export function isExampleView(v: EntityView): boolean {
 
 export const DEFAULT_VIEW: EntityView = REGISTRY.find((v) => v.id === "default")!;
 
+/** The domain's primary styled view — used to render entities when a scenario has no explicit
+ * `visual_variant` (e.g. legacy scenarios), so they still show a domain design instead of the
+ * neutral list. Falls back to the DefaultListView for domains that ship no styled view. */
+export function getDefaultViewForDomain(domain: string): EntityView {
+  return REGISTRY.find((v) => v.domain === domain && !isExampleView(v)) ?? DEFAULT_VIEW;
+}
+
 /** Views applicable to a domain (domain-specific + universal), DefaultListView always last. */
 export function getViewsForDomain(domain: string): EntityView[] {
   const specific = REGISTRY.filter((v) => v.domain === domain);
