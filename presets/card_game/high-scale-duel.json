@@ -1,0 +1,59 @@
+{
+ "id": "high-scale-duel",
+ "name": "High-scale Duel TCG",
+ "domain": "card_game",
+ "description": "Inspired by duel TCGs like Yu-Gi-Oh!. Monsters with level 1-12 and ATK/DEF on the 0-5000 scale (life total 8000).",
+ "schema_overrides": {
+  "fields": [
+   {
+    "name": "cost",
+    "range": [
+     1,
+     12
+    ],
+    "description": "Level (1-12 stars)"
+   },
+   {
+    "name": "damage",
+    "range": [
+     1,
+     5000
+    ],
+    "description": "ATK"
+   },
+   {
+    "name": "hp",
+    "range": [
+     1,
+     5000
+    ],
+    "description": "DEF"
+   },
+   {
+    "name": "ability_value",
+    "range": [
+     0,
+     5000
+    ]
+   }
+  ]
+ },
+ "default_constraints": [
+  {
+   "kind": "range",
+   "params": {
+    "field": "cost",
+    "min": 1,
+    "max": 12
+   }
+  }
+ ],
+ "default_objectives": [
+  {
+   "metric_name": "winrate_std",
+   "direction": "minimize",
+   "weight": 1.0
+  }
+ ],
+ "default_visual_variant": "card_game.yugioh"
+}

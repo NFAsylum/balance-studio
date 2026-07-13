@@ -1,0 +1,77 @@
+{
+ "id": "multi-color-tcg",
+ "name": "Multi-color Strategy TCG",
+ "domain": "card_game",
+ "description": "Inspired by tabletop TCGs like Magic: The Gathering. Creatures with mana value 0-10 and power/toughness 1-15; keyword abilities are mapped onto the engine primitives.",
+ "schema_overrides": {
+  "fields": [
+   {
+    "name": "cost",
+    "range": [
+     0,
+     10
+    ],
+    "description": "Mana value (converted mana cost)"
+   },
+   {
+    "name": "damage",
+    "range": [
+     1,
+     15
+    ],
+    "description": "Power"
+   },
+   {
+    "name": "hp",
+    "range": [
+     1,
+     15
+    ],
+    "description": "Toughness"
+   },
+   {
+    "name": "ability_kind",
+    "enum": [
+     "direct_damage",
+     "restore_life",
+     "negate",
+     "card_draw"
+    ],
+    "description": "Keyword ability"
+   },
+   {
+    "name": "ability_value",
+    "range": [
+     0,
+     10
+    ]
+   }
+  ]
+ },
+ "sim_config": {
+  "ability_map": {
+   "direct_damage": "deal_damage",
+   "restore_life": "heal",
+   "negate": "shield",
+   "card_draw": "draw"
+  }
+ },
+ "default_constraints": [
+  {
+   "kind": "range",
+   "params": {
+    "field": "cost",
+    "min": 0,
+    "max": 10
+   }
+  }
+ ],
+ "default_objectives": [
+  {
+   "metric_name": "winrate_std",
+   "direction": "minimize",
+   "weight": 1.0
+  }
+ ],
+ "default_visual_variant": "card_game.default"
+}

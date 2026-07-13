@@ -9,6 +9,13 @@ three LLM "hats" (designer / judge / iterator) that co-edit the same state along
 > monsters? Staffing 50 people across a workload? Same core, same UI — you swap a **~400-line
 > plugin**, not the engine. The `core/` (≈2.5k LOC) is ~6× the size of any one domain plugin.
 
+## Legal
+
+Balance Studio is an independent open-source project not affiliated with, endorsed by, or
+sponsored by Blizzard Entertainment, Wizards of the Coast, Hasbro, Konami, Nintendo, The
+Pokémon Company, FromSoftware, Bandai Namco, Capcom, Mega Crit Games, or any other game
+publisher. Trademarks referenced in comparative descriptions belong to their respective owners.
+
 ## The problem
 
 "Is this balanced?" is the same question across games, teams, and product portfolios, but the

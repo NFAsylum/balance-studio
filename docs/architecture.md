@@ -572,7 +572,8 @@ enum→behaviour mapping moved from Python into env data, carried by `Scenario.s
   primitive (`deal_damage`/`heal`/`shield`/`draw`). A preset renames/curates (MTG: `burn →
   deal_damage`, `counter → shield`, …). New *effects* still require engine primitives.
 - **creature_rpg** — `GauntletEnv.type_matchup` supplies a full type-effectiveness matrix, so a
-  preset can ship its own type roster (e.g. a Pokémon 18-type chart).
+  preset can ship its own type roster (e.g. an 18-type elemental chart, common in
+  creature-collector RPGs).
 - **team_composition** — `WorkloadEnv.seniority_speed` declares an arbitrary seniority ladder →
   speed multiplier (intern..principal).
 

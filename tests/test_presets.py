@@ -35,14 +35,14 @@ def test_all_presets_apply_to_their_domain_schema():
 
 def test_get_by_id_and_missing():
     store = PresetStore()
-    assert store.get("yugioh") is not None
+    assert store.get("high-scale-duel") is not None
     assert store.get("does-not-exist") is None
 
 
 def test_override_actually_rescales_range():
     reg = discover_domains()
-    yugioh = PresetStore().get("yugioh").apply_to(reg.get("card_game").entity_schema())
-    assert next(f for f in yugioh.fields if f.name == "hp").range == (1, 5000)
+    duel = PresetStore().get("high-scale-duel").apply_to(reg.get("card_game").entity_schema())
+    assert next(f for f in duel.fields if f.name == "hp").range == (1, 5000)
 
 
 def test_malformed_preset_fails_clearly(tmp_path):
@@ -74,5 +74,5 @@ def test_list_presets_endpoint_filters_by_domain(client):
 
 
 def test_get_preset_endpoint_and_404(client):
-    assert client.get("/presets/hearthstone").json()["id"] == "hearthstone"
+    assert client.get("/presets/modern-mana-tcg").json()["id"] == "modern-mana-tcg"
     assert client.get("/presets/nope").status_code == 404

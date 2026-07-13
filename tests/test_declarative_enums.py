@@ -86,9 +86,9 @@ def client(tmp_path, monkeypatch):
 
 
 def test_mtg_preset_carries_sim_config_and_renamed_enum(client):
-    resp = client.post("/scenarios", json={"domain": "card_game", "preset_id": "mtg"})
+    resp = client.post("/scenarios", json={"domain": "card_game", "preset_id": "multi-color-tcg"})
     assert resp.status_code == 200, resp.text
-    assert resp.json()["sim_config"]["ability_map"]["burn"] == "deal_damage"
+    assert resp.json()["sim_config"]["ability_map"]["direct_damage"] == "deal_damage"
     body = client.get(f"/scenarios/{resp.json()['id']}").json()
     ability = next(f for f in body["schema"]["fields"] if f["name"] == "ability_kind")
-    assert set(ability["enum"]) == {"burn", "lifegain", "counter", "cantrip"}
+    assert set(ability["enum"]) == {"direct_damage", "restore_life", "negate", "card_draw"}

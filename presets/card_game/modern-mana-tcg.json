@@ -1,0 +1,59 @@
+{
+ "id": "modern-mana-tcg",
+ "name": "Modern Mana-based TCG",
+ "domain": "card_game",
+ "description": "Structural preset inspired by digital TCGs like Hearthstone. Minions on a 0-10 mana curve, HP up to 30, attack up to ~16.",
+ "schema_overrides": {
+  "fields": [
+   {
+    "name": "cost",
+    "range": [
+     0,
+     10
+    ],
+    "description": "Mana cost (0-10 crystals)"
+   },
+   {
+    "name": "hp",
+    "range": [
+     1,
+     30
+    ],
+    "description": "Health"
+   },
+   {
+    "name": "damage",
+    "range": [
+     1,
+     16
+    ],
+    "description": "Attack"
+   },
+   {
+    "name": "ability_value",
+    "range": [
+     0,
+     12
+    ]
+   }
+  ]
+ },
+ "default_constraints": [
+  {
+   "kind": "range",
+   "params": {
+    "field": "cost",
+    "min": 0,
+    "max": 10
+   }
+  }
+ ],
+ "default_objectives": [
+  {
+   "metric_name": "winrate_std",
+   "direction": "minimize",
+   "weight": 1.0
+  }
+ ],
+ "default_visual_variant": "card_game.hearthstone"
+}

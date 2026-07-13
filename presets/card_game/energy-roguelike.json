@@ -1,0 +1,59 @@
+{
+ "id": "energy-roguelike",
+ "name": "Energy-based Roguelike Deckbuilder",
+ "domain": "card_game",
+ "description": "Inspired by energy-based roguelike deckbuilders like Slay the Spire. Cheap cards (0-3 energy), modest HP and hard-hitting attacks.",
+ "schema_overrides": {
+  "fields": [
+   {
+    "name": "cost",
+    "range": [
+     0,
+     3
+    ],
+    "description": "Energy cost"
+   },
+   {
+    "name": "hp",
+    "range": [
+     1,
+     50
+    ],
+    "description": "Block / durability"
+   },
+   {
+    "name": "damage",
+    "range": [
+     1,
+     30
+    ],
+    "description": "Attack damage"
+   },
+   {
+    "name": "ability_value",
+    "range": [
+     0,
+     20
+    ]
+   }
+  ]
+ },
+ "default_constraints": [
+  {
+   "kind": "range",
+   "params": {
+    "field": "cost",
+    "min": 0,
+    "max": 3
+   }
+  }
+ ],
+ "default_objectives": [
+  {
+   "metric_name": "winrate_std",
+   "direction": "minimize",
+   "weight": 1.0
+  }
+ ],
+ "default_visual_variant": "card_game.default"
+}
