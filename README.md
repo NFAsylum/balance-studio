@@ -131,6 +131,9 @@ A new domain is `schema.py` + `simulator.py` + `metrics.py` + `seed_data.json` +
 `get_simulator()` export. The step-by-step (with a validated 10-minute quickstart) is in
 **[docs/writing-a-domain.md](docs/writing-a-domain.md)**.
 
+Want entities to *look* like your game (cards, monsters, rosters) instead of raw JSON? Drop a
+React layout in `ui/src/domain-views/custom/` — see **[docs/writing-a-view.md](docs/writing-a-view.md)**.
+
 ## Stack
 
 Python 3.11 · FastAPI · Pydantic v2 · pytest · Next.js 15 · Tailwind · Radix · Tanstack Query ·
