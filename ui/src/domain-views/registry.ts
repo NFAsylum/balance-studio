@@ -7,6 +7,8 @@
 
 import type { ComponentType } from "react";
 import DefaultListView, { meta as defaultMeta } from "./DefaultListView";
+import HearthstoneStyle, { meta as hearthstoneMeta } from "./card_game/HearthstoneStyle";
+import YuGiOhStyle, { meta as yugiohMeta } from "./card_game/YuGiOhStyle";
 import type { EntityView, EntityViewProps, ViewMeta } from "./types";
 
 function view(meta: ViewMeta, component: ComponentType<EntityViewProps>): EntityView {
@@ -16,7 +18,9 @@ function view(meta: ViewMeta, component: ComponentType<EntityViewProps>): Entity
 /** Shipped views. Add a new domain view: import it, then add one `view(meta, Component)` line. */
 const REGISTRY: EntityView[] = [
   view(defaultMeta, DefaultListView),
-  // card_game / creature_rpg / team_composition variants (T2.3–T2.5) register here.
+  view(hearthstoneMeta, HearthstoneStyle),
+  view(yugiohMeta, YuGiOhStyle),
+  // creature_rpg / team_composition variants (T2.4–T2.5) register here.
 ];
 
 export const DEFAULT_VIEW: EntityView = REGISTRY.find((v) => v.id === "default")!;
