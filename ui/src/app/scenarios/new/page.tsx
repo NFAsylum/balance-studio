@@ -9,6 +9,7 @@ import { applyOverrides, diffFields } from "@/lib/schema-overrides";
 import { sampleEntity } from "@/lib/sample-entity";
 import { DEFAULT_VIEW, getViewById } from "@/domain-views/registry";
 import { SafeView } from "@/domain-views/SafeView";
+import { FieldBuilder, fieldsValid } from "@/components/editor/FieldBuilder";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -137,22 +138,7 @@ export default function NewScenarioPage() {
             <Card>
               <CardHeader><CardTitle className="text-sm">2 · Fields ({fields.length})</CardTitle></CardHeader>
               <CardContent>
-                <ul className="flex flex-col divide-y divide-border text-sm">
-                  {fields.map((f) => (
-                    <li key={f.name} className="flex items-center justify-between gap-2 py-1.5">
-                      <span className="font-medium">
-                        {f.name}
-                        {f.origin === "user" && <span className="ml-1 text-xs text-blue-500">(edited)</span>}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {f.kind}
-                        {f.range ? ` ${f.range[0]}–${f.range[1]}` : ""}
-                        {f.enum ? ` {${f.enum.length}}` : ""}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-                <p className="mt-2 text-xs text-muted-foreground">Inline field editing arrives with the field builder (T3.2).</p>
+                <FieldBuilder fields={fields} onChange={setFields} />
               </CardContent>
             </Card>
           )}
@@ -185,9 +171,10 @@ export default function NewScenarioPage() {
             </CardContent>
           </Card>
 
-          <Button disabled={!domain || create.isPending} onClick={() => create.mutate()}>
+          <Button disabled={!domain || create.isPending || !fieldsValid(fields)} onClick={() => create.mutate()}>
             {create.isPending ? "creating…" : `Create scenario`}
           </Button>
+          {!fieldsValid(fields) && domain && <p className="text-xs text-destructive">Fix invalid fields before creating.</p>}
           {create.isError && <p className="text-xs text-destructive">{String(create.error)}</p>}
         </div>
       </div>
