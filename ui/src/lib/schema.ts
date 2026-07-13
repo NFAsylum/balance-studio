@@ -11,6 +11,7 @@ export type FieldSpec = {
   max_len?: number | null;
   required?: boolean;
   description?: string;
+  origin?: "plugin" | "user";
 };
 
 export type EntitySchema = { name: string; fields: FieldSpec[] };

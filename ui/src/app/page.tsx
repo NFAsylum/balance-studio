@@ -36,6 +36,8 @@ export default function HomePage() {
             {domains.data ? t("domainsAvailable", { n: domains.data.domains.length }) : t("loadingDomains")}
           </p>
         </div>
+        <div className="flex gap-2">
+          <Button asChild variant="outline"><Link href="/scenarios/new">Editor</Link></Button>
         <Dialog>
           <DialogTrigger asChild>
             <Button>{t("newScenario")}</Button>
@@ -80,6 +82,7 @@ export default function HomePage() {
             </div>
           </DialogContent>
         </Dialog>
+        </div>
       </section>
 
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
