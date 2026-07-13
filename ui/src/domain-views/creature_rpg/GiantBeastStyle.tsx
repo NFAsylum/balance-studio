@@ -3,7 +3,7 @@ import * as React from "react";
 import type { EntityViewProps, ViewMeta } from "../types";
 import { show, slot, stat } from "../_shared";
 
-/** Monster Hunter-style wiki entry (dark): a monster silhouette, a stat line, and
+/** Giant-beast-style wiki entry (dark): a monster silhouette, a stat line, and
  * resistances rendered as star ratings. */
 
 const DEFAULT_MAPPING = {
@@ -16,8 +16,8 @@ const DEFAULT_MAPPING = {
 } as const;
 
 export const meta: ViewMeta = {
-  id: "creature_rpg.monster-hunter",
-  name: "Monster Hunter",
+  id: "creature_rpg.giant-beast",
+  name: "Giant Beast",
   domain: "creature_rpg",
   defaultMapping: { ...DEFAULT_MAPPING },
 };
@@ -33,14 +33,14 @@ function stars(mult: number): string {
   return "★".repeat(rating) + "☆".repeat(5 - rating);
 }
 
-export default function MonsterHunterStyle({ entity, size = "md", mapping }: EntityViewProps) {
+export default function GiantBeastStyle({ entity, size = "md", mapping }: EntityViewProps) {
   const map = { ...DEFAULT_MAPPING, ...mapping };
   const type = String(slot(entity, map, "type") ?? "");
   const resist = (slot(entity, map, "resistances") as Record<string, unknown>) ?? {};
 
   return (
     <div
-      data-testid="monster-hunter-card"
+      data-testid="giant-beast-card"
       className={`flex ${SIZE[size]} flex-col gap-2 rounded-lg border border-neutral-700 bg-neutral-900 p-3 text-neutral-100 shadow-lg`}
     >
       <div className="flex items-center gap-3">

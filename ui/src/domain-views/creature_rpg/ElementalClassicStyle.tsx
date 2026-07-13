@@ -3,7 +3,7 @@ import * as React from "react";
 import type { EntityViewProps, ViewMeta } from "../types";
 import { show, slot, stat } from "../_shared";
 
-/** Pokedex-style entry (horizontal split): a big type emoji + type badge on the left, name,
+/** Elemental-dex-style entry (horizontal split): a big type emoji + type badge on the left, name,
  * stat bars, skill chips and resistances on the right. */
 
 const DEFAULT_MAPPING = {
@@ -17,8 +17,8 @@ const DEFAULT_MAPPING = {
 } as const;
 
 export const meta: ViewMeta = {
-  id: "creature_rpg.pokedex",
-  name: "Pokedex",
+  id: "creature_rpg.elemental-classic",
+  name: "Elemental Dex",
   domain: "creature_rpg",
   defaultMapping: { ...DEFAULT_MAPPING },
 };
@@ -47,7 +47,7 @@ function Bar({ label, value, max }: { label: string; value: number; max: number 
   );
 }
 
-export default function PokedexStyle({ entity, size = "md", mapping }: EntityViewProps) {
+export default function ElementalClassicStyle({ entity, size = "md", mapping }: EntityViewProps) {
   const map = { ...DEFAULT_MAPPING, ...mapping };
   const type = String(slot(entity, map, "type") ?? "");
   const skills = (slot(entity, map, "skills") as unknown[]) ?? [];
@@ -55,7 +55,7 @@ export default function PokedexStyle({ entity, size = "md", mapping }: EntityVie
 
   return (
     <div
-      data-testid="pokedex-card"
+      data-testid="elemental-dex-card"
       className={`flex ${SIZE[size]} overflow-hidden rounded-xl border border-border bg-card text-card-foreground shadow`}
     >
       {/* left: type */}

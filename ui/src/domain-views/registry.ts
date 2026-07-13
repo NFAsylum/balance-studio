@@ -7,10 +7,10 @@
 
 import type { ComponentType } from "react";
 import DefaultListView, { meta as defaultMeta } from "./DefaultListView";
-import HearthstoneStyle, { meta as hearthstoneMeta } from "./card_game/HearthstoneStyle";
-import YuGiOhStyle, { meta as yugiohMeta } from "./card_game/YuGiOhStyle";
-import MonsterHunterStyle, { meta as monsterHunterMeta } from "./creature_rpg/MonsterHunterStyle";
-import PokedexStyle, { meta as pokedexMeta } from "./creature_rpg/PokedexStyle";
+import ModernManaStyle, { meta as modernManaMeta } from "./card_game/ModernManaStyle";
+import HighScaleDuelStyle, { meta as highScaleDuelMeta } from "./card_game/HighScaleDuelStyle";
+import GiantBeastStyle, { meta as giantBeastMeta } from "./creature_rpg/GiantBeastStyle";
+import ElementalClassicStyle, { meta as elementalClassicMeta } from "./creature_rpg/ElementalClassicStyle";
 import BadgeStyle, { meta as badgeMeta } from "./team_composition/BadgeStyle";
 import RosterStyle, { meta as rosterMeta } from "./team_composition/RosterStyle";
 import { customViews } from "./custom";
@@ -24,10 +24,10 @@ function view(meta: ViewMeta, component: ComponentType<EntityViewProps>): Entity
  * User-supplied views are listed in ./custom and appended here. */
 const REGISTRY: EntityView[] = [
   view(defaultMeta, DefaultListView),
-  view(hearthstoneMeta, HearthstoneStyle),
-  view(yugiohMeta, YuGiOhStyle),
-  view(pokedexMeta, PokedexStyle),
-  view(monsterHunterMeta, MonsterHunterStyle),
+  view(modernManaMeta, ModernManaStyle),
+  view(highScaleDuelMeta, HighScaleDuelStyle),
+  view(elementalClassicMeta, ElementalClassicStyle),
+  view(giantBeastMeta, GiantBeastStyle),
   view(badgeMeta, BadgeStyle),
   view(rosterMeta, RosterStyle),
   ...customViews,

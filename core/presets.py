@@ -7,7 +7,8 @@ visual variant. Files live under ``presets/<domain>/<id>.json``.
 Important constraint (by design): domain simulators hardcode their *categorical* enums (a
 creature's ``type`` matchup table, a card's ``ability_kind`` effects, a person's ``seniority``
 speed). Presets therefore rescale **numeric ranges** and add **flavour fields** freely — that
-is what makes YuGiOh (HP→5000, level 1-12) differ from Hearthstone (mana 0-10, hp 1-30) — but
+is what makes a high-scale duel format (HP→5000, level 1-12) differ from a modern mana curve
+(mana 0-10, hp 1-30) — but
 they do not replace those sim-critical enums, which would break deterministic simulation.
 """
 

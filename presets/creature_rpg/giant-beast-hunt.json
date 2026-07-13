@@ -1,8 +1,8 @@
 {
- "id": "monster-hunter",
- "name": "Monster Hunter",
+ "id": "giant-beast-hunt",
+ "name": "Giant Beast Hunt",
  "domain": "creature_rpg",
- "description": "Large monsters: high HP, heavy attack, tanky defense.",
+ "description": "Inspired by monster-hunting games like Monster Hunter. Large monsters: high HP, heavy attack, tanky defense.",
  "schema_overrides": {
   "fields": [
    {
@@ -39,10 +39,10 @@
    "weight": 1.0
   }
  ],
- "default_visual_variant": "creature_rpg.monster-hunter",
+ "default_visual_variant": "creature_rpg.giant-beast",
  "examples": [
   {
-   "name": "Rathalos",
+   "name": "Skyfire Wyvern",
    "type": "fire",
    "hp": 260,
    "atk": 130,
@@ -57,7 +57,7 @@
    }
   },
   {
-   "name": "Lagiacrus",
+   "name": "Tide Serpent",
    "type": "electric",
    "hp": 240,
    "atk": 120,
@@ -71,7 +71,7 @@
    }
   },
   {
-   "name": "Barroth",
+   "name": "Mudplate Brute",
    "type": "rock",
    "hp": 220,
    "atk": 100,

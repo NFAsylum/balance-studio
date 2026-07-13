@@ -1,8 +1,8 @@
 {
- "id": "hearthstone",
- "name": "Hearthstone",
+ "id": "modern-mana-tcg",
+ "name": "Modern Mana-based TCG",
  "domain": "card_game",
- "description": "Blizzard's Hearthstone: minions on a 0-10 mana curve, health up to 30, attack up to ~16.",
+ "description": "Structural preset inspired by digital TCGs like Hearthstone. Minions on a 0-10 mana curve, HP up to 30, attack up to ~16.",
  "schema_overrides": {
   "fields": [
    {
@@ -55,10 +55,10 @@
    "weight": 1.0
   }
  ],
- "default_visual_variant": "card_game.hearthstone",
+ "default_visual_variant": "card_game.modern-mana",
  "examples": [
   {
-   "name": "Fire Elemental",
+   "name": "Cinder Spirit",
    "cost": 6,
    "hp": 5,
    "damage": 6,
@@ -67,7 +67,7 @@
    "description": "Battlecry: deal 3 damage."
   },
   {
-   "name": "Earthen Ring Farseer",
+   "name": "Grove Seer",
    "cost": 3,
    "hp": 3,
    "damage": 3,
@@ -76,7 +76,7 @@
    "description": "Battlecry: restore 3 Health."
   },
   {
-   "name": "Novice Engineer",
+   "name": "Apprentice Tinker",
    "cost": 2,
    "hp": 1,
    "damage": 1,

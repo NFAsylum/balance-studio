@@ -1,8 +1,8 @@
 {
- "id": "dark-souls",
- "name": "Dark Souls",
+ "id": "soulslike-enemies",
+ "name": "Soulslike Enemies",
  "domain": "creature_rpg",
- "description": "Enemies from fodder to boss: wide HP band, punishing attack, high defense.",
+ "description": "Inspired by soulslike action games like Dark Souls. Enemies from fodder to boss: wide HP band, punishing attack, high defense.",
  "schema_overrides": {
   "fields": [
    {
@@ -42,7 +42,7 @@
  "default_visual_variant": "creature_rpg.default",
  "examples": [
   {
-   "name": "Ornstein",
+   "name": "Lance Sentinel",
    "type": "electric",
    "hp": 180,
    "atk": 140,
@@ -55,7 +55,7 @@
    }
   },
   {
-   "name": "Havel",
+   "name": "Stone Bulwark",
    "type": "rock",
    "hp": 240,
    "atk": 120,
@@ -68,7 +68,7 @@
    }
   },
   {
-   "name": "Sif",
+   "name": "Grey Warhound",
    "type": "shadow",
    "hp": 200,
    "atk": 110,
