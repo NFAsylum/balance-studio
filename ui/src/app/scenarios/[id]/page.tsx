@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EntityEditor } from "@/components/EntityEditor";
 import { MetricsPanel, type Freshness, type MetricResult } from "@/components/MetricsPanel";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { DEFAULT_VIEW, getViewById } from "@/domain-views/registry";
+import { getDefaultViewForDomain, getViewById } from "@/domain-views/registry";
 import { SafeView } from "@/domain-views/SafeView";
 
 const PHASES = ["design", "simulate", "judge", "iterate"] as const;
@@ -107,7 +107,7 @@ export default function ScenarioPage() {
         ) : (
           <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {entities.map(([eid, entity]) => (
-              <EntityCard key={eid} scenarioId={id} entityId={eid} entity={entity} schema={schema} variant={variant} />
+              <EntityCard key={eid} scenarioId={id} entityId={eid} entity={entity} schema={schema} variant={variant} domain={data.scenario.domain} />
             ))}
           </section>
         )}
@@ -135,12 +135,14 @@ function EntityCard({
   entity,
   schema,
   variant,
+  domain,
 }: {
   scenarioId: string;
   entityId: string;
   entity: Record<string, unknown>;
   schema?: EntitySchema;
   variant?: string | null;
+  domain: string;
 }) {
   const { t } = useT();
   const qc = useQueryClient();
@@ -189,7 +191,7 @@ function EntityCard({
         ) : (
           <div className="flex flex-col gap-2">
             {schema ? (
-              <SafeView view={getViewById(variant ?? "") ?? DEFAULT_VIEW} entity={entity} schema={schema} />
+              <SafeView view={getViewById(variant ?? "") ?? getDefaultViewForDomain(domain)} entity={entity} schema={schema} />
             ) : (
               <pre className="overflow-x-auto text-xs text-muted-foreground">{JSON.stringify(entity, null, 1)}</pre>
             )}
