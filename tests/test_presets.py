@@ -76,3 +76,22 @@ def test_list_presets_endpoint_filters_by_domain(client):
 def test_get_preset_endpoint_and_404(client):
     assert client.get("/presets/hearthstone").json()["id"] == "hearthstone"
     assert client.get("/presets/nope").status_code == 404
+
+
+def test_preset_examples_validate_against_effective_schema():
+    reg = discover_domains()
+    for preset in PresetStore().all():
+        eff = preset.apply_to(reg.get(preset.domain).entity_schema())
+        model = eff.build_model()
+        for ex in preset.examples:
+            model(**ex)  # raises if an example is invalid for its own preset
+
+
+def test_pokemon_preset_declares_full_18_type_chart():
+    reg = discover_domains()
+    pk = PresetStore().get("pokemon-gen1")
+    eff = pk.apply_to(reg.get("creature_rpg").entity_schema())
+    assert len(next(f for f in eff.fields if f.name == "type").enum) == 18
+    matchup = pk.sim_config["type_matchup"]
+    assert len(matchup) == 18 and all(len(row) == 18 for row in matchup.values())
+    assert matchup["water"]["fire"] == 2.0 and matchup["electric"]["ground"] == 0.0  # real chart

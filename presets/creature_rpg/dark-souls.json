@@ -1,14 +1,82 @@
 {
-  "id": "dark-souls",
-  "name": "Dark Souls",
-  "domain": "creature_rpg",
-  "description": "Enemies from fodder to boss: wide HP band, punishing attack, high defense.",
-  "schema_overrides": {"fields": [
-    {"name": "hp", "range": [50, 250], "description": "Health"},
-    {"name": "atk", "range": [15, 150], "description": "Attack"},
-    {"name": "defense", "range": [20, 120], "description": "Defense / poise"}
-  ]},
-  "default_constraints": [],
-  "default_objectives": [{"metric_name": "winrate_std", "direction": "minimize", "weight": 1.0}],
-  "default_visual_variant": "creature_rpg.default"
+ "id": "dark-souls",
+ "name": "Dark Souls",
+ "domain": "creature_rpg",
+ "description": "Enemies from fodder to boss: wide HP band, punishing attack, high defense.",
+ "schema_overrides": {
+  "fields": [
+   {
+    "name": "hp",
+    "range": [
+     50,
+     250
+    ],
+    "description": "Health"
+   },
+   {
+    "name": "atk",
+    "range": [
+     15,
+     150
+    ],
+    "description": "Attack"
+   },
+   {
+    "name": "defense",
+    "range": [
+     20,
+     120
+    ],
+    "description": "Defense / poise"
+   }
+  ]
+ },
+ "default_constraints": [],
+ "default_objectives": [
+  {
+   "metric_name": "winrate_std",
+   "direction": "minimize",
+   "weight": 1.0
+  }
+ ],
+ "default_visual_variant": "creature_rpg.default",
+ "examples": [
+  {
+   "name": "Ornstein",
+   "type": "electric",
+   "hp": 180,
+   "atk": 140,
+   "defense": 90,
+   "skills": [
+    "lightning-spear"
+   ],
+   "resistances": {
+    "electric": 0.2
+   }
+  },
+  {
+   "name": "Havel",
+   "type": "rock",
+   "hp": 240,
+   "atk": 120,
+   "defense": 120,
+   "skills": [
+    "stone-smash"
+   ],
+   "resistances": {
+    "fire": 0.5
+   }
+  },
+  {
+   "name": "Sif",
+   "type": "shadow",
+   "hp": 200,
+   "atk": 110,
+   "defense": 70,
+   "skills": [
+    "greatsword-sweep"
+   ],
+   "resistances": {}
+  }
+ ]
 }
