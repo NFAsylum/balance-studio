@@ -3,7 +3,7 @@ import * as React from "react";
 import type { EntityViewProps, ViewMeta } from "../types";
 import { show, slot, stat } from "../_shared";
 
-/** Yu-Gi-Oh-style monster card (landscape): gold name banner, level stars top-right, a big
+/** High-scale-duel-style monster card (landscape): gold name banner, level stars top-right, a big
  * type emoji, and an ATK / DEF row at the base. Level maps to cost, ATK to damage, DEF to hp. */
 
 const DEFAULT_MAPPING = {
@@ -15,8 +15,8 @@ const DEFAULT_MAPPING = {
 } as const;
 
 export const meta: ViewMeta = {
-  id: "card_game.yugioh",
-  name: "Yu-Gi-Oh!",
+  id: "card_game.high-scale-duel",
+  name: "High-scale Duel",
   domain: "card_game",
   defaultMapping: { ...DEFAULT_MAPPING },
 };
@@ -30,14 +30,14 @@ const KIND_EMOJI: Record<string, string> = {
 
 const SIZE = { sm: "h-40 w-56", md: "h-56 w-80", lg: "h-64 w-96" };
 
-export default function YuGiOhStyle({ entity, size = "md", mapping }: EntityViewProps) {
+export default function HighScaleDuelStyle({ entity, size = "md", mapping }: EntityViewProps) {
   const map = { ...DEFAULT_MAPPING, ...mapping };
   const level = Math.max(0, Math.min(12, Math.round(stat(slot(entity, map, "level")))));
   const kind = String(slot(entity, map, "kind") ?? "");
 
   return (
     <div
-      data-testid="yugioh-card"
+      data-testid="high-scale-duel-card"
       className={`flex ${SIZE[size]} flex-col overflow-hidden rounded-lg border-4 border-yellow-600 bg-gradient-to-b from-amber-200 to-yellow-100 p-2 text-neutral-900 shadow-lg`}
     >
       {/* name + level stars */}

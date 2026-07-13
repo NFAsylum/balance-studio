@@ -86,9 +86,9 @@ def test_scenario_defaults_to_empty_overrides():
 def test_schema_overrides_persist_and_reload(tmp_path):
     ov = {"fields": [{"name": "hp", "range": [1, 8000]}]}
     log = EventLog(base_dir=tmp_path)
-    log.init_scenario(Scenario(id="s1", domain="card_game", name="T", schema_overrides=ov, preset_id="yugioh"))
+    log.init_scenario(Scenario(id="s1", domain="card_game", name="T", schema_overrides=ov, preset_id="high-scale-duel"))
     reloaded = log.scenario("s1")
-    assert reloaded.schema_overrides == ov and reloaded.preset_id == "yugioh"
+    assert reloaded.schema_overrides == ov and reloaded.preset_id == "high-scale-duel"
 
 
 def test_overrides_survive_appended_events(tmp_path):

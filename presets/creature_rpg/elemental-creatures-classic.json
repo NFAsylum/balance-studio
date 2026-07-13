@@ -1,8 +1,8 @@
 {
- "id": "pokemon-gen1",
- "name": "Pokemon (Gen 1 stats, full type chart)",
+ "id": "elemental-creatures-classic",
+ "name": "Elemental Creature Collector (Classic)",
  "domain": "creature_rpg",
- "description": "Kanto-scale base stats (HP up to ~250, ATK/DEF ~5-190) with the full 18-type effectiveness chart declared per preset (FASE 1.5). Type roster and matchups come from the preset, not the engine.",
+ "description": "Inspired by classic creature collectors like Pokemon. Kanto-scale base stats (HP up to ~250, ATK/DEF ~5-190) with an 18-type elemental chart declared per preset.",
  "schema_overrides": {
   "fields": [
    {
@@ -451,10 +451,10 @@
    "weight": 1.0
   }
  ],
- "default_visual_variant": "creature_rpg.pokedex",
+ "default_visual_variant": "creature_rpg.elemental-classic",
  "examples": [
   {
-   "name": "Charizard",
+   "name": "Ember Wyrm",
    "type": "fire",
    "hp": 78,
    "atk": 84,
@@ -470,7 +470,7 @@
    }
   },
   {
-   "name": "Blastoise",
+   "name": "Tidal Fortress",
    "type": "water",
    "hp": 79,
    "atk": 83,
@@ -486,7 +486,7 @@
    }
   },
   {
-   "name": "Venusaur",
+   "name": "Verdant Titan",
    "type": "grass",
    "hp": 80,
    "atk": 82,

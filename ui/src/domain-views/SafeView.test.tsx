@@ -28,9 +28,9 @@ describe("SafeView + custom discovery", () => {
   });
 
   test("a healthy view renders normally through SafeView", () => {
-    const ok = getViewById("card_game.hearthstone")!;
+    const ok = getViewById("card_game.modern-mana")!;
     render(<SafeView view={ok} entity={{ name: "Ok", cost: 1, hp: 1, damage: 1 }} schema={SCHEMA} />);
-    expect(screen.getByTestId("hearthstone-card")).toBeInTheDocument();
+    expect(screen.getByTestId("modern-mana-card")).toBeInTheDocument();
   });
 
   test("custom example views are discovered and flagged as custom", () => {

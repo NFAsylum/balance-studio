@@ -3,7 +3,7 @@ import * as React from "react";
 import type { EntityViewProps, ViewMeta } from "../types";
 import { show, slot, stat } from "../_shared";
 
-/** Hearthstone-style minion card (vertical): mana gem top-left, attack + health at the
+/** Modern-mana-style minion card (vertical): mana gem top-left, attack + health at the
  * bottom corners, an ability emoji in the art box, coloured border by ability. */
 
 const DEFAULT_MAPPING = {
@@ -15,8 +15,8 @@ const DEFAULT_MAPPING = {
 } as const;
 
 export const meta: ViewMeta = {
-  id: "card_game.hearthstone",
-  name: "Hearthstone",
+  id: "card_game.modern-mana",
+  name: "Modern Mana",
   domain: "card_game",
   defaultMapping: { ...DEFAULT_MAPPING },
 };
@@ -31,14 +31,14 @@ const ABILITY: Record<string, { ring: string; emoji: string }> = {
 
 const SIZE = { sm: "h-56 w-40", md: "h-80 w-56", lg: "h-96 w-64" };
 
-export default function HearthstoneStyle({ entity, size = "md", mapping }: EntityViewProps) {
+export default function ModernManaStyle({ entity, size = "md", mapping }: EntityViewProps) {
   const map = { ...DEFAULT_MAPPING, ...mapping };
   const ability = String(slot(entity, map, "ability") ?? "");
   const look = ABILITY[ability] ?? { ring: "border-amber-500", emoji: "✨" };
 
   return (
     <div
-      data-testid="hearthstone-card"
+      data-testid="modern-mana-card"
       className={`relative flex ${SIZE[size]} flex-col overflow-hidden rounded-2xl border-4 ${look.ring} bg-gradient-to-b from-amber-50 to-amber-200 text-neutral-900 shadow-lg dark:from-amber-100 dark:to-amber-300`}
     >
       {/* mana gem */}

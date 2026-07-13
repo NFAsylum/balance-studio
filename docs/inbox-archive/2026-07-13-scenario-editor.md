@@ -1,3 +1,5 @@
+> **Note:** This document discusses design considerations that reference commercial games by name for comparative and structural purposes. See README `## Legal` section for full non-affiliation disclosure.
+
 # INBOX — 2026-07-12 (Balance Studio — Scenario Editor + Level 2.5)
 
 Após executar, mova pra `docs/inbox-archive/YYYY-MM-DD-scenario-editor.md`.

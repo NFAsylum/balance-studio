@@ -35,14 +35,14 @@ def test_all_presets_apply_to_their_domain_schema():
 
 def test_get_by_id_and_missing():
     store = PresetStore()
-    assert store.get("yugioh") is not None
+    assert store.get("high-scale-duel") is not None
     assert store.get("does-not-exist") is None
 
 
 def test_override_actually_rescales_range():
     reg = discover_domains()
-    yugioh = PresetStore().get("yugioh").apply_to(reg.get("card_game").entity_schema())
-    assert next(f for f in yugioh.fields if f.name == "hp").range == (1, 5000)
+    duel = PresetStore().get("high-scale-duel").apply_to(reg.get("card_game").entity_schema())
+    assert next(f for f in duel.fields if f.name == "hp").range == (1, 5000)
 
 
 def test_malformed_preset_fails_clearly(tmp_path):
@@ -74,7 +74,7 @@ def test_list_presets_endpoint_filters_by_domain(client):
 
 
 def test_get_preset_endpoint_and_404(client):
-    assert client.get("/presets/hearthstone").json()["id"] == "hearthstone"
+    assert client.get("/presets/modern-mana-tcg").json()["id"] == "modern-mana-tcg"
     assert client.get("/presets/nope").status_code == 404
 
 
@@ -87,11 +87,11 @@ def test_preset_examples_validate_against_effective_schema():
             model(**ex)  # raises if an example is invalid for its own preset
 
 
-def test_pokemon_preset_declares_full_18_type_chart():
+def test_elemental_preset_declares_full_18_type_chart():
     reg = discover_domains()
-    pk = PresetStore().get("pokemon-gen1")
-    eff = pk.apply_to(reg.get("creature_rpg").entity_schema())
+    elemental = PresetStore().get("elemental-creatures-classic")
+    eff = elemental.apply_to(reg.get("creature_rpg").entity_schema())
     assert len(next(f for f in eff.fields if f.name == "type").enum) == 18
-    matchup = pk.sim_config["type_matchup"]
+    matchup = elemental.sim_config["type_matchup"]
     assert len(matchup) == 18 and all(len(row) == 18 for row in matchup.values())
     assert matchup["water"]["fire"] == 2.0 and matchup["electric"]["ground"] == 0.0  # real chart

@@ -1,8 +1,8 @@
 {
- "id": "yugioh",
- "name": "Yu-Gi-Oh!",
+ "id": "high-scale-duel",
+ "name": "High-scale Duel TCG",
  "domain": "card_game",
- "description": "Monsters with Level 1-12 and ATK/DEF on the 0-5000 scale (LP total is 8000).",
+ "description": "Inspired by duel TCGs like Yu-Gi-Oh!. Monsters with level 1-12 and ATK/DEF on the 0-5000 scale (life total 8000).",
  "schema_overrides": {
   "fields": [
    {
@@ -55,10 +55,10 @@
    "weight": 1.0
   }
  ],
- "default_visual_variant": "card_game.yugioh",
+ "default_visual_variant": "card_game.high-scale-duel",
  "examples": [
   {
-   "name": "Blue-Eyes White Dragon",
+   "name": "Azure Storm Dragon",
    "cost": 8,
    "hp": 2500,
    "damage": 3000,
@@ -67,7 +67,7 @@
    "description": "Legendary 3000 ATK dragon."
   },
   {
-   "name": "Dark Magician",
+   "name": "Arcane Sorcerer",
    "cost": 7,
    "hp": 2100,
    "damage": 2500,
@@ -76,7 +76,7 @@
    "description": "The ultimate wizard."
   },
   {
-   "name": "Kuriboh",
+   "name": "Fuzz Sprite",
    "cost": 1,
    "hp": 200,
    "damage": 300,

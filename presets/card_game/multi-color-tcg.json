@@ -1,8 +1,8 @@
 {
- "id": "mtg",
- "name": "Magic: The Gathering",
+ "id": "multi-color-tcg",
+ "name": "Multi-color Strategy TCG",
  "domain": "card_game",
- "description": "Creatures with mana value 0-10 and power/toughness 1-15, with MTG-flavoured ability names mapped onto the engine primitives.",
+ "description": "Inspired by tabletop TCGs like Magic: The Gathering. Creatures with mana value 0-10 and power/toughness 1-15; keyword abilities are mapped onto the engine primitives.",
  "schema_overrides": {
   "fields": [
    {
@@ -32,10 +32,10 @@
    {
     "name": "ability_kind",
     "enum": [
-     "burn",
-     "lifegain",
-     "counter",
-     "cantrip"
+     "direct_damage",
+     "restore_life",
+     "negate",
+     "card_draw"
     ],
     "description": "Keyword ability"
    },
@@ -50,10 +50,10 @@
  },
  "sim_config": {
   "ability_map": {
-   "burn": "deal_damage",
-   "lifegain": "heal",
-   "counter": "shield",
-   "cantrip": "draw"
+   "direct_damage": "deal_damage",
+   "restore_life": "heal",
+   "negate": "shield",
+   "card_draw": "draw"
   }
  },
  "default_constraints": [
@@ -76,29 +76,29 @@
  "default_visual_variant": "card_game.default",
  "examples": [
   {
-   "name": "Lightning Elemental",
+   "name": "Voltaic Wisp",
    "cost": 4,
    "hp": 1,
    "damage": 4,
-   "ability_kind": "burn",
+   "ability_kind": "direct_damage",
    "ability_value": 3,
    "description": "Hasty red beater."
   },
   {
-   "name": "Serra Angel",
+   "name": "Radiant Seraph",
    "cost": 5,
    "hp": 4,
    "damage": 4,
-   "ability_kind": "lifegain",
+   "ability_kind": "restore_life",
    "ability_value": 2,
    "description": "Flying vigilant lifegain."
   },
   {
-   "name": "Wall of Omens",
+   "name": "Warding Sentinel",
    "cost": 2,
    "hp": 4,
    "damage": 1,
-   "ability_kind": "cantrip",
+   "ability_kind": "card_draw",
    "ability_value": 1,
    "description": "Draws a card on entry."
   }

@@ -1,8 +1,8 @@
 {
- "id": "slay-the-spire",
- "name": "Slay the Spire",
+ "id": "energy-roguelike",
+ "name": "Energy-based Roguelike Deckbuilder",
  "domain": "card_game",
- "description": "Energy-based deckbuilder: cheap cards (0-3 energy), modest HP and hard-hitting attacks.",
+ "description": "Inspired by energy-based roguelike deckbuilders like Slay the Spire. Cheap cards (0-3 energy), modest HP and hard-hitting attacks.",
  "schema_overrides": {
   "fields": [
    {
@@ -58,7 +58,7 @@
  "default_visual_variant": "card_game.default",
  "examples": [
   {
-   "name": "Strike",
+   "name": "Quick Slash",
    "cost": 1,
    "hp": 1,
    "damage": 6,
@@ -67,7 +67,7 @@
    "description": "Deal 6 damage."
   },
   {
-   "name": "Defend",
+   "name": "Bulwark",
    "cost": 1,
    "hp": 5,
    "damage": 1,
@@ -76,7 +76,7 @@
    "description": "Gain 5 Block."
   },
   {
-   "name": "Bash",
+   "name": "Heavy Smash",
    "cost": 2,
    "hp": 1,
    "damage": 8,

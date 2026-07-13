@@ -42,7 +42,7 @@ class GauntletEnv(Environment):
     subset_size: int | None = None  # tournament: cap the field
     # Declarative type-effectiveness table (attacker_type -> defender_type -> multiplier).
     # Empty = use the plugin's default matchups.json, so base behaviour is unchanged. A preset
-    # supplies its own type roster + matrix here (e.g. a Pokemon 18-type chart).
+    # supplies its own type roster + matrix here (e.g. an 18-type elemental chart).
     type_matchup: dict[str, dict[str, float]] = {}
 
 

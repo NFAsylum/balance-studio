@@ -19,7 +19,7 @@ export interface EntityViewProps {
 
 /** What a view module exports as `meta` (its default component is the render function). */
 export interface ViewMeta {
-  id: string; // e.g. "card_game.hearthstone", "custom.MyCard"
+  id: string; // e.g. "card_game.modern-mana", "custom.MyCard"
   name: string; // human label for the dropdown
   domain: string | "*"; // applicable domain, or "*" for any
   defaultMapping?: Record<string, string>;
