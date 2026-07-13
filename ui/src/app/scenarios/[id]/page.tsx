@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EntityEditor } from "@/components/EntityEditor";
 import { MetricsPanel, type Freshness, type MetricResult } from "@/components/MetricsPanel";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const PHASES = ["design", "simulate", "judge", "iterate"] as const;
 type Phase = (typeof PHASES)[number];
@@ -86,20 +87,31 @@ export default function ScenarioPage() {
         ))}
       </div>
 
-      {metrics.results.length > 0 && (
-        <MetricsPanel
-          results={metrics.results}
-          freshness={iterate.isPending ? "computing" : metrics.freshness}
-          onRunFull={() => iterate.mutate("simulate")}
-        />
-      )}
+      <ErrorBoundary label="This scenario view hit an error.">
+        {metrics.results.length > 0 && (
+          <MetricsPanel
+            results={metrics.results}
+            freshness={iterate.isPending ? "computing" : metrics.freshness}
+            onRunFull={() => iterate.mutate("simulate")}
+          />
+        )}
 
-      <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {entities.length === 0 && <p className="text-sm text-muted-foreground">{t("noEntities")}</p>}
-        {entities.map(([eid, entity]) => (
-          <EntityCard key={eid} scenarioId={id} entityId={eid} entity={entity} schema={schema.data} />
-        ))}
-      </section>
+        {entities.length === 0 ? (
+          <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-border p-10 text-center">
+            <span className="text-3xl">🃏</span>
+            <p className="text-sm text-muted-foreground">{t("noEntities")}</p>
+            <Button size="sm" disabled={iterate.isPending} onClick={() => iterate.mutate("design")}>
+              {iterate.isPending ? "…" : t("phase_design")}
+            </Button>
+          </div>
+        ) : (
+          <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {entities.map(([eid, entity]) => (
+              <EntityCard key={eid} scenarioId={id} entityId={eid} entity={entity} schema={schema.data} />
+            ))}
+          </section>
+        )}
+      </ErrorBoundary>
     </div>
   );
 }

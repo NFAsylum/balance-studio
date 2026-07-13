@@ -10,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
+import { Hero } from "@/components/Hero";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export default function HomePage() {
   const qc = useQueryClient();
@@ -85,26 +87,29 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {scenarios.data?.scenarios.length === 0 && (
-          <p className="text-sm text-muted-foreground">{t("noScenarios")}</p>
+      <ErrorBoundary label="Couldn't load scenarios.">
+        {scenarios.data?.scenarios.length === 0 ? (
+          <Hero hasCardGame={!!domains.data?.domains.includes("card_game")} />
+        ) : (
+          <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {scenarios.data?.scenarios.map((s) => (
+              <Link key={s.id} href={`/scenarios/${s.id}`}>
+                <Card className="transition-shadow hover:shadow-md">
+                  <CardHeader>
+                    <CardTitle>{s.name}</CardTitle>
+                    <CardDescription>
+                      {s.domain} · {s.head_event_seq} {t("events")} · {t("branch")} {s.current_branch}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="line-clamp-2 text-sm text-muted-foreground">{s.brief || t("noBrief")}</p>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </section>
         )}
-        {scenarios.data?.scenarios.map((s) => (
-          <Link key={s.id} href={`/scenarios/${s.id}`}>
-            <Card className="transition-shadow hover:shadow-md">
-              <CardHeader>
-                <CardTitle>{s.name}</CardTitle>
-                <CardDescription>
-                  {s.domain} · {s.head_event_seq} {t("events")} · {t("branch")} {s.current_branch}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="line-clamp-2 text-sm text-muted-foreground">{s.brief || t("noBrief")}</p>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
-      </section>
+      </ErrorBoundary>
     </div>
   );
 }
