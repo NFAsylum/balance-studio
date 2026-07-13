@@ -12,6 +12,7 @@ export const meta: ViewMeta = {
   id: "custom.simple",
   name: "Simple (example)",
   domain: "*", // "*" = works for any domain; use a domain id to scope it
+  example: true, // demo template — hidden from the end-user layout picker
 };
 
 export default function SimpleExample({ entity, schema }: EntityViewProps) {

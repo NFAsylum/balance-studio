@@ -38,6 +38,12 @@ export function isCustomView(v: EntityView): boolean {
   return v.id.startsWith("custom.");
 }
 
+/** A demo/template view shipped for the writing-a-view tutorial — registered (so old scenarios
+ * that reference it still render) but hidden from the end-user layout picker. */
+export function isExampleView(v: EntityView): boolean {
+  return v.example === true;
+}
+
 export const DEFAULT_VIEW: EntityView = REGISTRY.find((v) => v.id === "default")!;
 
 /** Views applicable to a domain (domain-specific + universal), DefaultListView always last. */

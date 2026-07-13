@@ -4,11 +4,12 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { api, type Constraint, type Preset } from "@/lib/api";
+import { useT } from "@/lib/i18n";
 import type { EntitySchema, FieldSpec } from "@/lib/schema";
 import { applyOverrides, diffFields } from "@/lib/schema-overrides";
 import { checkConstraints } from "@/lib/constraints";
 import { sampleEntity } from "@/lib/sample-entity";
-import { DEFAULT_VIEW, getViewById, getViewsForDomain, isCustomView } from "@/domain-views/registry";
+import { DEFAULT_VIEW, getViewById, getViewsForDomain, isCustomView, isExampleView } from "@/domain-views/registry";
 import { SafeView } from "@/domain-views/SafeView";
 import { FieldBuilder, fieldsValid } from "@/components/editor/FieldBuilder";
 import { ConstraintsEditor } from "@/components/editor/ConstraintsEditor";
@@ -22,6 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 /** Scenario Editor (FASE 3): preset → fields → variant → constraints → intent → preview → create. */
 export default function NewScenarioPage() {
   const router = useRouter();
+  const { t } = useT();
   const domains = useQuery({ queryKey: ["domains"], queryFn: api.listDomains });
 
   const [domain, setDomain] = React.useState<string>("");
@@ -100,27 +102,27 @@ export default function NewScenarioPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">New scenario</h1>
-        <Button asChild variant="outline"><Link href="/">Cancel</Link></Button>
+        <h1 className="text-2xl font-semibold">{t("newScenario")}</h1>
+        <Button asChild variant="outline"><Link href="/">{t("cancel")}</Link></Button>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_360px]">
         <div className="flex flex-col gap-4">
           <Card>
-            <CardHeader><CardTitle className="text-sm">1 · Domain & preset</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-sm">1 · {t("step_domain")}</CardTitle></CardHeader>
             <CardContent className="flex flex-col gap-3">
               <label className="flex flex-col gap-1 text-sm">
-                Domain
+                {t("domain")}
                 <Select value={domain} onValueChange={setDomain}>
-                  <SelectTrigger><SelectValue placeholder="pick a domain" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={t("pickDomain")} /></SelectTrigger>
                   <SelectContent>{domains.data?.domains.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}</SelectContent>
                 </Select>
               </label>
               {domain && (
                 <div className="flex flex-col gap-2">
-                  <span className="text-sm">Preset</span>
+                  <span className="text-sm">{t("templateLabel")}</span>
                   <div className="flex flex-wrap gap-2">
-                    <Button size="sm" variant={presetId === null ? "default" : "outline"} onClick={() => applyPreset(null)}>Start blank</Button>
+                    <Button size="sm" variant={presetId === null ? "default" : "outline"} onClick={() => applyPreset(null)}>{t("startBlank")}</Button>
                     {presets.map((p) => (
                       <Button key={p.id} size="sm" variant={presetId === p.id ? "default" : "outline"} title={p.description} onClick={() => applyPreset(p)}>{p.name}</Button>
                     ))}
@@ -133,25 +135,25 @@ export default function NewScenarioPage() {
           {domain && (
             <>
               <Card>
-                <CardHeader><CardTitle className="text-sm">2 · Fields ({fields.length})</CardTitle></CardHeader>
+                <CardHeader><CardTitle className="text-sm">2 · {t("step_fields")} ({fields.length})</CardTitle></CardHeader>
                 <CardContent><FieldBuilder fields={fields} onChange={setFields} /></CardContent>
               </Card>
 
               <Card>
-                <CardHeader><CardTitle className="text-sm">3 · Constraints</CardTitle></CardHeader>
+                <CardHeader><CardTitle className="text-sm">3 · {t("step_constraints")}</CardTitle></CardHeader>
                 <CardContent><ConstraintsEditor constraints={constraints} onChange={setConstraints} violations={violations} /></CardContent>
               </Card>
 
               <Card>
-                <CardHeader><CardTitle className="text-sm">4 · Generation intent</CardTitle></CardHeader>
+                <CardHeader><CardTitle className="text-sm">4 · {t("step_intent")}</CardTitle></CardHeader>
                 <CardContent><IntentPanel intent={intent} onChange={setIntent} /></CardContent>
               </Card>
 
               <Card>
-                <CardHeader><CardTitle className="text-sm">5 · Details</CardTitle></CardHeader>
+                <CardHeader><CardTitle className="text-sm">5 · {t("step_details")}</CardTitle></CardHeader>
                 <CardContent className="flex flex-col gap-3">
-                  <label className="flex flex-col gap-1 text-sm">Name<Input value={name} onChange={(e) => setName(e.target.value)} /></label>
-                  <label className="flex flex-col gap-2 text-sm">Entities: {n}<Slider value={[n]} min={1} max={30} step={1} onValueChange={(v) => setN(v[0])} /></label>
+                  <label className="flex flex-col gap-1 text-sm">{t("name")}<Input value={name} onChange={(e) => setName(e.target.value)} /></label>
+                  <label className="flex flex-col gap-2 text-sm">{t("entitiesCount", { n })}<Slider value={[n]} min={1} max={30} step={1} onValueChange={(v) => setN(v[0])} /></label>
                 </CardContent>
               </Card>
             </>
@@ -161,18 +163,18 @@ export default function NewScenarioPage() {
         <div className="flex flex-col gap-3">
           <Card>
             <CardHeader className="flex flex-col gap-2">
-              <CardTitle className="text-sm">Live preview</CardTitle>
+              <CardTitle className="text-sm">{t("livePreview")}</CardTitle>
               {domain && (
-                <select aria-label="layout style" className="h-8 rounded-md border border-input bg-background px-2 text-sm" value={variant ?? "default"} onChange={(e) => setVariant(e.target.value === "default" ? null : e.target.value)}>
+                <select aria-label={t("layoutStyle")} className="h-8 rounded-md border border-input bg-background px-2 text-sm" value={variant ?? "default"} onChange={(e) => setVariant(e.target.value === "default" ? null : e.target.value)}>
                   {(() => {
-                    const views = getViewsForDomain(domain);
+                    const views = getViewsForDomain(domain).filter((v) => !isExampleView(v));
                     return (
                       <>
                         {views.filter((v) => !isCustomView(v) && v.id !== "default").map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}
                         {views.filter(isCustomView).length > 0 && (
-                          <optgroup label="Custom variants">{views.filter(isCustomView).map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}</optgroup>
+                          <optgroup label={t("customVariants")}>{views.filter(isCustomView).map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}</optgroup>
                         )}
-                        <option value="default">Default (list)</option>
+                        <option value="default">{t("defaultList")}</option>
                       </>
                     );
                   })()}
@@ -185,22 +187,22 @@ export default function NewScenarioPage() {
                   <SafeView view={view} entity={previewSample} schema={effectiveSchema} />
                   <div className="flex gap-2">
                     <Button size="sm" variant="outline" disabled={previewOne.isPending || !fieldsValid(fields)} onClick={() => previewOne.mutate()}>
-                      {previewOne.isPending ? "generating…" : previewEntity ? "Try again" : "Preview 1 entity"}
+                      {previewOne.isPending ? t("generating") : previewEntity ? t("tryAgain") : t("preview1")}
                     </Button>
-                    {previewEntity && <Button size="sm" variant="ghost" onClick={() => setPreviewEntity(null)}>Reset</Button>}
+                    {previewEntity && <Button size="sm" variant="ghost" onClick={() => setPreviewEntity(null)}>{t("reset")}</Button>}
                   </div>
-                  {previewEntity && <span className="text-xs text-muted-foreground">generated preview</span>}
+                  {previewEntity && <span className="text-xs text-muted-foreground">{t("generatedPreview")}</span>}
                 </>
               ) : (
-                <p className="py-8 text-sm text-muted-foreground">Pick a domain to preview.</p>
+                <p className="py-8 text-sm text-muted-foreground">{t("pickDomainPreview")}</p>
               )}
             </CardContent>
           </Card>
 
           <Button disabled={!domain || create.isPending || !fieldsValid(fields)} onClick={() => create.mutate()}>
-            {create.isPending ? "creating…" : `Generate ${n} & create`}
+            {create.isPending ? t("creating") : t("generateAndCreate", { n })}
           </Button>
-          {!fieldsValid(fields) && domain && <p className="text-xs text-destructive">Fix invalid fields before creating.</p>}
+          {!fieldsValid(fields) && domain && <p className="text-xs text-destructive">{t("fixInvalid")}</p>}
           {create.isError && <p className="text-xs text-destructive">{String(create.error)}</p>}
         </div>
       </div>

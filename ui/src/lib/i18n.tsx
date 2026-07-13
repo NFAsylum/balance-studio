@@ -59,6 +59,42 @@ const EN: Dict = {
   // controls
   toggleTheme: "Toggle dark mode",
   language: "Language",
+  // editor
+  step_domain: "Domain & template",
+  templateLabel: "Template",
+  startBlank: "Start blank",
+  step_fields: "Fields",
+  step_constraints: "Cross-field & set rules",
+  step_intent: "Generation intent",
+  step_details: "Details",
+  livePreview: "Live preview",
+  layoutStyle: "layout style",
+  defaultList: "Default (list)",
+  customVariants: "Custom variants",
+  pickDomainPreview: "Pick a domain to preview.",
+  preview1: "Preview 1 entity",
+  tryAgain: "Try again",
+  generating: "generating…",
+  reset: "Reset",
+  generatedPreview: "generated preview",
+  fixInvalid: "Fix invalid fields before creating.",
+  generateAndCreate: "Generate {n} & create",
+  addField: "Add field",
+  addConstraint: "Add constraint",
+  entitiesCount: "Entities: {n}",
+  themeBrief: "Theme brief",
+  designerReceives: "The Designer will receive:",
+  nothingYet: "(nothing yet)",
+  // hero
+  heroTitle: "Balance any game, collaboratively",
+  heroBody:
+    "Design entities with an LLM, simulate them deterministically, and tune for balance — card games, RPG bestiaries, or team rosters. Same engine, swap the plugin.",
+  trySample: "Try a sample card game",
+  buildingExample: "building example…",
+  startScratch: "Start from scratch",
+  // board
+  rawJson: "raw JSON",
+  hideRaw: "hide raw",
 };
 
 const PT: Dict = {
@@ -108,6 +144,42 @@ const PT: Dict = {
   // controls
   toggleTheme: "Alternar modo escuro",
   language: "Idioma",
+  // editor
+  step_domain: "Domínio & template",
+  templateLabel: "Template",
+  startBlank: "Começar do zero",
+  step_fields: "Campos",
+  step_constraints: "Regras entre campos & de conjunto",
+  step_intent: "Intenção de geração",
+  step_details: "Detalhes",
+  livePreview: "Prévia ao vivo",
+  layoutStyle: "estilo de layout",
+  defaultList: "Padrão (lista)",
+  customVariants: "Variantes customizadas",
+  pickDomainPreview: "Escolha um domínio para pré-visualizar.",
+  preview1: "Pré-visualizar 1 entidade",
+  tryAgain: "Tentar de novo",
+  generating: "gerando…",
+  reset: "Limpar",
+  generatedPreview: "prévia gerada",
+  fixInvalid: "Corrija os campos inválidos antes de criar.",
+  generateAndCreate: "Gerar {n} & criar",
+  addField: "Adicionar campo",
+  addConstraint: "Adicionar restrição",
+  entitiesCount: "Entidades: {n}",
+  themeBrief: "Brief temático",
+  designerReceives: "O Designer vai receber:",
+  nothingYet: "(nada ainda)",
+  // hero
+  heroTitle: "Balanceie qualquer jogo, de forma colaborativa",
+  heroBody:
+    "Projete entidades com um LLM, simule de forma determinística e ajuste o balanceamento — card games, bestiários de RPG ou composições de time. Mesmo motor, troca o plugin.",
+  trySample: "Testar um card game de exemplo",
+  buildingExample: "montando exemplo…",
+  startScratch: "Começar do zero",
+  // board
+  rawJson: "JSON bruto",
+  hideRaw: "ocultar bruto",
 };
 
 const DICTS: Record<Locale, Dict> = { en: EN, pt: PT };

@@ -23,6 +23,9 @@ export interface ViewMeta {
   name: string; // human label for the dropdown
   domain: string | "*"; // applicable domain, or "*" for any
   defaultMapping?: Record<string, string>;
+  /** Developer template shipped as a copy-me reference (writing-a-view tutorial). Kept in the
+   * registry but hidden from the end-user layout picker. */
+  example?: boolean;
 }
 
 /** A registered view: metadata + its component. */

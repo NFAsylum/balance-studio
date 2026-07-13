@@ -12,6 +12,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EntityEditor } from "@/components/EntityEditor";
 import { MetricsPanel, type Freshness, type MetricResult } from "@/components/MetricsPanel";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { DEFAULT_VIEW, getViewById } from "@/domain-views/registry";
+import { SafeView } from "@/domain-views/SafeView";
 
 const PHASES = ["design", "simulate", "judge", "iterate"] as const;
 type Phase = (typeof PHASES)[number];
@@ -39,12 +41,6 @@ export default function ScenarioPage() {
   const { t } = useT();
   const scenario = useQuery({ queryKey: ["scenario", id], queryFn: () => api.getScenario(id) });
   const metrics = useMetrics(id, scenario.data?.head_seq ?? 0);
-  const domain = scenario.data?.scenario.domain;
-  const schema = useQuery({
-    queryKey: ["schema", domain],
-    queryFn: () => api.getSchema(domain!) as Promise<EntitySchema>,
-    enabled: !!domain,
-  });
 
   const iterate = usePhaseMutation(id);
 
@@ -53,6 +49,10 @@ export default function ScenarioPage() {
 
   const data = scenario.data!;
   const entities = Object.entries(data.entities);
+  // The backend already returns the scenario's *effective* schema (plugin + overrides) and the
+  // chosen visual_variant — render each entity as its design, not raw JSON.
+  const schema = data.schema as EntitySchema;
+  const variant = data.scenario.visual_variant ?? null;
 
   return (
     <div className="flex flex-col gap-6">
@@ -107,7 +107,7 @@ export default function ScenarioPage() {
         ) : (
           <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {entities.map(([eid, entity]) => (
-              <EntityCard key={eid} scenarioId={id} entityId={eid} entity={entity} schema={schema.data} />
+              <EntityCard key={eid} scenarioId={id} entityId={eid} entity={entity} schema={schema} variant={variant} />
             ))}
           </section>
         )}
@@ -127,21 +127,25 @@ function usePhaseMutation(id: string) {
   });
 }
 
-/** One entity: read-only summary that flips into the schema-driven EntityEditor on demand. */
+/** One entity: rendered as its domain view (falls back to the default list view), with a raw-JSON
+ * toggle, flipping into the schema-driven EntityEditor on demand. */
 function EntityCard({
   scenarioId,
   entityId,
   entity,
   schema,
+  variant,
 }: {
   scenarioId: string;
   entityId: string;
   entity: Record<string, unknown>;
   schema?: EntitySchema;
+  variant?: string | null;
 }) {
   const { t } = useT();
   const qc = useQueryClient();
   const [editing, setEditing] = React.useState(false);
+  const [showRaw, setShowRaw] = React.useState(false);
   const [draft, setDraft] = React.useState<EntityValue>(entity);
 
   const save = useMutation({
@@ -183,7 +187,23 @@ function EntityCard({
             </div>
           </div>
         ) : (
-          <pre className="overflow-x-auto text-xs text-muted-foreground">{JSON.stringify(entity, null, 1)}</pre>
+          <div className="flex flex-col gap-2">
+            {schema ? (
+              <SafeView view={getViewById(variant ?? "") ?? DEFAULT_VIEW} entity={entity} schema={schema} />
+            ) : (
+              <pre className="overflow-x-auto text-xs text-muted-foreground">{JSON.stringify(entity, null, 1)}</pre>
+            )}
+            <button
+              type="button"
+              onClick={() => setShowRaw((v) => !v)}
+              className="self-start text-[10px] uppercase tracking-wide text-muted-foreground hover:text-foreground"
+            >
+              {showRaw ? t("hideRaw") : t("rawJson")}
+            </button>
+            {showRaw && (
+              <pre className="overflow-x-auto text-xs text-muted-foreground">{JSON.stringify(entity, null, 1)}</pre>
+            )}
+          </div>
         )}
       </CardContent>
     </Card>

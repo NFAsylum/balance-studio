@@ -2,6 +2,7 @@
 import * as React from "react";
 import { ChevronDown, ChevronUp, Plus, Trash2 } from "lucide-react";
 import type { FieldKind, FieldSpec } from "@/lib/schema";
+import { useT } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -37,6 +38,7 @@ function coerceKind(f: FieldSpec, kind: FieldKind): FieldSpec {
 }
 
 export function FieldBuilder({ fields, onChange }: { fields: FieldSpec[]; onChange: (fields: FieldSpec[]) => void }) {
+  const { t } = useT();
   const patch = (i: number, p: Partial<FieldSpec>) =>
     onChange(fields.map((f, j) => (j === i ? { ...f, ...p, origin: "user" } : f)));
   const setKind = (i: number, kind: FieldKind) => onChange(fields.map((f, j) => (j === i ? coerceKind(f, kind) : f)));
@@ -86,7 +88,7 @@ export function FieldBuilder({ fields, onChange }: { fields: FieldSpec[]; onChan
           {fieldError(fields, i) && <p className="mt-1 text-xs text-destructive">{fieldError(fields, i)}</p>}
         </div>
       ))}
-      <Button size="sm" variant="outline" onClick={add}><Plus className="mr-1 h-4 w-4" /> Add field</Button>
+      <Button size="sm" variant="outline" onClick={add}><Plus className="mr-1 h-4 w-4" /> {t("addField")}</Button>
     </div>
   );
 }
