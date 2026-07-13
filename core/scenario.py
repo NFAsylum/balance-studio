@@ -17,6 +17,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
+from core.entity_schema import EntitySchema
 from core.objectives import Objective
 from core.paths import safe_under, validate_id
 
@@ -58,6 +59,20 @@ class Scenario(BaseModel):
     objectives: list[Objective] = Field(default_factory=list)
     head_event_seq: int = 0
     current_branch: str = MAIN_BRANCH
+    preset_id: str | None = None  # which preset this scenario was created from (if any)
+    schema_overrides: dict[str, Any] = Field(default_factory=dict)  # user edits on top of the plugin schema
+    visual_variant: str | None = None  # which UI view renders the entities (Level 2.5)
+
+    def effective_schema(self, registry: Any) -> EntitySchema:
+        """The schema the scenario actually runs on: the plugin's, with user overrides applied.
+
+        ``registry`` is any object exposing ``get(domain) -> simulator`` (duck-typed so core
+        stays decoupled from the API registry). Raises ``KeyError`` if the domain is unknown.
+        """
+        simulator = registry.get(self.domain)
+        if simulator is None:
+            raise KeyError(f"unknown domain: {self.domain!r}")
+        return simulator.entity_schema().with_overrides(self.schema_overrides)
 
 
 class EventLog:
