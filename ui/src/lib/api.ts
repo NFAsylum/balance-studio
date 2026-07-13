@@ -1,7 +1,24 @@
 /** Thin client for the Balance Studio API. Base URL from NEXT_PUBLIC_API_URL. */
 
+import type { EntitySchema } from "./schema";
+
 export const API_BASE =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+
+/** A field-override op list, applied on top of a plugin schema (see EntitySchema.with_overrides). */
+export type SchemaOverrides = { fields?: Array<Record<string, unknown>> };
+
+export type Preset = {
+  id: string;
+  name: string;
+  domain: string;
+  description: string;
+  schema_overrides: SchemaOverrides;
+  default_constraints: Array<Record<string, unknown>>;
+  default_objectives: Objective[];
+  default_visual_variant: string | null;
+  sim_config: Record<string, unknown>;
+};
 
 export type Scenario = {
   id: string;
@@ -52,11 +69,22 @@ export const api = {
     request<{
       scenario: Scenario;
       entities: Record<string, Record<string, unknown>>;
+      schema: EntitySchema;
       head_seq: number;
       at_seq: number;
     }>(`/scenarios/${id}${atSeq != null ? `?at_seq=${atSeq}` : ""}`),
-  createScenario: (body: { domain: string; name: string; brief: string; n_entities: number }) =>
-    request<Scenario>("/scenarios", { method: "POST", body: JSON.stringify(body) }),
+  createScenario: (body: {
+    domain: string;
+    name: string;
+    brief: string;
+    n_entities: number;
+    preset_id?: string | null;
+    schema_overrides?: SchemaOverrides;
+    visual_variant?: string | null;
+  }) => request<Scenario>("/scenarios", { method: "POST", body: JSON.stringify(body) }),
+  listPresets: (domain?: string) =>
+    request<{ presets: Preset[] }>(`/presets${domain ? `?domain=${encodeURIComponent(domain)}` : ""}`),
+  getPreset: (id: string) => request<Preset>(`/presets/${encodeURIComponent(id)}`),
   editEntity: (id: string, entityId: string, entity: Record<string, unknown>) =>
     request<EntityEvent>(`/scenarios/${id}/entities/${encodeURIComponent(entityId)}`, {
       method: "PATCH",
