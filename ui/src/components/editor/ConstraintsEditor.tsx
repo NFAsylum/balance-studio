@@ -2,13 +2,16 @@
 import * as React from "react";
 import { Plus, Trash2 } from "lucide-react";
 import type { Constraint, ConstraintKind } from "@/lib/api";
+import { useT } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-/** Edit design-time constraints (the 5 ConstraintEngine kinds). Violations against the sample
- * entity are surfaced by the parent via `violations`. */
+/** Edit cross-field & set-level constraints (the ConstraintEngine kinds). A single field's
+ * numeric bounds live on the field itself (see FieldBuilder), so `range` is not offered here as a
+ * new constraint — it only renders when an existing preset carries one. Violations against the
+ * sample entity are surfaced by the parent via `violations`. */
 
-const KINDS: ConstraintKind[] = ["range", "sum_of_fields", "forbidden_combo", "required_tag", "unique_across_set"];
+const KINDS: ConstraintKind[] = ["sum_of_fields", "forbidden_combo", "required_tag", "unique_across_set"];
 
 const BLANK: Record<ConstraintKind, () => Constraint> = {
   range: () => ({ kind: "range", params: { field: "", min: 0, max: 10 } }),
@@ -30,10 +33,14 @@ export function ConstraintsEditor({
   onChange: (c: Constraint[]) => void;
   violations?: string[];
 }) {
+  const { t } = useT();
   const setParam = (i: number, key: string, value: unknown) =>
     onChange(constraints.map((c, j) => (j === i ? { ...c, params: { ...c.params, [key]: value } } : c)));
   const setKind = (i: number, kind: ConstraintKind) => onChange(constraints.map((c, j) => (j === i ? BLANK[kind]() : c)));
   const remove = (i: number) => onChange(constraints.filter((_, j) => j !== i));
+  // Offer the standard kinds plus whatever kind a row already has (e.g. a preset's legacy `range`).
+  const kindOptions = (current: ConstraintKind): ConstraintKind[] =>
+    KINDS.includes(current) ? KINDS : [current, ...KINDS];
 
   return (
     <div className="flex flex-col gap-2" data-testid="constraints-editor">
@@ -46,7 +53,7 @@ export function ConstraintsEditor({
               value={c.kind}
               onChange={(e) => setKind(i, e.target.value as ConstraintKind)}
             >
-              {KINDS.map((k) => <option key={k} value={k}>{k}</option>)}
+              {kindOptions(c.kind).map((k) => <option key={k} value={k}>{k}</option>)}
             </select>
             <button type="button" aria-label={`remove constraint ${i}`} className="ml-auto text-muted-foreground hover:text-destructive" onClick={() => remove(i)}>
               <Trash2 className="h-4 w-4" />
@@ -55,8 +62,8 @@ export function ConstraintsEditor({
           <Params c={c} onParam={(k, v) => setParam(i, k, v)} />
         </div>
       ))}
-      <Button size="sm" variant="outline" onClick={() => onChange([...constraints, BLANK.range()])}>
-        <Plus className="mr-1 h-4 w-4" /> Add constraint
+      <Button size="sm" variant="outline" onClick={() => onChange([...constraints, BLANK.sum_of_fields()])}>
+        <Plus className="mr-1 h-4 w-4" /> {t("addConstraint")}
       </Button>
       {violations.length > 0 && (
         <div className="rounded-md bg-destructive/10 p-2 text-xs text-destructive" data-testid="constraint-violations">

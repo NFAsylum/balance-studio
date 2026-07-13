@@ -32,6 +32,7 @@ export type Scenario = {
   objectives: Objective[];
   head_event_seq: number;
   current_branch: string;
+  visual_variant?: string | null;
 };
 
 export type Objective = {

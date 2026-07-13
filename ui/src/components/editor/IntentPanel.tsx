@@ -1,9 +1,11 @@
 "use client";
 import * as React from "react";
-import { Slider } from "@/components/ui/slider";
+import { useT } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 
-/** Generation intent: four 3-position sliders + a free-text theme brief. The values translate
- * into plain-language modifiers appended to the Designer brief (FASE 4 refines the prompt). */
+/** Generation intent: four 3-choice segmented controls + a free-text theme brief. The values
+ * translate into plain-language modifiers appended to the Designer brief (FASE 4 refines the
+ * prompt). A segmented control reads clearer than a 3-stop slider and responds on click. */
 
 export type Intent = {
   power: number; // 0 weak · 1 average · 2 strong
@@ -36,20 +38,38 @@ export function composeBrief(intent: Intent): string {
 }
 
 export function IntentPanel({ intent, onChange }: { intent: Intent; onChange: (i: Intent) => void }) {
+  const { t } = useT();
   const set = (k: keyof Intent, v: number | string) => onChange({ ...intent, [k]: v });
   return (
     <div className="flex flex-col gap-3" data-testid="intent-panel">
-      {(Object.keys(LABELS) as (keyof typeof LABELS)[]).map((k) => (
-        <label key={k} className="flex flex-col gap-1 text-sm">
-          <span className="flex justify-between">
-            <span>{LABELS[k][0]}</span>
-            <span className="text-xs text-muted-foreground">{LABELS[k][1][intent[k]]}</span>
-          </span>
-          <Slider aria-label={LABELS[k][0]} min={0} max={2} step={1} value={[intent[k]]} onValueChange={(v) => set(k, v[0])} />
-        </label>
-      ))}
+      {(Object.keys(LABELS) as (keyof typeof LABELS)[]).map((k) => {
+        const [label, options] = LABELS[k];
+        return (
+          <div key={k} className="flex flex-col gap-1 text-sm">
+            <span>{label}</span>
+            <div role="radiogroup" aria-label={label} className="flex rounded-md border border-input p-0.5">
+              {options.map((opt, i) => (
+                <button
+                  key={opt}
+                  type="button"
+                  role="radio"
+                  aria-checked={intent[k] === i}
+                  aria-label={`${label}: ${opt}`}
+                  onClick={() => set(k, i)}
+                  className={cn(
+                    "flex-1 rounded px-2 py-1 text-xs capitalize transition-colors",
+                    intent[k] === i ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"
+                  )}
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      })}
       <label className="flex flex-col gap-1 text-sm">
-        Theme brief
+        {t("themeBrief")}
         <textarea
           aria-label="theme brief"
           className="min-h-[56px] rounded-md border border-input bg-background px-3 py-1.5 text-sm"
@@ -59,7 +79,7 @@ export function IntentPanel({ intent, onChange }: { intent: Intent; onChange: (i
         />
       </label>
       <div className="rounded-md bg-muted p-2 text-xs text-muted-foreground">
-        The Designer will receive: <span className="italic">{composeBrief(intent) || "(nothing yet)"}</span>
+        {t("designerReceives")} <span className="italic">{composeBrief(intent) || t("nothingYet")}</span>
       </div>
     </div>
   );

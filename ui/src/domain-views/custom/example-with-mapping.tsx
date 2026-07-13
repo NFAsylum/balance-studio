@@ -13,6 +13,7 @@ export const meta: ViewMeta = {
   name: "Stat Tile (example)",
   domain: "*",
   defaultMapping: { ...DEFAULT_MAPPING },
+  example: true, // demo template — hidden from the end-user layout picker
 };
 
 export default function StatTileExample({ entity, size = "md", mapping }: EntityViewProps) {

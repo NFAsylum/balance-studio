@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { useT } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 
 /** First-run onboarding — a non-empty landing with two clear CTAs, so the app never opens on a
@@ -12,6 +13,7 @@ import { Button } from "@/components/ui/button";
 export function Hero({ hasCardGame }: { hasCardGame: boolean }) {
   const router = useRouter();
   const qc = useQueryClient();
+  const { t } = useT();
 
   const tryExample = useMutation({
     mutationFn: async () => {
@@ -38,19 +40,16 @@ export function Hero({ hasCardGame }: { hasCardGame: boolean }) {
       className="flex flex-col items-center gap-4 rounded-xl border border-border bg-card p-10 text-center"
     >
       <span className="text-4xl">⚖️</span>
-      <h2 className="text-2xl font-bold sm:text-3xl">Balance any game, collaboratively</h2>
-      <p className="max-w-xl text-sm text-muted-foreground">
-        Design entities with an LLM, simulate them deterministically, and tune for balance — card
-        games, RPG bestiaries, or team rosters. Same engine, swap the plugin.
-      </p>
+      <h2 className="text-2xl font-bold sm:text-3xl">{t("heroTitle")}</h2>
+      <p className="max-w-xl text-sm text-muted-foreground">{t("heroBody")}</p>
       <div className="flex flex-wrap justify-center gap-3">
         {hasCardGame && (
           <Button disabled={tryExample.isPending} onClick={() => tryExample.mutate()}>
-            {tryExample.isPending ? "building example…" : "Try a sample card game"}
+            {tryExample.isPending ? t("buildingExample") : t("trySample")}
           </Button>
         )}
         <Button asChild variant="outline">
-          <Link href="/scenarios/new">Start from scratch</Link>
+          <Link href="/scenarios/new">{t("startScratch")}</Link>
         </Button>
       </div>
       {tryExample.isError && <p className="text-xs text-destructive">{String(tryExample.error)}</p>}
