@@ -1,0 +1,133 @@
+{
+ "id": "cover-firefight",
+ "name": "Cover Firefight",
+ "domain": "creature_rpg",
+ "description": "Inspired by cover-based shooters like Gears of War. Reinterprets `creature_rpg` as loadout-vs-hostiles: 4 diverse weapons (rapid-fire lancer, close-burst gnasher, precision longshot, devastating heavy) fighting Locust-flavored threats (grunt drone, fragile-rusher wretch, tank-lobbing boomer). Explore: does any weapon become mandatory (kills niche design)? Is the heavy overpowered given its fragility trade-off? Which threat trivializes which weapon?",
+ "schema_overrides": {
+  "fields": [
+   {
+    "name": "hp",
+    "range": [
+     15,
+     220
+    ],
+    "description": "Reliability / effective range (weapon) or health (threat)"
+   },
+   {
+    "name": "atk",
+    "range": [
+     30,
+     160
+    ],
+    "description": "Damage per engagement"
+   },
+   {
+    "name": "defense",
+    "range": [
+     10,
+     110
+    ],
+    "description": "Handling stability (weapon) or armor (threat)"
+   }
+  ]
+ },
+ "default_constraints": [],
+ "default_objectives": [
+  {
+   "metric_name": "winrate_std",
+   "direction": "minimize",
+   "weight": 1.0
+  }
+ ],
+ "default_visual_variant": "creature_rpg.default",
+ "examples": [
+  {
+   "name": "Lancer AR",
+   "type": "electric",
+   "hp": 110,
+   "atk": 60,
+   "defense": 65,
+   "skills": [
+    "sustained-fire",
+    "chainsaw-bayonet"
+   ],
+   "resistances": {
+    "shadow": 0.7
+   }
+  },
+  {
+   "name": "Gnasher Shotgun",
+   "type": "fire",
+   "hp": 55,
+   "atk": 115,
+   "defense": 35,
+   "skills": [
+    "point-blank-blast",
+    "active-reload"
+   ],
+   "resistances": {}
+  },
+  {
+   "name": "Longshot Sniper",
+   "type": "ice",
+   "hp": 40,
+   "atk": 145,
+   "defense": 25,
+   "skills": [
+    "headshot",
+    "scope-shift"
+   ],
+   "resistances": {
+    "wind": 0.6
+   }
+  },
+  {
+   "name": "Hammer of Dawn",
+   "type": "electric",
+   "hp": 20,
+   "atk": 155,
+   "defense": 15,
+   "skills": [
+    "orbital-strike"
+   ],
+   "resistances": {}
+  },
+  {
+   "name": "Grunt Drone",
+   "type": "shadow",
+   "hp": 100,
+   "atk": 55,
+   "defense": 55,
+   "skills": [
+    "rifle-volley",
+    "cover-hop"
+   ],
+   "resistances": {}
+  },
+  {
+   "name": "Wretch",
+   "type": "rock",
+   "hp": 45,
+   "atk": 45,
+   "defense": 20,
+   "skills": [
+    "leap-attack"
+   ],
+   "resistances": {}
+  },
+  {
+   "name": "Boomer",
+   "type": "fire",
+   "hp": 200,
+   "atk": 105,
+   "defense": 75,
+   "skills": [
+    "grenade-lob",
+    "boom-shot"
+   ],
+   "resistances": {
+    "fire": 0.6
+   }
+  }
+ ]
+}

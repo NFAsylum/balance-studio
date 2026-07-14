@@ -56,6 +56,14 @@ async def lifespan(app: FastAPI):
         hats.iterator,
     )
     logger.info("domains loaded: %s | LLM backend: %s", registry.names(), os.getenv("LLM_BACKEND", "fake"))
+    # Seed the starter gallery on a fresh store (opt-in via SEED_STARTERS=1 so the test suite,
+    # which assumes an empty store, is unaffected). Idempotent: no-op when scenarios already exist.
+    if os.getenv("SEED_STARTERS", "0") == "1":
+        from scripts.seed_starter_scenarios import seed_starter_scenarios
+
+        created = seed_starter_scenarios(services.event_log, registry)
+        if created:
+            logger.info("seeded %d starter scenario(s)", len(created))
     yield
 
 

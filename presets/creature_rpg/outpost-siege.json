@@ -1,0 +1,121 @@
+{
+ "id": "outpost-siege",
+ "name": "Outpost Siege",
+ "domain": "creature_rpg",
+ "description": "Inspired by survival-horror shooters like Resident Evil. Reinterprets `creature_rpg` as arsenal-vs-hostiles: weapons (glass-cannon shotgun, balanced rifle, durable pistol) fighting zombie types (fodder shambler, fast rusher, armored crawler). Explore: does shotgun dominate fodder while losing to armored? Is rifle a boring generalist? Which weapon dies first in ammo-constrained sim?",
+ "schema_overrides": {
+  "fields": [
+   {
+    "name": "hp",
+    "range": [
+     20,
+     220
+    ],
+    "description": "Durability / magazine size (weapon) or health pool (zombie)"
+   },
+   {
+    "name": "atk",
+    "range": [
+     20,
+     150
+    ],
+    "description": "Damage per shot (weapon) or bite damage (zombie)"
+   },
+   {
+    "name": "defense",
+    "range": [
+     10,
+     110
+    ],
+    "description": "Recoil control / handling (weapon) or armor (zombie)"
+   }
+  ]
+ },
+ "default_constraints": [],
+ "default_objectives": [
+  {
+   "metric_name": "winrate_std",
+   "direction": "minimize",
+   "weight": 1.0
+  }
+ ],
+ "default_visual_variant": "creature_rpg.default",
+ "examples": [
+  {
+   "name": "Pistol M9",
+   "type": "electric",
+   "hp": 140,
+   "atk": 45,
+   "defense": 75,
+   "skills": [
+    "aimed-shot",
+    "quick-tap"
+   ],
+   "resistances": {
+    "rock": 0.7
+   }
+  },
+  {
+   "name": "Riot Shotgun",
+   "type": "fire",
+   "hp": 45,
+   "atk": 120,
+   "defense": 30,
+   "skills": [
+    "buckshot-spread",
+    "point-blank"
+   ],
+   "resistances": {}
+  },
+  {
+   "name": "Service Rifle",
+   "type": "wind",
+   "hp": 90,
+   "atk": 70,
+   "defense": 60,
+   "skills": [
+    "full-auto-burst",
+    "single-tap"
+   ],
+   "resistances": {
+    "shadow": 0.8
+   }
+  },
+  {
+   "name": "Shambler",
+   "type": "rock",
+   "hp": 70,
+   "atk": 30,
+   "defense": 25,
+   "skills": [
+    "slow-grab"
+   ],
+   "resistances": {}
+  },
+  {
+   "name": "Horde Rusher",
+   "type": "wind",
+   "hp": 50,
+   "atk": 55,
+   "defense": 15,
+   "skills": [
+    "leaping-bite"
+   ],
+   "resistances": {}
+  },
+  {
+   "name": "Armored Crawler",
+   "type": "rock",
+   "hp": 210,
+   "atk": 40,
+   "defense": 100,
+   "skills": [
+    "shell-slam"
+   ],
+   "resistances": {
+    "fire": 0.5,
+    "electric": 0.6
+   }
+  }
+ ]
+}

@@ -1,13 +1,20 @@
 # Balance Studio
 
-A generic, LLM-collaborative **balancing framework**. Point it at any domain — a card game,
-an RPG bestiary, a team roster — and get schema-driven entities, deterministic simulation,
-objective + subjective metrics, an event-sourced history you can branch and time-travel, and
-three LLM "hats" (designer / judge / iterator) that co-edit the same state alongside you.
+A **playground for exploring game-balance ideas** with an LLM in the loop. Point it at a card
+game or a creature RPG, and get schema-driven entities, deterministic simulation, objective +
+subjective metrics, an event-sourced history you can branch and time-travel, and three LLM
+"hats" (designer / judge / iterator) that co-edit the same state alongside you.
+
+It is a **pre-playtest sanity check**, not a production balancing tool: it helps you eliminate
+gross outliers in a simplified model *before* you commit other people's time to a playtest — the
+first ~15% of the work, not the human judgement that follows. See
+[What Balance is (and isn't)](#what-balance-is-and-isnt).
 
 > **Framework, not a vertical tool.** A card game with 10 units? A creature RPG with 100
-> monsters? Staffing 50 people across a workload? Same core, same UI — you swap a **~400-line
-> plugin**, not the engine. The `core/` (≈2.5k LOC) is ~6× the size of any one domain plugin.
+> monsters? Same core, same UI — you swap a **~400-line plugin**, not the engine. The `core/`
+> (≈2.5k LOC) is ~6× the size of any one domain plugin. A `team_composition` plugin ships too,
+> purely as proof the core is genre-agnostic — see the honesty note below; it is not a staffing
+> tool.
 
 ## Legal
 
@@ -18,11 +25,15 @@ publisher. Trademarks referenced in comparative descriptions belong to their res
 
 ## The problem
 
-"Is this balanced?" is the same question across games, teams, and product portfolios, but the
-tooling is always rebuilt from scratch and vertical. Balance Studio makes the *loop* generic —
+"Is this balanced?" is a question a designer asks constantly — of a card set, a creature roster,
+and (with the encounter blueprint on the roadmap) an FPS/survival encounter — but the tooling is
+usually rebuilt from scratch and vertical. Balance Studio makes the *loop* generic —
 **brief → LLM designs → simulate → metrics + LLM judge → propose changes → repeat** — while
 keeping the credible part (simulation) LLM-free and deterministic, so "won 62% of matches" is
-ground truth, not an opinion.
+ground truth, not an opinion. It sits alongside modelling tools like
+[Machinations](https://machinations.io/) and [Ludii](https://ludii.games/) in the game-systems
+space, with the specific bet that an LLM can propose and critique candidate designs inside the
+loop.
 
 ## Does the loop actually balance?
 
@@ -40,15 +51,43 @@ the process surfaced a real finding: naive "change everything" passes *raise* im
 combat domains (non-linear stat→outcome), so the Iterator is capped to a few targeted edits.
 Full methodology, the negative first attempt, and the diagnosis: [`docs/experiments.md`](docs/experiments.md).
 
+## What Balance is (and isn't)
+
+**It is** a pre-playtest sanity check. Before you hand a card set or a creature roster to real
+players, Balance Studio simulates thousands of deterministic matches and flags the gross outliers
+— the 5-cost card that wins 80% of the time, the type that dominates the matchup ring. That is
+the cheap, mechanical first pass that lets human playtesting start from a saner baseline.
+
+**It is** a playground for balance hypotheses. Because the loop is generic and every change is an
+event you can branch and replay, it is a low-stakes place to ask "what if attack scaled
+differently?" and *see* the effect on win-rate dispersion, tier emergence, and variety — with an
+LLM proposing and critiquing candidates alongside you.
+
+**It is** a framework demo across genres. The same core drives card games and creature RPGs today,
+with an encounter (FPS/survival) blueprint on the roadmap. A `team_composition` plugin also ships
+— but only to prove the core is genre-agnostic (a ~400-line plugin models a whole new domain), not
+because it is a useful tool for real staffing.
+
+**It isn't** a production balancing tool for a shipped game, a substitute for playtesting with
+humans, or a way to make team/management or product-prioritisation decisions. Its simulators are
+deliberately simplified models; they surface *relative* imbalance in that model, not ground truth
+about a real, released product or a real team of people. Treat its output as a hypothesis to test,
+not a verdict.
+
 ## What's in the box
 
-Three working domains, all on the same infrastructure:
+Two game domains plus one genre-agnostic demo, all on the same infrastructure:
 
 | Domain | Entity | Simulation | Domain metrics |
 |---|---|---|---|
 | **card_game** | `Unit` (cost/hp/damage/ability) | turn-based 1v1, seeded | win-rate, Elo, TTK |
 | **creature_rpg** | `Creature` (type/stats/skills/resistances) | gauntlet + tournament, type-matchup | tier emergence, dominance, usage coverage |
-| **team_composition** | `Person` (seniority/skills) | probabilistic workload completion | skill coverage, redundancy, single points of failure |
+| `team_composition` | `Person` (seniority/skills) | probabilistic workload completion | skill coverage, redundancy, single points of failure |
+
+The two **bold** domains are the ones Balance is actually for. `team_composition` is a
+generality demo — it exercises the same plugin interface with a non-game model to show the core
+is not card-game-specific; its workload simulator is far too linear to stand in for real team
+dynamics.
 
 ## Architecture
 
@@ -115,11 +154,14 @@ scrubber · branch diff.
 ```bash
 # backend (discovers every domain in domains/)
 poetry install
-poetry run uvicorn api.main:app --port 8000
+SEED_STARTERS=1 poetry run uvicorn api.main:app --port 8000   # seeds a starter gallery on an empty store
 
 # frontend
 cd ui && pnpm install && pnpm dev      # http://localhost:3000
 ```
+
+On a fresh store, `SEED_STARTERS=1` pre-loads a curated [starter gallery](docs/starter-scenarios.md)
+so the app opens on real scenarios instead of an empty state (idempotent; off by default).
 
 LLM backend via `.env` (`LLM_BACKEND=fake` needs nothing; `local` needs `LOCAL_LLM_URL` to an
 OpenAI-compatible server). Cache backend via `CACHE_BACKEND=disk|redis`.
