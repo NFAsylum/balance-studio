@@ -60,6 +60,47 @@ class OpenAIJsonChat:
         return parse_json(response.choices[0].message.content or "")
 
 
+# -- local model detection (for /health) ----------------------------------
+
+_MODEL_CACHE: dict[str, tuple[float, str | None]] = {}  # url -> (monotonic_ts, model_id|None)
+_MODEL_CACHE_TTL = 30.0  # seconds — /health must not hit the server on every request
+
+
+def detect_local_model(timeout: float = 2.0) -> str | None:
+    """The model id the local server actually has loaded, or None if unset/unreachable.
+
+    llama-server serves whatever model is loaded regardless of the requested name, so the env
+    hint (``LOCAL_LLM_MODEL``) can lie. This asks the server directly (``GET /v1/models``) and
+    caches the answer per URL for ``_MODEL_CACHE_TTL`` seconds. A short timeout keeps ``/health``
+    from hanging when the server is down.
+    """
+    import time
+
+    url = os.getenv("LOCAL_LLM_URL")
+    if not url:
+        return None
+
+    now = time.monotonic()
+    cached = _MODEL_CACHE.get(url)
+    if cached is not None and now - cached[0] < _MODEL_CACHE_TTL:
+        return cached[1]
+
+    base = url.rstrip("/")
+    models_url = f"{base}/models" if base.endswith("/v1") else f"{base}/v1/models"
+    try:
+        import httpx
+
+        resp = httpx.get(models_url, timeout=timeout)
+        resp.raise_for_status()
+        data = resp.json().get("data") or []
+        model_id = data[0].get("id") if data else None
+    except Exception:  # noqa: BLE001 - any failure (network, timeout, shape) => unreachable
+        model_id = None
+
+    _MODEL_CACHE[url] = (now, model_id)
+    return model_id
+
+
 # -- Anthropic API --------------------------------------------------------
 
 

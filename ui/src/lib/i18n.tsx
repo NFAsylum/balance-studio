@@ -95,6 +95,11 @@ const EN: Dict = {
   // board
   rawJson: "raw JSON",
   hideRaw: "hide raw",
+  // model status chip
+  chipLoading: "checking…",
+  chipOffline: "backend offline",
+  chipOfflineTip: "The API is not responding. Start the backend (uvicorn) and check NEXT_PUBLIC_API_URL.",
+  chipTip: "LLM backend: {backend} · Model: {model} · To switch, edit .env and restart the backend.",
 };
 
 const PT: Dict = {
@@ -180,6 +185,11 @@ const PT: Dict = {
   // board
   rawJson: "JSON bruto",
   hideRaw: "ocultar bruto",
+  // model status chip
+  chipLoading: "verificando…",
+  chipOffline: "backend offline",
+  chipOfflineTip: "A API não está respondendo. Suba o backend (uvicorn) e verifique NEXT_PUBLIC_API_URL.",
+  chipTip: "Backend LLM: {backend} · Modelo: {model} · Para trocar, edite .env e reinicie o backend.",
 };
 
 const DICTS: Record<Locale, Dict> = { en: EN, pt: PT };
