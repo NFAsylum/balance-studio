@@ -66,7 +66,16 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+export type Health = {
+  status: string;
+  backend_llm: string;
+  llm_model: string;
+  domains_loaded: string[];
+  event_log_ready: boolean;
+};
+
 export const api = {
+  health: () => request<Health>("/health"),
   listDomains: () => request<{ domains: string[] }>("/domains"),
   listScenarios: () => request<{ scenarios: Scenario[] }>("/scenarios"),
   getScenario: (id: string, atSeq?: number) =>

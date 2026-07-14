@@ -4,6 +4,7 @@ import { Moon, Sun } from "lucide-react";
 import { useTheme } from "@/lib/theme";
 import { useT, type Locale } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
+import { ModelStatusChip } from "@/components/model-status-chip";
 
 /** App header: brand, tagline, dark-mode toggle, language switch. */
 export function SiteHeader() {
@@ -21,6 +22,7 @@ export function SiteHeader() {
         </div>
 
         <div className="flex items-center gap-2">
+          <ModelStatusChip />
           <LocaleSwitch locale={locale} onChange={setLocale} label={t("language")} />
           <Button
             variant="ghost"
